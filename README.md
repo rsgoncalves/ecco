@@ -41,10 +41,18 @@ usage
 
 The standard output of *ecco* is an XML file representing the change set. 
 With the **-t** flag, *ecco* will transform this XML file into HTML. If an output 
-directory is not specified (via **-o**), the HTML file is saved in the **_/out_** (or **_\out_**) folder, which 
+directory is not specified (via **-o**), the HTML file is saved in the **_/out_** (or **_\out_** in Windows) folder, which 
 contains the required files for appropriate rendering on a Web browser.
 
-For a more verbose (yet compact) progress monitoring, use the **-v** flag.
+For a more informative progress monitoring, use the **-v** flag.
+
+
+after downloading
+--------------------
+In order to run properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
+This library, denoted '*FaCT++ version 1.6.2; precompiled [OS] binaries*' should be obtained from [here](https://code.google.com/p/factplusplus/downloads/list).
+Afterwards, the *single* appropriate file (in Windows a **.dll**, in Linux a **.so**, or in Mac OS X a **.jnlib** file) should
+be moved into the **_lib_** folder.
 
 
 future plans
