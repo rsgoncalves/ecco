@@ -42,9 +42,7 @@ usage
 The standard output of *ecco* is an XML file representing the change set. 
 With the **-t** flag, *ecco* will transform this XML file into HTML. If an output 
 directory is not specified (via **-o**), the HTML file is saved in the **_/out_** (or **_\out_** in Windows) folder, which 
-contains the required files for appropriate rendering on a Web browser.
-
-For a more informative progress monitoring, use the **-v** flag.
+contains the required files for appropriate rendering on a Web browser. For a more informative progress monitoring, use the **-v** flag.
 
 
 before running
@@ -74,6 +72,4 @@ acknowledgments
  
 license
 --------------------
-*ecco* is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
-
-For licenses of projects *ecco* relies on, check the relevant websites.
+*ecco* is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0. For licenses of projects *ecco* relies on, check the relevant websites.
