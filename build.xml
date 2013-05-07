@@ -1,0 +1,65 @@
+<project default="build">
+    <property name="lib" location="lib"/>
+    <property name="runner" value="uk.ac.manchester.cs.diff.EccoRunner"/>
+    <property name="build" value="build"/>
+    <property name="src" location="src"/>
+    <property name="doc" location="build/javadoc"/>
+
+    <path id="project.class.path">
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    
+    <target name="build" depends="compile, jar, javadoc"/>
+
+    <!-- Clean -->
+    <target name="clean" description="Clean up build files">
+        <delete dir="${build}"/>
+    </target>
+
+    <!-- Compile -->
+    <target name="compile" description="Compile source files" depends="clean">
+        <mkdir dir="${build}"/>
+        <javac srcdir="${src}" destdir="${build}" debug="yes" deprecation="yes" includeantruntime="false">
+            <classpath refid="project.class.path"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="${src}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <!-- Create JAR -->
+    <target name="jar" depends="compile">
+        <pathconvert dirsep="/" pathsep=" " property="Class-Path">
+            <map from="${lib}/" to="./lib/"/>
+            <map from="${lib}\" to="./lib/"/>
+            <path>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </path>
+        </pathconvert>
+        <jar jarfile="ecco.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Class-Path" value="${Class-Path}"/>
+                <attribute name="Main-Class" value="${runner}"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <!-- Generate JavaDoc -->
+    <target name="javadoc" depends="clean" description="Generate documentation">
+	    <javadoc packagenames="src" sourcepath="${src}" destdir="${doc}" nodeprecatedlist="yes" nodeprecated="yes">
+		    <fileset dir="${src}">
+			    <include name="**"/>
+			    <exclude name="uk/ac/manchester/cs/diff/modularity/**"/>
+			    <exclude name="uk/ac/manchester/cs/diff/concept/**"/>
+			    <exclude name="uk/ac/manchester/cs/diff/test/**"/>
+			</fileset>
+            <classpath refid="project.class.path"/>
+	    </javadoc>
+    </target>
+</project>

@@ -23,7 +23,7 @@ usage
 
 `[SCRIPT]` **-ont1** `[ONTOLOGY]` **-ont2** `[ONTOLOGY]` `[OPTIONS]`
 
-* `[SCRIPT]` in **Windows**: use *ecco.bat*, **UNIX**-based systems: use *ecco.sh*
+* `[SCRIPT]` in **Windows**: use *ecco.bat*, in **UNIX**-based systems: use *ecco.sh*
 
 * `[ONTOLOGY]` an input ontology file path or URL
 
@@ -47,10 +47,10 @@ contains the required files for appropriate rendering on a Web browser.
 For a more informative progress monitoring, use the **-v** flag.
 
 
-after downloading
+before running
 --------------------
-In order to run properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
-This library, denoted '*FaCT++ version 1.6.2; precompiled [OS] binaries*' should be obtained from [here](https://code.google.com/p/factplusplus/downloads/list).
+In order to execute properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
+This library, denoted *FaCT++ version 1.6.2; precompiled [OS] binaries* should be obtained from [here](https://code.google.com/p/factplusplus/downloads/list).
 Afterwards, the *single* appropriate file (in Windows a **.dll**, in Linux a **.so**, or in Mac OS X a **.jnlib** file) should
 be moved into the **_lib_** folder.
 
@@ -76,4 +76,4 @@ license
 --------------------
 *ecco* is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
 
-For licenses of projects *ecco* relies on, check the associated websites.
+For licenses of projects *ecco* relies on, check the relevant websites.
