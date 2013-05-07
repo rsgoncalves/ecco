@@ -3,17 +3,14 @@
 
 #### a diff tool for OWL ontologies ####
 
-In order to try out *ecco*, it is available as a web-based application [here](http://owl.cs.manchester.ac.uk/diff).
+In order to try out *ecco*, it is available as a web-based application [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
 
 
 intro
 --------------------
 
 *ecco* identifies differences according to OWL's notion of [structural equivalence](http://www.w3.org/TR/owl2-syntax/#Structural_Specification),
-and then verifies whether these differences produce any *effect on entailments*.
-Subsequently these differences are aligned according to their impact (or lack thereof).
-
-For more details and literature pointers, check [this webpage](http://owl.cs.manchester.ac.uk/research/topics/diff/). It contains links to published papers with the relevant definitions.
+and then verifies whether these differences produce any *effect on entailments*. Subsequently these differences are aligned according to their impact (or lack thereof). For more details and literature pointers, check [this webpage](http://owl.cs.manchester.ac.uk/research/topics/diff/). It contains links to published papers with the relevant definitions.
 
 
 usage
