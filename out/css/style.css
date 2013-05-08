@@ -286,8 +286,11 @@ tr {
     color: #666666;
     background: #fff;
     margin-left: 60px;
-    margin-right: 60px;
-    
+    margin-right: 60px;   
+}
+
+form.inl {
+	display: inline;
 }
 
 #text {

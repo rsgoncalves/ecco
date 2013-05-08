@@ -140,7 +140,7 @@ public class EccoRunner {
 	 */
 	public void processOutput(XMLReport report, String csvFile, String xsltPath) 
 			throws UnsupportedEncodingException, TransformerException {
-		saveDocumentToFile(report, report.getXMLDocumentReport(), outputDir, "", xsltPath);	// Entity name based document
+		saveDocumentToFile(report, report.getXMLDocumentReport(), outputDir, "_names", xsltPath);	// Entity name based document
 		saveDocumentToFile(report, report.getXMLDocumentReportUsingLabels(), outputDir, "_labels", xsltPath);	// Label based document
 		saveDocumentToFile(report, report.getXMLDocumentReportUsingGenSyms(), outputDir, "_gensyms", xsltPath);	// Gensym based document
 		saveStringToFile(outputDir, "EccoLog.csv", csvFile, sep);

@@ -81,24 +81,25 @@ If not, see http://www.gnu.org/licenses/
 			<body>
 				<h1><br/></h1>
 				<xsl:variable name="uuid"><xsl:value-of select="/root/@uuid"/></xsl:variable>
-				<form action="getXml" method="post">
+				[<a href="index.jsp">Back Home</a>]
+				<form action="getXml" method="post" class="inl">
 					<xsl:if test="ends-with($uuid, 'lbl')">
-						<a id="top3" target="_blank" href="EccoChangeSet_labels.xml">[Source XML]</a>
+						[<a id="top3" target="_blank" href="EccoChangeSet_labels.xml">Source XML</a>]
 					</xsl:if>
 					<xsl:if test="ends-with($uuid, 'gs')">
-						<a id="top3" target="_blank" href="EccoChangeSet_gensyms.xml">[Source XML]</a>
+						[<a id="top3" target="_blank" href="EccoChangeSet_gensyms.xml">Source XML</a>]
 					</xsl:if>
 					<xsl:if test="not(ends-with($uuid, 'gs')) and not(ends-with($uuid, 'lbl'))">
-						<a id="top3" target="_blank" href="EccoChangeSet.xml">[Source XML]</a>
+						[<a id="top3" target="_blank" href="EccoChangeSet_names.xml">Source XML</a>]
 					</xsl:if>
-				</form>
-				<h2 style="display:inline;">Change Summary</h2><xsl:text> </xsl:text> [<a id="top1" href="javascript:;" onClick="showAll();">Show All</a><xsl:text>  </xsl:text>
+				</form><br/><br/>
+				<h2 style="display:inline;">Change Summary</h2>&#160; [<a id="top1" href="javascript:;" onClick="showAll();">Show All</a> | 
 				<a id="top2" href="javascript:;" onClick="hideAll();">Hide All</a>] <br/>
 				<br/>
 				<form action="output" method="post" name="GenSymTrigger">
 					<input type="hidden" name="uuid"><xsl:attribute name="value"><xsl:value-of select="$uuid"/></xsl:attribute></input>
-					<input type="button" name="gensyms" onClick="parent.location='index.html'" value="Use URI Fragments"/><xsl:text> </xsl:text>
 					<input type="button" name="gensyms" onClick="parent.location='index_labels.html'" value="Use Labels"/><xsl:text> </xsl:text>
+					<input type="button" name="gensyms" onClick="parent.location='index_names.html'" value="Use Term Names"/><xsl:text> </xsl:text>
 					<input type="button" name="gensyms" onClick="parent.location='index_gensyms.html'" value="Use GenSyms"/>
 				</form>
 				<table width="70%" style="table-layout:fixed;">
@@ -136,7 +137,7 @@ If not, see http://www.gnu.org/licenses/
 									<xsl:if test="$weakenings > 0">
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effRems" onClick="toggleDiv('weak','weakrt');"/><xsl:text>  </xsl:text>
-											<a href="#weakening">Weakenings (<xsl:value-of select="$weakenings"/>)</a><xsl:text>  </xsl:text>
+											<b>Weakenings (<xsl:value-of select="$weakenings"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms that are more constraining than existing axioms in Ontology 2');"/>
 											<ul style="display:none">
@@ -163,7 +164,7 @@ If not, see http://www.gnu.org/licenses/
 									<xsl:if test="$rmodequiv > 0">
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effRems" onClick="toggleDiv('wkequiv','wkequivrt');"/><xsl:text>  </xsl:text>
-											<a href="#wkequiv">Modified Definitions (<xsl:value-of select="$rmodequiv"/>)</a><xsl:text>  </xsl:text>
+											<b>Modified Definitions (<xsl:value-of select="$rmodequiv"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Equivalence axioms that have been extended; if split into subsumptions then one was strengthened and the other weakened');"/>
 											<ul style="display:none">
@@ -200,7 +201,7 @@ If not, see http://www.gnu.org/licenses/
 									<xsl:if test="$prem > 0">
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effRems" onClick="toggleDiv('rem','remrt');"/><xsl:text>  </xsl:text>
-											<a href="#rem">Pure Removals (<xsl:value-of select="$prem"/>)</a><xsl:text>  </xsl:text>
+											<b>Pure Removals (<xsl:value-of select="$prem"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms with no co-relation with axioms in Ontology 2; typically related to hierachy changes');"/>
 											<ul style="display:none">
@@ -252,7 +253,7 @@ If not, see http://www.gnu.org/licenses/
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="ineffRems" onClick="toggleDiv('ravred','rst','rpsnovred');"/>
 											<xsl:text>  </xsl:text>
-											<a href="#ravred">Prospective Redundancy (<xsl:value-of select="$rprospred"/>)</a><xsl:text>  </xsl:text>
+											<b>Prospective Redundancy (<xsl:value-of select="$rprospred"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms in Ontology 1 for which there are more constraining related axioms in Ontology 2');"/> 
 											<ul style="display:none">
@@ -269,7 +270,7 @@ If not, see http://www.gnu.org/licenses/
 													<li><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('rst','rpsnovred');"/>
 														<xsl:text>  </xsl:text>
-														<a href="#rst">Retired Prospective Redundancy (<xsl:value-of select="$rprospnewred"/>)</a><b id="t1"/><xsl:text>  </xsl:text>
+														<b>Retired Prospective Redundancy (<xsl:value-of select="$rprospnewred"/>)</b><b id="t1"/><xsl:text>  </xsl:text>
 														<ul style="display:none">
 															<xsl:if test="$rnov = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Novel (0)</li></xsl:if>
 															<xsl:if test="$rnov > 0">
@@ -298,7 +299,7 @@ If not, see http://www.gnu.org/licenses/
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="ineffRems" onClick="toggleDiv('rrewrite','rprw');"/>
 											<xsl:text>  </xsl:text>
-											<a href="#rrewrite">Rewritten (<xsl:value-of select="$rrewritten"/>)</a><xsl:text>  </xsl:text>
+											<b>Rewritten (<xsl:value-of select="$rrewritten"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms in Ontology 1 that are rewrites of axioms in Ontology 2');"/>
 											<ul style="display:none">
@@ -358,7 +359,7 @@ If not, see http://www.gnu.org/licenses/
 									<xsl:if test="$strengthenings > 0">
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effAdds" onClick="toggleDiv('st','stnt');"/><xsl:text>  </xsl:text>
-											<a href="#st">Strengthenings (<xsl:value-of select="$strengthenings"/>)</a><xsl:text>  </xsl:text>
+											<b>Strengthenings (<xsl:value-of select="$strengthenings"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms that are more constraining than existing axioms in Ontology 1');"/>
 											<ul style="display:none">
@@ -385,7 +386,7 @@ If not, see http://www.gnu.org/licenses/
 									<xsl:if test="$amodequiv > 0">
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effAdds" onClick="toggleDiv('stequiv','stequivnt');"/><xsl:text>  </xsl:text>
-											<a href="#aed">Modified Definitions (<xsl:value-of select="$amodequiv"/>)</a><xsl:text>  </xsl:text>
+											<b>Modified Definitions (<xsl:value-of select="$amodequiv"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Equivalence axioms that have been extended; if split into subsumptions then one was strengthened and the other weakened');"/>
 											<ul style="display:none">
@@ -422,7 +423,7 @@ If not, see http://www.gnu.org/licenses/
 									<xsl:if test="$padd > 0">
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effAdds" onClick="toggleDiv('add','addnt');"/><xsl:text>  </xsl:text>
-											<a href="#add">Pure Additions (<xsl:value-of select="$padd"/>)</a><xsl:text>  </xsl:text>
+											<b>Pure Additions (<xsl:value-of select="$padd"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms with no co-relation with axioms in Ontology 1; typically related to hierachy changes');"/> 
 											<ul style="display:none">
@@ -474,7 +475,7 @@ If not, see http://www.gnu.org/licenses/
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aavred','apseudopred','aweak');"/>
 											<xsl:text>  </xsl:text>
-											<a href="#aavred">Retrospective Redundancy (<xsl:value-of select="$addedprospred"/>)</a><xsl:text>  </xsl:text>
+											<b>Retrospective Redundancy (<xsl:value-of select="$addedprospred"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms in Ontology 2 for which there are more constraining related axioms in Ontology 1');"/> 
 											<ul style="display:none">
@@ -491,7 +492,7 @@ If not, see http://www.gnu.org/licenses/
 													<li><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aweak','apseudopred');"/>
 														<xsl:text>  </xsl:text>
-														<a href="#aweak">New Retrospective Redundancy (<xsl:value-of select="$aprospnewred"/>)</a><xsl:text>  </xsl:text>
+														<b>New Retrospective Redundancy (<xsl:value-of select="$aprospnewred"/>)</b><xsl:text>  </xsl:text>
 														<ul style="display:none">
 															<xsl:if test="$aprospnovred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Novel (0)</li></xsl:if>
 															<xsl:if test="$aprospnovred > 0">
@@ -520,7 +521,7 @@ If not, see http://www.gnu.org/licenses/
 										<li><xsl:text>  </xsl:text>
 											<input type="checkbox" name="ineffAdds" onClick="toggleDiv('arewrite','aprw');"/>
 											<xsl:text>  </xsl:text>
-											<a href="#arewrite">Rewritten (<xsl:value-of select="$addedrewrites"/>)</a><xsl:text>  </xsl:text>
+											<b>Rewritten (<xsl:value-of select="$addedrewrites"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms in Ontology 2 that are rewrites of axioms in Ontology 1');"/>
 											<ul style="display:none">
@@ -559,8 +560,8 @@ If not, see http://www.gnu.org/licenses/
 						</td>
 					</tr>
 					<tr>
-						<td class="topright"><a href="javascript:void(0);" id="tree1-expandAll">Expand All </a> | <a href="javascript:void(0);" id="tree1-collapseAll">Collapse All</a></td>
-						<td class="topleft"><a href="javascript:void(0);" id="tree2-expandAll">Expand All </a> | <a href="javascript:void(0);" id="tree2-collapseAll">Collapse All</a></td>
+						<td class="topright">[<a href="javascript:void(0);" id="tree1-expandAll">Expand All</a> | <a href="javascript:void(0);" id="tree1-collapseAll">Collapse All</a>]</td>
+						<td class="topleft">[<a href="javascript:void(0);" id="tree2-expandAll">Expand All</a> | <a href="javascript:void(0);" id="tree2-collapseAll">Collapse All</a>]</td>
 					</tr>
 				</table>
 				<table width="100%" style="table-layout:fixed;">
@@ -581,7 +582,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="st" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Strengthenings with Shared Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Strengthenings with Shared Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -598,7 +599,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="stnt" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="st"/><h4>Strengthenings with New Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="st"/><h4 style="display: inline-block;">Strengthenings with New Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -615,7 +616,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="stequiv" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="aed"/><h4>Modified Definitions with Shared Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="aed"/><h4 style="display: inline-block;">Modified Definitions with Shared Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -632,7 +633,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="stequivnt" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="aednt"/><h4>Modified Definitions with New Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="aednt"/><h4 style="display: inline-block;">Modified Definitions with New Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -649,7 +650,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="newdesc" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>New Descriptions (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">New Descriptions (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -665,7 +666,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="add" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Pure Additions with Shared Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Pure Additions with Shared Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -681,7 +682,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="addnt" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="add"/><h4>Pure Additions with New Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="add"/><h4 style="display: inline-block;">Pure Additions with New Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -700,7 +701,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="weak" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="weakening"/><h4>Weakenings with Shared Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="weakening"/><h4 style="display: inline-block;">Weakenings with Shared Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -717,7 +718,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="weakrt" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="weakening"/><h4>Weakenings with Retired Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="weakening"/><h4 style="display: inline-block;">Weakenings with Retired Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -734,7 +735,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="wkequiv" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="redef"/><h4>Modified Definitions with Shared Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="redef"/><h4 style="display: inline-block;">Modified Definitions with Shared Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -751,7 +752,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="wkequivrt" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="redefrt"/><h4>Modified Definitions with Retired Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="redefrt"/><h4 style="display: inline-block;">Modified Definitions with Retired Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -768,7 +769,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="retdesc" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Retired Descriptions (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Retired Descriptions (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -784,7 +785,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="rem" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Pure Removals with Shared Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Pure Removals with Shared Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -800,7 +801,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="remrt" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="rem"/><h4>Pure Removals with Retired Terms (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="rem"/><h4 style="display: inline-block;">Pure Removals with Retired Terms (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -819,7 +820,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="ared" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -836,7 +837,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="arewrite" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Complete Rewrite (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Complete Rewrite (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -853,7 +854,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="aprw" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Partial Rewrite (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Partial Rewrite (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -870,7 +871,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="aavred" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="aavred"/><h4>Reshuffle Restrospective Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="aavred"/><h4 style="display: inline-block;">Reshuffle Restrospective Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -887,7 +888,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="aweak" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Retrospective Novel Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Retrospective Novel Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -904,7 +905,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="apseudopred" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Retrospective Pseudo Novel Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Retrospective Pseudo Novel Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="addition">ID</th>
@@ -924,7 +925,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="rred" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -941,7 +942,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="rrewrite" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Complete Rewrite (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Complete Rewrite (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -958,7 +959,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="rprw" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Partial Rewrite (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Partial Rewrite (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -975,7 +976,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="ravred" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><a name="ravred"/><h4>Reshuffle Prospective Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><a name="ravred"/><h4 style="display: inline-block;">Reshuffle Prospective Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -992,7 +993,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="rst" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Prospective Novel Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Prospective Novel Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
@@ -1009,7 +1010,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:if test="child::node()">
 			<tbody id="rpsnovred" style="display:none">
 				<tr class="withoutstyle">
-					<td colspan="3"><h4>Prospective Pseudo Novel Redundant (<xsl:value-of select="count(./*)"/>) <a href="#">[back to top]</a></h4></td>
+					<td colspan="3"><h4 style="display: inline-block;">Prospective Pseudo Novel Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>
