@@ -44,7 +44,7 @@ contains the required files for appropriate rendering on a Web browser. For a mo
 
 before running
 --------------------
-In order to execute properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
+Make sure that **Java 1.7** is installed and the default Java runtime environment. In order to execute properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
 This library, denoted *FaCT++ version 1.6.2; precompiled [OS] binaries* should be obtained from [here](https://code.google.com/p/factplusplus/downloads/list).
 Afterwards, the *single* appropriate file (in Windows a **.dll**, in Linux a **.so**, or in Mac OS X a **.jnlib** file) should
 be moved into the **_lib_** folder.
