@@ -1,26 +1,26 @@
 /*******************************************************************************
-* This file is part of Ecco.
+* This file is part of ecco.
 *
-* Ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
+* ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
 *
 * Copyright 2011-2013, The University of Manchester
 *
-* Ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+* ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
 * General Public License as published by the Free Software Foundation, either version 3 of the
 * License, or (at your option) any later version.
 *
-* Ecco is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+* ecco is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
 * General Public License for more details.
 *
-* You should have received a copy of the GNU Lesser General Public License along with Ecco.
+* You should have received a copy of the GNU Lesser General Public License along with ecco.
 * If not, see http://www.gnu.org/licenses/.
 ******************************************************************************/
 
 // Array of categories
-var allDivs = new Array("st", "stnt", "add", "addnt", "newdesc", "stequiv", "stequivnt",
-"aavred", "aweak", "arewrite", "aprw", "ared", "apseudopred", "weak", "weakrt", "rem", "remrt",
-"wkequiv", "wkequivrt", "retdesc", "rst", "rrewrite", "rprw", "rred", "ravred", "rpsnovred");
+var allDivs = new Array("st", "stnt", "add", "addnt", "newdesc", "stequiv", "stequivnt", "aweak", "arewrite",
+"aprw", "ared", "aavred", "apseudopred", "weak", "weakrt", "rem", "remrt", "retdesc", "wkequiv", "wkequivrt",
+"rst", "rrewrite", "rprw", "rred", "ravred", "rpsnovred");
 
 var effAds = new Array("st", "stnt", "add", "addnt", "newdesc", "stequiv", "stequivnt");
 var inefAds = new Array("aweak", "arewrite", "aprw", "ared", "aavred", "apseudopred");
@@ -31,6 +31,7 @@ var allTriggers = new Array('additions', 'effAddsTrigger', 'effAdds', 'ineffAdds
 'ineffAdds', 'removals', 'effRemsTrigger', 'effRems', 'ineffRemsTrigger', 'ineffRems');
 
 var links = document.getElementsByTagName("a");
+
 
 // Change show/hide state
 function toggleDiv() {
@@ -45,15 +46,18 @@ function toggleDiv() {
     }
 }
 
+
 // Open specific category
 function open(divid) {
     document.getElementById(divid).style.display = '';
 }
 
+
 // Close specific category
 function close(divid) {
     document.getElementById(divid).style.display = 'none';
 }
+
 
 // Toggle major groups (additions/removals)
 function toggleGroup(change) {
@@ -61,7 +65,6 @@ function toggleGroup(change) {
         var effAdsTrigger = document.getElementsByName('effAddsTrigger');
         var ineffAdsTrigger = document.getElementsByName('ineffAddsTrigger');
         var additionsTrigger = document.getElementsByName('additions');
-        
         if (additionsTrigger[0].checked) {
             effAdsTrigger[0].checked = true;
             ineffAdsTrigger[0].checked = true;
@@ -69,15 +72,12 @@ function toggleGroup(change) {
             effAdsTrigger[0].checked = false;
             ineffAdsTrigger[0].checked = false;
         }
-        
         toggleChanges('effAdds', 'effAddsTrigger');
         toggleChanges('ineffAdds', 'ineffAddsTrigger');
     } else if (change == 'removals') {
         var effRemsTrigger = document.getElementsByName('effRemsTrigger');
         var ineffRemsTrigger = document.getElementsByName('ineffRemsTrigger');
-        
         var removalsTrigger = document.getElementsByName('removals');
-        
         if (removalsTrigger[0].checked) {
             effRemsTrigger[0].checked = true;
             ineffRemsTrigger[0].checked = true;
@@ -85,17 +85,16 @@ function toggleGroup(change) {
             effRemsTrigger[0].checked = false;
             ineffRemsTrigger[0].checked = false;
         }
-        
         toggleChanges('effRems', 'effRemsTrigger');
         toggleChanges('ineffRems', 'ineffRemsTrigger');
     }
 }
 
+
 // Toggle groups of changes
 function toggleChanges(field, change) {
     var array = document.getElementsByName(field);
     var trigger = document.getElementsByName(change);
-    
     for (var i = 0; i < array.length; i++) {
         if (trigger[0].checked) {
             array[i].checked = true;
@@ -103,7 +102,6 @@ function toggleChanges(field, change) {
             array[i].checked = false;
         }
     }
-    
     if (field == 'effAdds') {
         showChanges(effAds, trigger);
     } else if (field == 'ineffAdds') {
@@ -114,6 +112,7 @@ function toggleChanges(field, change) {
         showChanges(inefRems, trigger);
     }
 }
+
 
 // Show specific change type
 function showChanges(array, trigger) {
@@ -127,6 +126,7 @@ function showChanges(array, trigger) {
         }
     }
 }
+
 
 // Show all categories
 function showAll() {
@@ -143,6 +143,7 @@ function showAll() {
         }
     }
 }
+
 
 // Hide all categories
 function hideAll() {
@@ -166,12 +167,14 @@ function hasClass(ele, cls) {
     return ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
 }
 
+
 // Add class to element
 function addClass(ele, cls) {
     if (ele.id != 'top1' && ele.id != 'top2' && ele.id != 'top3') {
         if (! this.hasClass(ele, cls)) ele.className += " " + cls;
     }
 }
+
 
 // Remove class from element
 function removeClass(ele, cls) {
@@ -181,6 +184,7 @@ function removeClass(ele, cls) {
     }
 }
 
+
 // Toggle class change for specified element
 function changeClass(btn, cls) {
     if (! hasClass(btn, cls)) {
@@ -189,6 +193,7 @@ function changeClass(btn, cls) {
         removeClass(btn, cls);
     }
 }
+
 
 // Toggle subtree & swap image
 function toggleSubTree(id, img_id) {
@@ -202,6 +207,98 @@ function toggleSubTree(id, img_id) {
         img.src = 'images/button-open.png';
     }
 }
+
+
+// Set view-permalink value
+function setPermalink() {
+    var string = "#view=";
+    for (var i = 0; i < allDivs.length; i++) {
+        if (document.getElementById(allDivs[i]) != null) {
+            if (document.getElementById(allDivs[i]).style.display == '') {
+            	if(i == (allDivs.length-1))
+            		string += allDivs[i];
+            	else
+            		string += allDivs[i] + "+";
+            }
+        }
+    }
+    if(string.endsWith("+")) 
+    	string = string.substring(0, string.length-1);
+    document.getElementById('view-plink').innerHTML=string;
+}
+
+
+// Select all text in a given text area
+function select_all(id) {
+    var ele = document.getElementById(id);
+    var text_val = eval(ele);
+    text_val.focus();
+    text_val.select();
+}
+
+
+// Location hash change listeners
+window.onhashchange = function(e) {
+	processHashTag(getLocationHash());
+};
+
+window.onload = function() {
+	processHashTag(getLocationHash());
+};
+
+
+function processHashTag(hash) {
+	if(hash.startsWith('view=')) {
+		hash = hash.substring(5);
+		var tags = hash.split("+");
+		hideAll();
+		for(var i = 0; i < tags.length; i++) {
+			if(document.getElementById(tags[i]) != null && document.getElementById(tags[i]).style.display == 'none') {
+				open(tags[i]);
+				var trigId = tags[i] + "trig"; 
+				if(document.getElementById(trigId) != null) {
+					checkAndExpand(trigId, 'tree1');
+					checkAndExpand(trigId, 'tree2');
+				}
+			}
+		}
+	}
+}
+
+function checkAndExpand(trig, tree) {
+	var li = document.getElementById(trig);
+	$('#' + tree).checkboxTree('check', $( li ));
+	var lipar = li.parentNode.parentNode;
+	var ligpar = lipar.parentNode.parentNode;
+	var liggpar = ligpar.parentNode.parentNode;
+	$('#' + tree).checkboxTree('expand', $( lipar ));
+	$('#' + tree).checkboxTree('expand', $( ligpar ));
+	$('#' + tree).checkboxTree('expand', $( liggpar ));
+	// yes, well, it works :)
+}
+
+
+//Get location hash
+function getLocationHash() {
+	return window.location.hash.substring(1);
+}
+
+
+// String.startsWith() function
+if(typeof String.prototype.startsWith != 'function') {
+	String.prototype.startsWith = function (str){
+		return this.slice(0, str.length) == str;
+	};
+}
+
+
+//String.endsWith() function
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
+
 
 // Popup info baloons
 var tooltip = function () {

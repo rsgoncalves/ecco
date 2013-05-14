@@ -22,61 +22,15 @@ If not, see http://www.gnu.org/licenses/
 		<html>
 			<head>
 				<title>ecco</title>
+				<meta charset="utf-8"/>
 				<link rel="stylesheet" href="css/style.css"/>
+				<link rel="stylesheet" href="css/reveal.css"/>
+				<script type="text/javascript" src="js/jquery-1.4.4.js"/>
+				<script type="text/javascript" src="js/jquery-ui-1.8.12.custom.min.js"/>
 				<script type="text/javascript" src="js/script.js"/>
-				<script type="text/javascript" src="js/jquery-1.4.4.js"></script>
-				<script type="text/javascript" src="js/jquery-ui-1.8.12.custom.min.js"></script>
-				<script type="text/javascript" src="js/jquery.checkboxtree.js"></script>
-				<script type="text/javascript">
-					$(document).ready(function() {
-						$('#tree1').checkboxTree({
-							initializeChecked: 'expanded',
-							initializeUnchecked: 'collapsed',
-							collapseDuration: 50,
-							expandDuration: 100,
-							collapseImage: 'images/minus.png',
-							expandImage: 'images/plus.png',
-							onCheck: {
-								node: 'expand',
-								ancestors: 'checkIfFull',
-								descendants: 'check'
-							},
-							onUncheck: {
-								node: 'collapse',
-								ancestors: 'uncheck'
-							}
-						});
-						$('#tree2').checkboxTree({
-							initializeChecked: 'expanded',
-							initializeUnchecked: 'collapsed',
-							collapseDuration: 50,
-							expandDuration: 100,
-							collapseImage: 'images/minus.png',
-							expandImage: 'images/plus.png',
-							onCheck: {
-								node: 'expand',
-								ancestors: 'checkIfFull',
-								descendants: 'check'
-							},
-							onUncheck: {
-								node: 'collapse',
-								ancestors: 'uncheck'
-							}
-						});
-						$('#tree1-expandAll').click(function(){
-							$('#tree1').checkboxTree('expandAll');
-						});
-						$('#tree1-collapseAll').click(function(){
-							$('#tree1').checkboxTree('collapseAll');
-						});
-						$('#tree2-expandAll').click(function(){
-							$('#tree2').checkboxTree('expandAll');
-						});
-						$('#tree2-collapseAll').click(function(){
-							$('#tree2').checkboxTree('collapseAll');
-						});
-					});
-				</script>
+				<script type="text/javascript" src="js/jquery.checkboxtree.js"/>
+				<script type="text/javascript" src="js/jquery.reveal.js"/>
+				<script type="text/javascript" src="js/jscript.js"/>
 			</head>
 			<body>
 				<h1><br/></h1>
@@ -93,8 +47,17 @@ If not, see http://www.gnu.org/licenses/
 						[<a id="top3" target="_blank" href="EccoChangeSet_names.xml">Source XML</a>]
 					</xsl:if>
 				</form><br/><br/>
-				<h2 style="display:inline;">Change Summary</h2>&#160; [<a id="top1" href="javascript:;" onClick="showAll();">Show All</a> | 
-				<a id="top2" href="javascript:;" onClick="hideAll();">Hide All</a>] <br/>
+				<h2 style="display:inline;">Change Summary</h2>&#160;
+				[<a id="top1" href="javascript:;" onClick="showAll();$('#tree1').checkboxTree('expandAll');$('#tree2').checkboxTree('expandAll')">Show All</a> | 
+				<a id="top2" href="javascript:;" onClick="hideAll();$('#tree1').checkboxTree('collapseAll');$('#tree2').checkboxTree('collapseAll');">Hide All</a>] 
+				[<a id="genViewPerml" href="#" onclick="setPermalink();">Generate View Permalink</a>]
+				<div id="view-plink-modal" class="reveal-modal">
+					<h3>view-permalink</h3>
+					<textarea id="view-plink" rows="3" cols="60" readonly="true" style="resize: none;"/><br/>
+					[<a href="javascript:;" onclick="select_all('view-plink');">Select all</a>]
+					<a class="close-reveal-modal">&#215;</a>
+				</div>
+				<br/>
 				<br/>
 				<form action="output" method="post" name="GenSymTrigger">
 					<input type="hidden" name="uuid"><xsl:attribute name="value"><xsl:value-of select="$uuid"/></xsl:attribute></input>
@@ -143,7 +106,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$wkst = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Shared Terms (0)</li></xsl:if>
 												<xsl:if test="$wkst > 0">
-													<li>
+													<li id="weaktrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('weak');"/>
 														<xsl:text>  </xsl:text><a href="#weak">With Shared Terms (<xsl:value-of select="$wkst"/>)</a>
@@ -151,7 +114,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$wkrt = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Retired Terms (0)</li></xsl:if>
 												<xsl:if test="$wkrt > 0">
-													<li>
+													<li id="weakrttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('weakrt');"/>
 														<xsl:text>  </xsl:text><a href="#weakrt">With Retired Terms (<xsl:value-of select="$wkrt"/>)</a>
@@ -170,7 +133,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$rmdst = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Shared Terms (0)</li></xsl:if>
 												<xsl:if test="$rmdst > 0">
-													<li>
+													<li id="wkequivtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('wkequiv');"/>
 														<xsl:text>  </xsl:text><a href="#wkequiv">With Shared Terms (<xsl:value-of select="$rmdst"/>)</a>
@@ -178,7 +141,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$rmdrt = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Retired Terms (0)</li></xsl:if>
 												<xsl:if test="$rmdrt > 0">
-													<li>
+													<li id="wkequivrttrig" >
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('wkequivrt');"/>
 														<xsl:text>  </xsl:text><a href="#wkequivrt">With Retired Terms (<xsl:value-of select="$rmdrt"/>)</a>
@@ -189,7 +152,7 @@ If not, see http://www.gnu.org/licenses/
 									</xsl:if>
 									<xsl:if test="$rdesc = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Retired Descriptions (0)</li></xsl:if>
 									<xsl:if test="$rdesc > 0">
-										<li>
+										<li id="retdesctrig">
 											<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effRems" onClick="toggleDiv('retdesc');"/><xsl:text>  </xsl:text>
 											<a href="#retdesc">Retired Descriptions (<xsl:value-of select="$rdesc"/>)</a><xsl:text>  </xsl:text>
@@ -207,7 +170,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$premst = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Shared Terms (0)</li></xsl:if>
 												<xsl:if test="$premst > 0">
-													<li>
+													<li id="remtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('rem');"/>
 														<xsl:text>  </xsl:text><a href="#rem">With Shared Terms (<xsl:value-of select="$premst"/>)</a>
@@ -215,7 +178,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$premrt = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Retired Terms (0)</li></xsl:if>
 												<xsl:if test="$premrt > 0">
-													<li>
+													<li id="remrttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('remrt');"/>
 														<xsl:text>  </xsl:text><a href="#remrt">With Retired Terms (<xsl:value-of select="$premrt"/>)</a>
@@ -259,7 +222,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$rreshuf = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Reshuffle (0)</li></xsl:if>
 												<xsl:if test="$rreshuf > 0">
-													<li>
+													<li id="ravredtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('ravred');"/>
 														<xsl:text>  </xsl:text><a href="#ravred">Reshuffle (<xsl:value-of select="$rreshuf"/>)</a>
@@ -274,7 +237,7 @@ If not, see http://www.gnu.org/licenses/
 														<ul style="display:none">
 															<xsl:if test="$rnov = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Novel (0)</li></xsl:if>
 															<xsl:if test="$rnov > 0">
-																<li>
+																<li id="rsttrig">
 																	<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 																	<input type="checkbox" name="ineffRems" onClick="toggleDiv('rst');"/>
 																	<xsl:text>  </xsl:text><a href="#rst">Novel (<xsl:value-of select="$rnov"/>)</a>
@@ -282,7 +245,7 @@ If not, see http://www.gnu.org/licenses/
 															</xsl:if>
 															<xsl:if test="$rpsnov = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Pseudo Novel (0)</li></xsl:if>
 															<xsl:if test="$rpsnov > 0">
-																<li>
+																<li id="rpsnovredtrig">
 																	<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 																	<input type="checkbox" name="ineffRems" onClick="toggleDiv('rpsnovred');"/>
 																	<xsl:text>  </xsl:text><a href="#rpsnovred">Pseudo Novel (<xsl:value-of select="$rpsnov"/>)</a>
@@ -305,7 +268,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$rcrewrite = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Complete (0)</li></xsl:if>
 												<xsl:if test="$rcrewrite > 0">
-													<li>
+													<li id="rrewritetrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('rrewrite');"/>
 														<xsl:text>  </xsl:text><a href="#rrewrite">Complete (<xsl:value-of select="$rcrewrite"/>)</a>
@@ -313,7 +276,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$rprewrite = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Partial (0)</li></xsl:if>
 												<xsl:if test="$rprewrite > 0">
-													<li>
+													<li id="rprwtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('rprw');"/>
 														<xsl:text>  </xsl:text><a href="#rprw">Partial (<xsl:value-of select="$rprewrite"/>)</a>
@@ -324,9 +287,9 @@ If not, see http://www.gnu.org/licenses/
 									</xsl:if>
 									<xsl:if test="$rredundant = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Redundant (0)</li></xsl:if>
 									<xsl:if test="$rredundant > 0">
-										<li>
+										<li id="rredtrig">
 											<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-											<input type="checkbox" name="ineffRems" onClick="toggleDiv('rred','ravred')"/><xsl:text>  </xsl:text>
+											<input type="checkbox" name="ineffRems" onClick="toggleDiv('rred')"/><xsl:text>  </xsl:text>
 											<a href="#rred">Redundant (<xsl:value-of select="$rredundant"/>)</a><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms in Ontology 1 that are entailed by at least one shared axiom between Ontology 1 and 2');"/> 
@@ -365,7 +328,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$stst = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Shared Terms (0)</li></xsl:if>
 												<xsl:if test="$stst > 0">
-													<li>
+													<li id="sttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('st');"/>
 														<xsl:text>  </xsl:text><a href="#st">With Shared Terms (<xsl:value-of select="$stst"/>)</a>
@@ -373,7 +336,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$stnt = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With New Terms (0)</li></xsl:if>
 												<xsl:if test="$stnt > 0">
-													<li>
+													<li id="stnttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('stnt');"/>
 														<xsl:text>  </xsl:text><a href="#stnt">With New Terms (<xsl:value-of select="$stnt"/>)</a>
@@ -392,7 +355,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$mdst = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Shared Terms (0)</li></xsl:if>
 												<xsl:if test="$mdst > 0">
-													<li>
+													<li id="stequivtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('stequiv');"/>
 														<xsl:text>  </xsl:text><a href="#aed">With Shared Terms (<xsl:value-of select="$mdst"/>)</a>
@@ -400,7 +363,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$mdnt = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With New Terms (0)</li></xsl:if>
 												<xsl:if test="$mdnt > 0">
-													<li>
+													<li id="stequivnttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('stequivnt');"/>
 														<xsl:text>  </xsl:text><a href="#aednt">With New Terms (<xsl:value-of select="$mdnt"/>)</a>
@@ -411,7 +374,7 @@ If not, see http://www.gnu.org/licenses/
 									</xsl:if>
 									<xsl:if test="$newdescription = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New Descriptions (0)</li></xsl:if>
 									<xsl:if test="$newdescription > 0">
-										<li>
+										<li id="newdesctrig">
 											<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 											<input type="checkbox" name="effAdds" onClick="toggleDiv('newdesc');"/><xsl:text>  </xsl:text>
 											<a href="#newdesc">New Descriptions (<xsl:value-of select="$newdescription"/>)</a><xsl:text>  </xsl:text>
@@ -429,7 +392,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$paddst = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With Shared Terms (0)</li></xsl:if>
 												<xsl:if test="$paddst > 0">
-													<li>
+													<li id="addtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('add');"/>
 														<xsl:text>  </xsl:text><a href="#add">With Shared Terms (<xsl:value-of select="$paddst"/>)</a>
@@ -437,7 +400,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$paddnt = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;With New Terms (0)</li></xsl:if>
 												<xsl:if test="$paddnt > 0">
-													<li>
+													<li id="addnttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="effAdds" onClick="toggleDiv('addnt');"/>
 														<xsl:text>  </xsl:text><a href="#addnt">With New Terms (<xsl:value-of select="$paddnt"/>)</a>
@@ -481,7 +444,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$aprospresred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Reshuffle (0)</li></xsl:if>
 												<xsl:if test="$aprospresred > 0">
-													<li>
+													<li id="aavredtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aavred');"/>
 														<xsl:text>  </xsl:text><a href="#aavred">Reshuffle (<xsl:value-of select="$aprospresred"/>)</a>
@@ -496,7 +459,7 @@ If not, see http://www.gnu.org/licenses/
 														<ul style="display:none">
 															<xsl:if test="$aprospnovred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Novel (0)</li></xsl:if>
 															<xsl:if test="$aprospnovred > 0">
-																<li>
+																<li id="aweaktrig">
 																	<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 																	<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aweak');"/>
 																	<xsl:text>  </xsl:text><a href="#aweak">Novel (<xsl:value-of select="$aprospnovred"/>)</a>
@@ -504,7 +467,7 @@ If not, see http://www.gnu.org/licenses/
 															</xsl:if>
 															<xsl:if test="$aprosppseudonovred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Pseudo Novel (0)</li></xsl:if>
 															<xsl:if test="$aprosppseudonovred > 0">
-																<li>
+																<li id="apseudopredtrig">
 																	<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 																	<input type="checkbox" name="ineffAdds" onClick="toggleDiv('apseudopred');"/>
 																	<xsl:text>  </xsl:text><a href="#apseudopred">Pseudo Novel (<xsl:value-of select="$aprosppseudonovred"/>)</a>
@@ -527,7 +490,7 @@ If not, see http://www.gnu.org/licenses/
 											<ul style="display:none">
 												<xsl:if test="$addedrewrite = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Complete (0)</li></xsl:if>
 												<xsl:if test="$addedrewrite > 0">
-													<li>
+													<li id="arewritetrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('arewrite');"/>
 														<xsl:text>  </xsl:text><a href="#arewrite">Complete (<xsl:value-of select="$addedrewrite"/>)</a>
@@ -535,7 +498,7 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$addedprewrite = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Partial (0)</li></xsl:if>
 												<xsl:if test="$addedprewrite > 0">
-													<li>
+													<li id="aprwtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aprw');"/>
 														<xsl:text>  </xsl:text><a href="#aprw">Partial (<xsl:value-of select="$addedprewrite"/>)</a>
@@ -546,9 +509,9 @@ If not, see http://www.gnu.org/licenses/
 									</xsl:if>
 									<xsl:if test="$addedredundant = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Redundant (0)</li></xsl:if>
 									<xsl:if test="$addedredundant > 0">
-										<li>
+										<li id="aredtrig">
 											<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-											<input type="checkbox" name="ineffAdds" onClick="toggleDiv('ared','aavred')"/><xsl:text>  </xsl:text>
+											<input type="checkbox" name="ineffAdds" onClick="toggleDiv('ared')"/><xsl:text>  </xsl:text>
 											<a href="#ared">Redundant (<xsl:value-of select="$addedredundant"/>)</a><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 												onmouseover="tooltip.show('Axioms in Ontology 2 that are entailed by at least one shared axiom between Ontology 1 and 2');"/> 
@@ -1051,7 +1014,19 @@ If not, see http://www.gnu.org/licenses/
 							select="$ax2"/>. <xsl:if test="@shared='true'">
 							<div style="display:inline;color:#323232" class="hotspot"
 								onmouseover="tooltip.show('Shared axiom between Ontology 1 and 2');"
-								onmouseout="tooltip.hide();"><sup>[*]</sup>
+								onmouseout="tooltip.hide();"><sup>[s]</sup>
+							</div>
+						</xsl:if>
+						<xsl:if test="@effectual='true'">
+							<div style="display:inline;color:#323232" class="hotspot"
+								onmouseover="tooltip.show('Effectual change between Ontology 1 and 2');"
+								onmouseout="tooltip.hide();"><sup>[e]</sup>
+							</div>
+						</xsl:if>
+						<xsl:if test="@ineffectual='true'">
+							<div style="display:inline;color:#323232" class="hotspot"
+								onmouseover="tooltip.show('Ineffectual change between Ontology 1 and 2');"
+								onmouseout="tooltip.hide();"><sup>[i]</sup>
 							</div>
 						</xsl:if>
 						<xsl:if test="$counter >1"><br/></xsl:if>
@@ -1084,7 +1059,19 @@ If not, see http://www.gnu.org/licenses/
 								select="$ax2"/>. <xsl:if test="@shared='true'">
 								<div style="display:inline;color:#323232" class="hotspot"
 									onmouseover="tooltip.show('Shared axiom between Ontology 1 and 2');"
-									onmouseout="tooltip.hide();"><sup>[*]</sup>
+									onmouseout="tooltip.hide();"><sup>[s]</sup>
+								</div>
+							</xsl:if>
+							<xsl:if test="@effectual='true'">
+								<div style="display:inline;color:#323232" class="hotspot"
+									onmouseover="tooltip.show('Effectual change between Ontology 1 and 2');"
+									onmouseout="tooltip.hide();"><sup>[e]</sup>
+								</div>
+							</xsl:if>
+							<xsl:if test="@ineffectual='true'">
+								<div style="display:inline;color:#323232" class="hotspot"
+									onmouseover="tooltip.show('Ineffectual change between Ontology 1 and 2');"
+									onmouseout="tooltip.hide();"><sup>[i]</sup>
 								</div>
 							</xsl:if>
 							<xsl:if test="$counter >1"><br/></xsl:if>
@@ -1131,7 +1118,19 @@ If not, see http://www.gnu.org/licenses/
 						<i>(<xsl:value-of select="position()"/>)</i>&#160; <xsl:copy-of select="$ax2"/>. 
 						<xsl:if test="@shared='true'">
 							<div style="display:inline;color:#323232" class="hotspot" onmouseout="tooltip.hide();"
-								onmouseover="tooltip.show('Shared axiom between Ontology 1 and 2');"><sup>[*]</sup>
+								onmouseover="tooltip.show('Shared axiom between Ontology 1 and 2');"><sup>[s]</sup>
+							</div>
+						</xsl:if>
+						<xsl:if test="@effectual='true'">
+							<div style="display:inline;color:#323232" class="hotspot"
+								onmouseover="tooltip.show('Effectual change between Ontology 1 and 2');"
+								onmouseout="tooltip.hide();"><sup>[e]</sup>
+							</div>
+						</xsl:if>
+						<xsl:if test="@ineffectual='true'">
+							<div style="display:inline;color:#323232" class="hotspot"
+								onmouseover="tooltip.show('Ineffectual change between Ontology 1 and 2');"
+								onmouseout="tooltip.hide();"><sup>[i]</sup>
 							</div>
 						</xsl:if>
 						<xsl:if test="$counter > 1"><br/></xsl:if>
@@ -1154,7 +1153,19 @@ If not, see http://www.gnu.org/licenses/
 							<xsl:if test="@shared='true'">
 								<div style="display:inline;color:#323232" class="hotspot"
 									onmouseover="tooltip.show('Shared axiom between Ontology 1 and 2');"
-									onmouseout="tooltip.hide();"><sup>[*]</sup></div>
+									onmouseout="tooltip.hide();"><sup>[s]</sup></div>
+							</xsl:if>
+							<xsl:if test="@effectual='true'">
+								<div style="display:inline;color:#323232" class="hotspot"
+									onmouseover="tooltip.show('Effectual change between Ontology 1 and 2');"
+									onmouseout="tooltip.hide();"><sup>[e]</sup>
+								</div>
+							</xsl:if>
+							<xsl:if test="@ineffectual='true'">
+								<div style="display:inline;color:#323232" class="hotspot"
+									onmouseover="tooltip.show('Ineffectual change between Ontology 1 and 2');"
+									onmouseout="tooltip.hide();"><sup>[i]</sup>
+								</div>
 							</xsl:if>
 							<xsl:if test="$counter >1"><br/></xsl:if>
 						</xsl:for-each>

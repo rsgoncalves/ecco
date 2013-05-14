@@ -61,11 +61,11 @@ import uk.ac.manchester.cs.diff.output.XMLReport;
  */
 public class EccoRunner {
 	private static final String versionInfo = "2.0b";
-	private static final String releaseDate = "7/05/2013";
+	private static final String releaseDate = "7-May-2013";
 	private static final String PROGRAM_TITLE = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
-			"	         v" + versionInfo + " released on " + releaseDate + "\n" +		
+			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
 			"by Rafael Goncalves. Copyright 2011-2013, University of Manchester";
 	

@@ -6,7 +6,7 @@ src/uk/ac/manchester/cs/diff/concept*
 *.csv
 *.html
 todo
-out/*.xml
+*.xml
 out/xslt_server.xsl
 
 # Build #

@@ -19,8 +19,11 @@
 package uk.ac.manchester.cs.diff.output;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -233,7 +236,8 @@ public class XMLReport {
 		addEffectualCategoryElementAndChildren("PureAddition", "padd", changeSet.getPureAdditions(), doc, "effadds", true, sf);
 		addEffectualCategoryElementAndChildren("PureAdditionWithNewTerms", "paddnt", changeSet.getPureAdditionsWithNewTerms(), doc, "effadds", true, sf);
 		addEffectualCategoryElementAndChildren("NewModifiedDefinition", "stequiv", changeSet.getAddedModifiedDefinitions(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("NewModifiedDefinitionWithNewTerms", "stequivnt", changeSet.getAddedModifiedDefinitionsWithNewTerms(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren("NewModifiedDefinitionWithNewTerms", "stequivnt", changeSet.getAddedModifiedDefinitionsWithNewTerms(), 
+				doc, "effadds", true, sf);
 		
 		addElement("Ineffectual", "ineffadds", changeSet.getIneffectualAdditions().size(), doc, "adds", true);
 		addIneffectualAdditions("AddedRedundancy", "ared", changeSet.getAddedRedundancies(), doc, "ineffadds", true, IneffectualAdditionCategory.REDUNDANCY, sf);
@@ -241,9 +245,11 @@ public class XMLReport {
 		addIneffectualAdditions("AddedCompleteRewrite", "arw", changeSet.getAddedRewrites(), doc, "arws", true, IneffectualAdditionCategory.REWRITE, sf);
 		addIneffectualAdditions("AddedPartialRewrite", "aprw", changeSet.getAddedPartialRewrites(), doc, "arws", true, IneffectualAdditionCategory.PREWRITE, sf);
 		addElement("AddedProspectiveRedundancy", "apred", changeSet.getAddedProspectiveRedundancies().size(), doc, "ineffadds", true);
-		addIneffectualAdditions("AddedReshuffleProspectiveRedundancy", "aavred", changeSet.getAddedReshuffleRedundancies(), doc, "apred", true, IneffectualAdditionCategory.RESHUFFLEREDUNDANCY, sf);
+		addIneffectualAdditions("AddedReshuffleProspectiveRedundancy", "aavred", changeSet.getAddedReshuffleRedundancies(), doc, "apred", true, 
+				IneffectualAdditionCategory.RESHUFFLEREDUNDANCY, sf);
 		addElement("AddedNewProspectiveRedundancy", "anpred", changeSet.getAddedProspectiveNewRedundancies().size(), doc, "apred", true);
-		addIneffectualAdditions("AddedNovelProspectiveRedundancy", "weak", changeSet.getAddedNovelRedundancies(), doc, "anpred", true, IneffectualAdditionCategory.NOVELPROSPREDUNDANCY, sf);
+		addIneffectualAdditions("AddedNovelProspectiveRedundancy", "weak", changeSet.getAddedNovelRedundancies(), doc, "anpred", true, 
+				IneffectualAdditionCategory.NOVELPROSPREDUNDANCY, sf);
 		addIneffectualAdditions("AddedPseudoNovelProspectiveRedundancy", "apseudopred", changeSet.getAddedPseudoNovelRedundancies(), doc, "anpred", true, 
 				IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
 		
@@ -254,7 +260,8 @@ public class XMLReport {
 		addEffectualCategoryElementAndChildren("PureRemoval", "prem", changeSet.getPureRemovals(), doc, "effrems", true, sf);
 		addEffectualCategoryElementAndChildren("PureRemovalWithRetiredTerms", "premrt", changeSet.getPureRemovalsWithRetiredTerms(), doc, "effrems", true, sf);
 		addEffectualCategoryElementAndChildren("RetiredModifiedDefinition", "wkequiv", changeSet.getRemovedModifiedDefinitions(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("RetiredModifiedDefinitionWithRetiredTerms", "wkequivrt", changeSet.getRemovedModifiedDefinitionsWithRetiredTerms(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren("RetiredModifiedDefinitionWithRetiredTerms", "wkequivrt", changeSet.getRemovedModifiedDefinitionsWithRetiredTerms(), 
+				doc, "effrems", true, sf);
 		
 		addElement("Ineffectual", "ineffrems", changeSet.getIneffectualRemovals().size(), doc, "rems", true);
 		addIneffectualRemovals("RemovedRedundancy", "rred", changeSet.getRemovedRedundancies(), doc, "ineffrems", true, IneffectualRemovalCategory.REDUNDANCY, sf);
@@ -287,7 +294,8 @@ public class XMLReport {
 	 */
 	private void addElementAndChildren(String name, String id, Set<OWLAxiom> set, Document d, String parent, boolean includeSize, ShortFormProvider sf) {
 		addElement(name, id, set.size(), d, parent, includeSize);
-		for(OWLAxiom ax : set) {
+		List<OWLAxiom> orderedList = sortAxioms(set);
+		for(OWLAxiom ax : orderedList) {
 			if(axiomIds.containsKey(ax))
 				addAxiomChange(axiomIds.get(ax) + "", ax, d, id, sf);
 			else {
@@ -312,7 +320,8 @@ public class XMLReport {
 	private void addEffectualCategoryElementAndChildren(String name, String id, Set<? extends CategorisedChange> set, Document d, 
 			String parent, boolean includeSize, ShortFormProvider sf) {
 		addElement(name, id, set.size(), d, parent, includeSize);
-		for(CategorisedChange change : set) {
+		List<? extends CategorisedChange> orderedList = sort(set, sf);
+		for(CategorisedChange change : orderedList) {
 			OWLAxiom ax = change.getAxiom();
 			if(axiomIds.containsKey(ax))
 				addAxiomChange(axiomIds.get(ax) + "", change, d, id, sf);
@@ -338,7 +347,8 @@ public class XMLReport {
 	private void addIneffectualRemovals(String name, String id, Set<? extends CategorisedChange> set, Document d, String parent, 
 			boolean includeSize, IneffectualRemovalCategory cat, ShortFormProvider sf) {
 		addElement(name, id, set.size(), d, parent, includeSize);
-		for(CategorisedChange change : set) {
+		List<? extends CategorisedChange> orderedList = sort(set, sf);
+		for(CategorisedChange change : orderedList) {
 			OWLAxiom ax = change.getAxiom();
 			if(axiomIds.containsKey(ax))
 				appendIneffectualRemoval(axiomIds.get(ax) + "", id, (CategorisedIneffectualRemoval)change, d, cat, sf);
@@ -364,7 +374,8 @@ public class XMLReport {
 	private void addIneffectualAdditions(String name, String id, Set<? extends CategorisedChange> set, Document d, String parent, 
 			boolean includeSize, IneffectualAdditionCategory cat, ShortFormProvider sf) {
 		addElement(name, id, set.size(), d, parent, includeSize);
-		for(CategorisedChange change : set) {
+		List<? extends CategorisedChange> orderedList = sort(set, sf);
+		for(CategorisedChange change : orderedList) {
 			OWLAxiom ax = change.getAxiom();
 			if(axiomIds.containsKey(ax))
 				appendIneffectualAddition(axiomIds.get(ax) + "", id, (CategorisedIneffectualAddition)change, d, cat, sf);
@@ -393,7 +404,7 @@ public class XMLReport {
 		
 		Element root = d.getElementById(parent);
 		root.appendChild(ele);
-		
+
 		Element axEle = d.createElement("Axiom");
 		if(sharedAxioms != null && sharedAxioms.contains(axiom))
 			axEle.setAttribute("shared", "true");
@@ -422,9 +433,6 @@ public class XMLReport {
 		
 		Element axEle = d.createElement("Axiom");
 		OWLAxiom axiom = change.getAxiom();
-		if(sharedAxioms != null && sharedAxioms.contains(axiom))
-			axEle.setAttribute("shared", "true");
-		
 		axEle.setTextContent(getManchesterRendering(axiom, sf));
 		ele.appendChild(axEle);
 		
@@ -484,8 +492,6 @@ public class XMLReport {
 		
 		Element axEle = d.createElement("Axiom");
 		OWLAxiom axiom = change.getAxiom();
-		if(sharedAxioms != null && sharedAxioms.contains(axiom))
-			axEle.setAttribute("shared", "true");
 		axEle.setTextContent(getManchesterRendering(axiom, sf));
 		ele.appendChild(axEle);
 		
@@ -500,6 +506,10 @@ public class XMLReport {
 							Element srcAx = d.createElement("Axiom");
 							if(sharedAxioms != null && sharedAxioms.contains(ax))
 								srcAx.setAttribute("shared", "true");
+							else if(((CategorisedChangeSet)changeSet).getIneffectualRemovals().contains(axiom))
+								srcAx.setAttribute("ineffectual", "true");
+							else
+								srcAx.setAttribute("effectual", "true");
 							srcAx.setTextContent(getManchesterRendering(ax, sf));
 							src.appendChild(srcAx);
 						}
@@ -528,8 +538,6 @@ public class XMLReport {
 		
 		Element axEle = d.createElement("Axiom");
 		OWLAxiom axiom = change.getAxiom();
-		if(sharedAxioms != null && sharedAxioms.contains(axiom))
-			axEle.setAttribute("shared", "true");
 		axEle.setTextContent(getManchesterRendering(axiom, sf));
 		ele.appendChild(axEle);
 		
@@ -544,6 +552,10 @@ public class XMLReport {
 							Element srcAx = d.createElement("Axiom");
 							if(sharedAxioms != null && sharedAxioms.contains(ax))
 								srcAx.setAttribute("shared", "true");
+							else if(((CategorisedChangeSet)changeSet).getIneffectualAdditions().contains(axiom))
+								srcAx.setAttribute("ineffectual", "true");
+							else
+								srcAx.setAttribute("effectual", "true");
 							srcAx.setTextContent(getManchesterRendering(ax, sf));
 							src.appendChild(srcAx);
 						}
@@ -704,6 +716,52 @@ public class XMLReport {
 			}
 			else labelMap.put(e, sf.getShortForm(e));
 		}
+	}
+	
+	
+	/**
+	 * Sort a given set of categorised changes into a list
+	 * @param set	Set of changes
+	 * @param sf	Short form provider
+	 * @return List of ordered categorised changes
+	 */
+	private List<? extends CategorisedChange> sort(Set<? extends CategorisedChange> set, ShortFormProvider sf) {
+		Map<String,CategorisedChange> map = new HashMap<String,CategorisedChange>();
+		for(CategorisedChange c : set) {
+			String ax = getManchesterRendering(c.getAxiom(), sf);
+			map.put(ax, c);
+		}
+		List<String> axStrings = new ArrayList<String>(map.keySet());
+		Collections.sort(axStrings);
+		
+		List<CategorisedChange> output = new ArrayList<CategorisedChange>();
+		for(String s : axStrings) {
+			output.add(map.get(s));
+		}
+		return output;
+	}
+	
+	
+	/**
+	 * Sort a given set of axioms into a list
+	 * @param set	Set of axioms
+	 * @param sf	Short form provider
+	 * @return List of ordered axioms 
+	 */
+	private List<OWLAxiom> sortAxioms(Set<OWLAxiom> set) {
+		Map<String,OWLAxiom> map = new HashMap<String,OWLAxiom>();
+		for(OWLAxiom axiom : set) {
+			String ax = getManchesterRendering(axiom, sf);
+			map.put(ax, axiom);
+		}
+		List<String> axStrings = new ArrayList<String>(map.keySet());
+		Collections.sort(axStrings);
+		
+		List<OWLAxiom> output = new ArrayList<OWLAxiom>();
+		for(String s : axStrings) {
+			output.add(map.get(s));
+		}
+		return output;
 	}
 	
 	

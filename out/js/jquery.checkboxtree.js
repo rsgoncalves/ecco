@@ -318,7 +318,6 @@ $.widget("daredevel.checkboxTree", {
      * @param li node to check
      */
     check: function(li) {
-
         li.find('input:checkbox:first:not(:checked)').attr('checked', true).change();
 
         // handle others
