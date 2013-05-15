@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 If not, see http://www.gnu.org/licenses/
 -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ecco="http://owl.cs.manchester.ac.uk/diff">
-	<xsl:output method="html"/>
+	<xsl:output method="html" encoding="UTF-8"/>
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -55,7 +55,7 @@ If not, see http://www.gnu.org/licenses/
 					<h3>view-permalink</h3>
 					<textarea id="view-plink" rows="3" cols="60" readonly="true" style="resize: none;"/><br/>
 					[<a href="javascript:;" onclick="select_all('view-plink');">Select all</a>]
-					<a class="close-reveal-modal">&#215;</a>
+					<a class="close-reveal-modal">x</a>
 				</div>
 				<br/>
 				<br/>
