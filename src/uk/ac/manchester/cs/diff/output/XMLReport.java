@@ -506,9 +506,9 @@ public class XMLReport {
 							Element srcAx = d.createElement("Axiom");
 							if(sharedAxioms != null && sharedAxioms.contains(ax))
 								srcAx.setAttribute("shared", "true");
-							else if(((CategorisedChangeSet)changeSet).getIneffectualRemovals().contains(axiom))
+							else if(((CategorisedChangeSet)changeSet).getIneffectualRemovalAxioms().contains(ax))
 								srcAx.setAttribute("ineffectual", "true");
-							else
+							else if(((CategorisedChangeSet)changeSet).getEffectualRemovalAxioms().contains(ax))
 								srcAx.setAttribute("effectual", "true");
 							srcAx.setTextContent(getManchesterRendering(ax, sf));
 							src.appendChild(srcAx);
@@ -552,9 +552,9 @@ public class XMLReport {
 							Element srcAx = d.createElement("Axiom");
 							if(sharedAxioms != null && sharedAxioms.contains(ax))
 								srcAx.setAttribute("shared", "true");
-							else if(((CategorisedChangeSet)changeSet).getIneffectualAdditions().contains(axiom))
+							else if(((CategorisedChangeSet)changeSet).getIneffectualAdditionAxioms().contains(ax))
 								srcAx.setAttribute("ineffectual", "true");
-							else
+							else if(((CategorisedChangeSet)changeSet).getEffectualAdditionAxioms().contains(ax))
 								srcAx.setAttribute("effectual", "true");
 							srcAx.setTextContent(getManchesterRendering(ax, sf));
 							src.appendChild(srcAx);

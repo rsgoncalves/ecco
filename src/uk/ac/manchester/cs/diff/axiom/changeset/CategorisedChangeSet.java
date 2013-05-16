@@ -49,7 +49,7 @@ public class CategorisedChangeSet implements ChangeSet {
 	private Set<CategorisedEffectualRemoval> weakenings, weakeningsrt, purerems, pureremsrt, retdesc, rmoddef, rmoddefrt;
 	private Set<CategorisedIneffectualAddition> arewrite, aprewrite, aredundancy, areshuffle, anovel, apseudo, aprosp, anew;
 	private Set<CategorisedIneffectualRemoval> rrewrite, rprewrite, rredundancy, rreshuffle, rnovel, rpseudo, rprosp, rnew;
-	private Set<OWLAxiom> sharedAxioms;
+	private Set<OWLAxiom> sharedAxioms, effRems, ineffRems, effAdds, ineffAdds;
 	
 	/**
 	 * Constructor
@@ -642,11 +642,41 @@ public class CategorisedChangeSet implements ChangeSet {
 	
 	
 	/**
+	 * Get the set of effectual addition axioms
+	 * @return Set of effectual addition axioms
+	 */
+	public Set<OWLAxiom> getEffectualAdditionAxioms() {
+		if(effAdds == null) {
+			effAdds = new HashSet<OWLAxiom>();
+			for(CategorisedChange c : effectualAdditions) {
+				effAdds.add(c.getAxiom());
+			}
+		}
+		return effAdds;
+	}
+	
+	
+	/**
 	 * Get the set of categorised effectual removals
 	 * @return Set of categorised effectual removals
 	 */
 	public Set<? extends CategorisedChange> getEffectualRemovals() {
 		return effectualRemovals;
+	}
+	
+	
+	/**
+	 * Get the set of effectual removal axioms
+	 * @return Set of effectual removal axioms
+	 */
+	public Set<OWLAxiom> getEffectualRemovalAxioms() {
+		if(effRems == null) {
+			effRems = new HashSet<OWLAxiom>();
+			for(CategorisedChange c : effectualRemovals) {
+				effRems.add(c.getAxiom());
+			}
+		}
+		return effRems;
 	}
 	
 	
@@ -660,11 +690,41 @@ public class CategorisedChangeSet implements ChangeSet {
 	
 	
 	/**
+	 * Get the set of ineffectual removal axioms
+	 * @return Set of ineffectual removal axioms
+	 */
+	public Set<OWLAxiom> getIneffectualRemovalAxioms() {
+		if(ineffRems == null) {
+			ineffRems = new HashSet<OWLAxiom>();
+			for(CategorisedChange c : ineffectualRemovals) {
+				ineffRems.add(c.getAxiom());
+			}
+		}
+		return ineffRems;
+	}
+	
+	
+	/**
 	 * Get the set of categorised ineffectual additions
 	 * @return Set of categorised ineffectual additions
 	 */
 	public Set<? extends CategorisedChange> getIneffectualAdditions() {
 		return ineffectualAdditions;
+	}
+	
+	
+	/**
+	 * Get the set of ineffectual addition axioms
+	 * @return Set of ineffectual addition axioms
+	 */
+	public Set<OWLAxiom> getIneffectualAdditionAxioms() {
+		if(ineffAdds == null) {
+			ineffAdds = new HashSet<OWLAxiom>();
+			for(CategorisedChange c : ineffectualAdditions) {
+				ineffAdds.add(c.getAxiom());
+			}
+		}
+		return ineffAdds;
 	}
 	
 	
