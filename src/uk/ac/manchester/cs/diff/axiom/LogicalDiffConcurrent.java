@@ -142,6 +142,7 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 		return logicalChangeSet;
 	}
 	
+	
 	/**
 	 * Ineffectual change checker worker  
 	 */
@@ -173,40 +174,6 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 			return ineffectual;
 		}
 	}
-	
-	
-	/**
-	 * Ineffectual change checker worker  
-	 */
-//	public class IneffectualChangeChecker extends RecursiveTask<Set<OWLAxiom>> {
-//		private static final long serialVersionUID = 1091360247188844394L;
-//		private Set<OWLAxiom> axioms;
-//		private OWLReasoner reasoner;
-//
-//		/**
-//		 * Constructor
-//		 * @param axioms	Set of axioms to be checked
-//		 * @param reasoner	Reasoner instance
-//		 */
-//		public IneffectualChangeChecker(Set<OWLAxiom> axioms, OWLReasoner reasoner) {
-//			this.axioms = axioms;
-//			this.reasoner = reasoner;
-//		}
-//		
-//		@Override
-//		protected Set<OWLAxiom> compute() {
-//			Set<OWLAxiom> ineffectual = null;
-//			Set<OWLEntity> ontSig = reasoner.getRootOntology().getSignature();
-//			ineffectual = new HashSet<OWLAxiom>();
-//			for(OWLAxiom axiom : axioms) {
-//				if(ontSig.containsAll(axiom.getSignature())) {
-//					if(reasoner.isEntailed(axiom))
-//						ineffectual.add(axiom);
-//				}
-//			}
-//			return ineffectual;
-//		}
-//	}
 	
 	
 	/**

@@ -23,6 +23,10 @@ import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.FreshEntityPolicy;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
+
+import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -55,8 +59,8 @@ public class ReasonerLoader {
 	
 	
 	/**
-	 * Create a Hermit reasoner instance
-	 * @return JFact reasoner instance
+	 * Create a HermiT reasoner instance
+	 * @return Reasoner instance
 	 */
 	public OWLReasoner createReasoner() {
 		Configuration config = new Configuration();
@@ -69,6 +73,25 @@ public class ReasonerLoader {
 		
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		return reasoner;
+	}
+	
+	
+	/**
+	 * Create a FaCT++ reasoner instance
+	 * @return Reasoner instance
+	 */
+	public OWLReasoner createFactReasoner() {
+		SimpleConfiguration config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE);
+		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
+		
+		if(verbose) System.out.println("   Creating reasoner...");
+		long start = System.currentTimeMillis();
+		
+		OWLReasoner reasoner = fac.createReasoner(ont, config);
+		
+		long end = System.currentTimeMillis();
+		if(verbose) System.out.println("   done (" + (end-start)/1000.0 + " secs)");
 		return reasoner;
 	}
 	

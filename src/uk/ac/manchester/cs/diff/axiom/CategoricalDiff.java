@@ -56,7 +56,7 @@ import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval.Ineff
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
-import uk.ac.manchester.cs.diff.justifications.Justifications;
+import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
 import uk.ac.manchester.cs.diff.output.CSVReport;
 import uk.ac.manchester.cs.diff.output.XMLReport;
 import uk.ac.manchester.cs.diff.utils.ProgressMonitor;
@@ -487,7 +487,7 @@ public class CategoricalDiff implements AxiomDiff {
 		long start = System.currentTimeMillis();
 		
 		if(verbose) System.out.print("\tComputing justifications... ");
-		Justifications just = new Justifications(ont);
+		JustificationFinder just = new JustificationFinder(ont);
 		Set<Set<Explanation<OWLAxiom>>> exps = null;
 		try { 
 			exps = just.getJustifications(axioms); 
@@ -539,7 +539,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CategorisedChange categoriseIneffectualChange(String desc, Set<Explanation<OWLAxiom>> exps, Set<OWLAxiom> effectual, Set<OWLAxiom> ineffectual,
-			OWLOntology ont, Justifications just, OWLReasoner src_reasoner) throws OWLOntologyCreationException {
+			OWLOntology ont, JustificationFinder just, OWLReasoner src_reasoner) throws OWLOntologyCreationException {
 		boolean entailmentAssigned = false;
 		OWLAxiom entailment = null;
 		HashMap justMap = null;

@@ -167,8 +167,13 @@ public class EccoRunner {
 	}
 	
 	
-	/*
-	 * Load ontology
+	/**
+	 * Load ontology from a file path
+	 * @param ontNr	Ontology number
+	 * @param filepath	Ontology file path
+	 * @param localFile	true if local file, false otherwise
+	 * @return Loaded ontology
+	 * @throws OWLOntologyCreationException
 	 */
 	public OWLOntology loadOntology(int ontNr, String filepath, boolean localFile) throws OWLOntologyCreationException {
 		if(!localFile) sep = "/";
@@ -211,8 +216,13 @@ public class EccoRunner {
 	}
 	
 	
-	/*
-	 * Load ontology
+	/**
+	 * Load ontology from an input stream
+	 * @param ontNr	Ontology nunmber
+	 * @param stream	Input stream
+	 * @param localFile	true if local file, false otherwise
+	 * @return Loaded ontology
+	 * @throws OWLOntologyCreationException
 	 */
 	public OWLOntology loadOntology(int ontNr, InputStream stream, boolean localFile) throws OWLOntologyCreationException {
 		if(!localFile) sep = "/";

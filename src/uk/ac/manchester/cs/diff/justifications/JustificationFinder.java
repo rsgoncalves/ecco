@@ -56,7 +56,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class Justifications {
+public class JustificationFinder {
 	private OWLOntology ont;
 	private OWLReasonerFactory rf;
 	private OWLOntologyManager man;
@@ -67,7 +67,7 @@ public class Justifications {
 	 * Constructor
 	 * @param ont	OWL ontology
 	 */
-	public Justifications(OWLOntology ont) {
+	public JustificationFinder(OWLOntology ont) {
 		this.ont = ont;
 		man = OWLManager.createOWLOntologyManager();
 		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();

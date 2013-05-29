@@ -55,8 +55,6 @@
 	    <javadoc packagenames="src" sourcepath="${src}" destdir="${doc}" nodeprecatedlist="yes" nodeprecated="yes">
 		    <fileset dir="${src}">
 			    <include name="**"/>
-			    <exclude name="uk/ac/manchester/cs/diff/modularity/**"/>
-			    <exclude name="uk/ac/manchester/cs/diff/concept/**"/>
 			    <exclude name="uk/ac/manchester/cs/diff/test/**"/>
 			</fileset>
             <classpath refid="project.class.path"/>

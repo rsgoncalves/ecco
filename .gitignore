@@ -1,6 +1,5 @@
 # Preliminary and test code #
 src/uk/ac/manchester/cs/diff/test/
-src/uk/ac/manchester/cs/diff/concept*
 
 # Test files #
 *.csv
@@ -8,6 +7,8 @@ src/uk/ac/manchester/cs/diff/concept*
 todo
 *.xml
 out/xslt_server.xsl
+out/*.txt
+out/test/*
 
 # Build #
 *.xpr
