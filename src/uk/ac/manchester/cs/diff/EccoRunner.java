@@ -60,21 +60,21 @@ import uk.ac.manchester.cs.diff.output.XMLReport;
  * University of Manchester <br/>
  */
 public class EccoRunner {
-	private static final String versionInfo = "2.0b";
-	private static final String releaseDate = "7-May-2013";
+	private static final String versionInfo = "2.0";
+	private static final String releaseDate = "23-June-2013";
 	private static final String PROGRAM_TITLE = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
 			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
-			"by Rafael Goncalves. Copyright 2011-2013, University of Manchester";
+			"by Rafael Goncalves. Copyright 2011-2013 University of Manchester";
 	
 	private boolean processImports, ignoreAbox, transform, verbose, normalizeURIs;
 	private static String sep = File.separator;
 	private OWLOntologyManager man;
 	private OWLOntologyLoaderConfiguration config;
 	private String outputDir;
-	
+	private int nrJusts;
 	
 	/**
 	 * Constructor
@@ -84,11 +84,12 @@ public class EccoRunner {
 	 * @param normalizeURIs	true if namespaces of shared entities should be forced to be similar, false otherwise
 	 * @param verbose	true if detailed messages should be output, false otherwise
 	 */
-	public EccoRunner(boolean processImports, boolean ignoreAbox, boolean transform, boolean normalizeURIs, boolean verbose) {
+	public EccoRunner(boolean processImports, boolean ignoreAbox, boolean transform, boolean normalizeURIs, int nrJusts, boolean verbose) {
 		this.processImports = processImports;
 		this.ignoreAbox = ignoreAbox;
 		this.transform = transform;
 		this.normalizeURIs = normalizeURIs;
+		this.nrJusts = nrJusts;
 		this.verbose = verbose;
 		man = OWLManager.createOWLOntologyManager();
 		config = new OWLOntologyLoaderConfiguration();
@@ -119,7 +120,7 @@ public class EccoRunner {
 		else if(structDiff) 
 			diff = new StructuralDiff(ont1, ont2, verbose);
 		else
-			diff = new CategoricalDiff(ont1, ont2, verbose);
+			diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
 		
 		XMLReport report = diff.getXMLReport();
 		if(serializeOutput) 
@@ -143,7 +144,7 @@ public class EccoRunner {
 		saveDocumentToFile(report, report.getXMLDocumentReport(), outputDir, "_names", xsltPath);	// Entity name based document
 		saveDocumentToFile(report, report.getXMLDocumentReportUsingLabels(), outputDir, "_labels", xsltPath);	// Label based document
 		saveDocumentToFile(report, report.getXMLDocumentReportUsingGenSyms(), outputDir, "_gensyms", xsltPath);	// Gensym based document
-		saveStringToFile(outputDir, "EccoLog.csv", csvFile, sep);
+		saveStringToFile(outputDir, "eccoLog.csv", csvFile, sep);
 	}
 	
 	
@@ -186,7 +187,7 @@ public class EccoRunner {
 			if(localFile) ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create("file:" + filepath)), config);
 			else ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create(filepath)), config);
 		} catch (OWLOntologyCreationException e) {
-			System.out.println("\n! [Invalid IRI]\tUnable to load ontology " + ontNr + "\n");
+			e.printStackTrace();
 		}
 		
 		Set<OWLAxiom> result = null;
@@ -203,7 +204,7 @@ public class EccoRunner {
 							result.addAll(imported.getLogicalAxioms());
 							man.removeOntology(imported);
 						} catch (OWLOntologyCreationException e) {
-							System.out.println("\n! [Invalid IRI]\tUnable to load the imported ontology: " + d.getURI() + "\n");
+							e.printStackTrace();
 						}
 					}
 				}
@@ -226,14 +227,7 @@ public class EccoRunner {
 	 */
 	public OWLOntology loadOntology(int ontNr, InputStream stream, boolean localFile) throws OWLOntologyCreationException {
 		if(!localFile) sep = "/";
-		
-		OWLOntology ont = null;
-		try {
-			ont = man.loadOntologyFromOntologyDocument(new StreamDocumentSource(stream), config);
-		} catch (OWLOntologyCreationException e) {
-			e.printStackTrace();
-		}
-		
+		OWLOntology ont = man.loadOntologyFromOntologyDocument(new StreamDocumentSource(stream), config);
 		Set<OWLAxiom> result = null;
 		if(ont != null) {
 			if(ignoreAbox) removeAbox(ont);
@@ -364,17 +358,19 @@ public class EccoRunner {
 		System.out.println("	[ONTOLOGY]	An input ontology file path or URL");
 		System.out.println();
 		System.out.println("	[OPTIONS]");
-		System.out.println("	-o		Output directory for the XML change set and CSV log");
-		System.out.println("	-t		Transform resulting XML report into HTML");
-		System.out.println("	-s		Perform structural diff only");
-		System.out.println("	-l		Perform logical diff only");
-		System.out.println("	-r		Analyze the root ontologies only, not any of their imports");
-		System.out.println("	-n		Normalize entity URIs, i.e. if two ontologies have the same entity");
-		System.out.println("			names in a different namespace, this trigger establishes a common namespace");
-		System.out.println("	-x		File path to XSL Transformation file");
-		System.out.println("	-i		Ignore Abox axioms");
-		System.out.println("	-v		Verbose mode");
-		System.out.println("	-h -help	Print this help message\n");
+		System.out.println("	-o		[o]utput directory for the XML change set and CSV log");
+		System.out.println("	-t		[t]ransform resulting XML report into HTML");
+		System.out.println("	-s		compute [s]tructural diff only");
+		System.out.println("	-l		compute [l]ogical diff only");
+		System.out.println("	-r		analyze [r]oot ontologies only, i.e., ignore imports");
+		System.out.println("	-n		[n]ormalize entity URIs, i.e. if two ontologies have the same entity names");
+		System.out.println("			in a different namespace, this trigger establishes a common namespace");
+		System.out.println("	-x		filepath to [X]SL Transformation file");
+		System.out.println("	-i		[i]gnore Abox axioms");
+		System.out.println("	-j		maximum number of [j]ustifications computed perineffectual change. Reducing");
+		System.out.println("			this can significantly speed things up [default: 10]");
+		System.out.println("	-v		[v]erbose mode");
+		System.out.println("	-h -help	print [h]elp message\n");
 	}
 	
 	
@@ -391,6 +387,7 @@ public class EccoRunner {
 				structDiff = false, logDiff = false, verbose = false, transform = false, localOnt1 = true, localOnt2 = true;
 		System.out.println(PROGRAM_TITLE);
 		String outputDir = "", xsltPath = null, f1 = null, f2 = null;
+		int nrJusts = 10;
 		
 		for(int i = 0; i < args.length; i++) {
 			String arg = args[i].trim();
@@ -431,6 +428,10 @@ public class EccoRunner {
 				processImports = false; 
 			else if(arg.equalsIgnoreCase("-i"))		// Ignore Abox axioms
 				ignoreAbox = true;
+			else if(arg.equalsIgnoreCase("-j"))	{	// Number of justifications per ineffectual change
+				if(++i == args.length) throw new RuntimeException("\n-j must be followed by a positive integer");
+				nrJusts = Integer.parseInt(args[i].trim());
+			}
 			else if(arg.equalsIgnoreCase("-v"))		// Verbose mode
 				verbose = true;
 			else if(arg.equalsIgnoreCase("-h") || arg.equalsIgnoreCase("-help")) {		// Print help message
@@ -451,7 +452,7 @@ public class EccoRunner {
 				System.out.println("* For accurate results ensure that the namespace fragment of shared terms\n" +
 					"across ontologies is the same. If not, execute again with the -n flag *\n");
 			
-			EccoRunner runner = new EccoRunner(processImports, ignoreAbox, transform, normalizeURIs, verbose);
+			EccoRunner runner = new EccoRunner(processImports, ignoreAbox, transform, normalizeURIs, nrJusts, verbose);
 			
 			if(outputDir.equals("ont1"))
 				runner.setOutputDirectory(outputDir, f1, localOnt1);

@@ -9,7 +9,7 @@
 # 
 # Last updated: 7-May-13
 # 
-# Compile sources and produce the JAR and javadocs
+# Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
 [ -f ecco.jar ] || (echo "Building ecco from sources..." && ant)
 # 
 # Set the maximum memory to be used, by default, 4GB
@@ -19,4 +19,4 @@ maxmem="4G"
 lib=`pwd`"/lib" 
 #
 # Run ecco with the specified arguments
-java -Xmx"$maxmem" -Djava.library.path="$lib" -jar ecco.jar $*
+java -Xmx"$maxmem" -Djava.library.path="$lib" -DentityExpansionLimit=100000000 -jar ecco.jar $*

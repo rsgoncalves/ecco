@@ -82,9 +82,10 @@ public class CategoricalDiff implements AxiomDiff {
 	private LogicalChangeSet logicalChangeSet;
 	private OWLReasoner ont1reasoner, ont2reasoner, emptyOntReasoner;
 	private Set<OWLAxiom> sharedAxioms;
-	private double diffTime, eaTime, erTime, iaTime, irTime;
+	private double diffTime, eaTime, erTime, iaTime, irTime, lacJustTime = 0;
+	private int nrJusts;
 	private boolean verbose;
-	private ShortFormProvider p = new SimpleShortFormProvider();
+	private static ShortFormProvider p = new SimpleShortFormProvider();
 
 	/**
 	 * Constructor
@@ -92,9 +93,10 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param ont2	Ontology 2
 	 * @param verbose	Verbose mode
 	 */
-	public CategoricalDiff(OWLOntology ont1, OWLOntology ont2, boolean verbose) {
+	public CategoricalDiff(OWLOntology ont1, OWLOntology ont2, int nrJusts, boolean verbose) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
+		this.nrJusts = nrJusts;
 		this.verbose = verbose;
 		man = OWLManager.createOWLOntologyManager();
 		df = man.getOWLDataFactory();
@@ -109,10 +111,11 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param logicalChangeSet	Logical change set
 	 * @param verbose	Verbose mode
 	 */
-	public CategoricalDiff(OWLOntology ont1, OWLOntology ont2, LogicalChangeSet logicalChangeSet, boolean verbose) {
+	public CategoricalDiff(OWLOntology ont1, OWLOntology ont2, LogicalChangeSet logicalChangeSet, int nrJusts, boolean verbose) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.logicalChangeSet = logicalChangeSet;
+		this.nrJusts = nrJusts;
 		this.verbose = verbose;
 		man = OWLManager.createOWLOntologyManager();
 		df = man.getOWLDataFactory();
@@ -487,22 +490,21 @@ public class CategoricalDiff implements AxiomDiff {
 		long start = System.currentTimeMillis();
 		
 		if(verbose) System.out.print("\tComputing justifications... ");
-		JustificationFinder just = new JustificationFinder(ont);
+		JustificationFinder just = new JustificationFinder(ont, nrJusts);
 		Set<Set<Explanation<OWLAxiom>>> exps = null;
 		try { 
 			exps = just.getJustifications(axioms); 
 		} catch (OWLOntologyCreationException e) { e.printStackTrace(); }
 		if(verbose) System.out.println("done");
 		
-		long end_js = System.currentTimeMillis();
-		double total2 = (end_js-start)/1000.0;
+		double justTime = (System.currentTimeMillis()-start)/1000.0;
 		
 		ProgressMonitor progress = new ProgressMonitor(exps);
 		int status = 0;
-		
 		for(Set<Explanation<OWLAxiom>> expsSet : exps) {
 			try {
-				result.add(categoriseIneffectualChange(desc, expsSet, effectual, ineffectual, ont, just, src_reasoner));
+				if(!expsSet.isEmpty()) // Tweak: some axioms were found where the explanation generator fails to find justifications
+					result.add(categoriseIneffectualChange(desc, expsSet, effectual, ineffectual, ont, just, src_reasoner));
 			} catch (OWLOntologyCreationException e) {
 				e.printStackTrace();
 			}
@@ -515,7 +517,11 @@ public class CategoricalDiff implements AxiomDiff {
 
 		long end = System.currentTimeMillis();
 		double total = (end-start)/1000.0;
-		if(verbose) System.out.println("\n   done (" + total + " secs, of which " + total2 + " seconds justification finding)");
+		if(verbose) 
+			System.out.println("\n   done (" + total + " secs, of which: " + justTime + " secs finding justifications, and " 
+					+ Math.round(lacJustTime*100.0)/100.0 + " secs finding laconic justifications)");
+		
+		lacJustTime = 0.0; // reset timer
 		if(desc.equals("rhs")) iaTime = total;
 		else irTime = total;
 		
@@ -547,7 +553,6 @@ public class CategoricalDiff implements AxiomDiff {
 		else justMap = new HashMap<Explanation<OWLAxiom>,Set<IneffectualRemovalCategory>>();
 		
 		OWLOntology entOnt = null; OWLReasoner reasoner = null;
-		
 		for(Explanation<OWLAxiom> explanation : exps) {
 			boolean prospRedundantNovelAx = false, rewrittenAx = false, redundancyAx = false, prospRedundantAx = false;
 			if(!entailmentAssigned) {
@@ -556,6 +561,7 @@ public class CategoricalDiff implements AxiomDiff {
 				entOnt = createOntology(entailment);
 				reasoner = new ReasonerLoader(entOnt).createReasoner();
 			}
+			
 			int entailedAxs = 0, shared = 0;
 			for(OWLAxiom ax : explanation.getAxioms()) {
 				// Rewrite: If the axiom entails the justification, the axiom is rewritten
@@ -584,7 +590,10 @@ public class CategoricalDiff implements AxiomDiff {
 				updateJustificationMap(desc, justMap, explanation, "reshuffle");
 			// Prospective new redundancy 
 			if(prospRedundantNovelAx && !rewrittenAx && !redundancyAx) {
+				long start = System.currentTimeMillis();
 				Set<Set<OWLAxiom>> lacJusts = just.getLaconicJustifications(entailment, Collections.singleton(explanation));
+				lacJustTime += (System.currentTimeMillis()-start)/1000.0;
+				
 				boolean isNew = false;
 				loopExps:
 				for(Set<OWLAxiom> exp : lacJusts) {
@@ -755,14 +764,12 @@ public class CategoricalDiff implements AxiomDiff {
 	}
 	
 	
-	
 	/**
 	 * Get Manchester syntax of an OWL object
 	 * @param obj	OWL object
 	 * @return A string with the object's conversion to Manchester syntax 
 	 */
-	@SuppressWarnings("unused")
-	private String getManchesterRendering(OWLObject obj) {
+	public static String getManchesterRendering(OWLObject obj) {
 		StringWriter wr = new StringWriter();
 		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, p);
 		obj.accept(render);

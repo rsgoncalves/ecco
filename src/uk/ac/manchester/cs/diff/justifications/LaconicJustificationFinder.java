@@ -29,7 +29,8 @@ import org.semanticweb.owl.explanation.api.ExplanationGeneratorFactory;
 import org.semanticweb.owl.explanation.api.ExplanationManager;
 import org.semanticweb.owl.explanation.impl.laconic.LaconicExplanationGeneratorFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.io.StringDocumentSource;
+import org.semanticweb.owlapi.io.IRIDocumentSource;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLLogicalAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -71,6 +72,7 @@ public class LaconicJustificationFinder {
 		// Set timeout
 		Timer t = new Timer(true);
 		t.schedule(interrupt, timeout);
+
 		// Find laconic justs
 		ExplanationGenerator<OWLAxiom> lacGen = lacFac.createExplanationGenerator(just.getAxioms());
 		Set<Explanation<OWLAxiom>> results = new HashSet<Explanation<OWLAxiom>>();
@@ -113,7 +115,6 @@ public class LaconicJustificationFinder {
 	private TimerTask interrupt = new TimerTask() {
 		@Override
 		public void run() {
-//			System.out.print("\n\tLaconic Justification Finder: Task exceeded timeout");
 			System.exit(0);
 		}
 	};
@@ -128,13 +129,15 @@ public class LaconicJustificationFinder {
 		OWLOntologyManager man = OWLManager.createOWLOntologyManager();
 		OWLOntology ent = null, just = null;
 		try {
-			ent = man.loadOntologyFromOntologyDocument(new StringDocumentSource(entailment));
-			just = man.loadOntologyFromOntologyDocument(new StringDocumentSource(justification));
+			ent = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create("file:" + entailment)));
+			just = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create("file:" + justification)));
 		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
 		}
-		LaconicJustificationFinder finder = new LaconicJustificationFinder(ent, just);
-		String out = finder.getLaconicJustificationAsString();
-		System.out.println(out);
+		if(ent != null && just != null) {
+			LaconicJustificationFinder finder = new LaconicJustificationFinder(ent, just);
+			String out = finder.getLaconicJustificationAsString();
+			System.out.println(out);
+		}
 	}
 }

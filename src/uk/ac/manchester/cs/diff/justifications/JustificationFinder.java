@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,12 +44,17 @@ import org.semanticweb.owl.explanation.api.ExplanationGeneratorFactory;
 import org.semanticweb.owl.explanation.api.ExplanationManager;
 import org.semanticweb.owl.explanation.impl.laconic.LaconicExplanationGeneratorFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.OWLXMLOntologyFormat;
 import org.semanticweb.owlapi.io.StringDocumentSource;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+
+import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -61,14 +67,16 @@ public class JustificationFinder {
 	private OWLReasonerFactory rf;
 	private OWLOntologyManager man;
 	private ExplanationGeneratorFactory<OWLAxiom> regFac, lacFac;
-	private final int lacJustLimit = 1, justLimit = 5;
+	private int lacJustLimit = 1, nrJusts;
+	private int justCounter = 0, entCounter = 0;
 
 	/**
 	 * Constructor
 	 * @param ont	OWL ontology
 	 */
-	public JustificationFinder(OWLOntology ont) {
+	public JustificationFinder(OWLOntology ont, int nrJusts) {
 		this.ont = ont;
+		this.nrJusts = nrJusts;
 		man = OWLManager.createOWLOntologyManager();
 		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
 		regFac = ExplanationManager.createExplanationGeneratorFactory(rf);
@@ -83,7 +91,7 @@ public class JustificationFinder {
 	 */
 	public Set<Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
 		ForkJoinPool fjPool = new ForkJoinPool();
-		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
+		return fjPool.invoke(new RegularJustificationFinder(entailments, nrJusts));
 	}
 	
 	
@@ -112,9 +120,12 @@ public class JustificationFinder {
 		 */
 		public Set<Set<Explanation<OWLAxiom>>> computeDirectly() {
 			Set<Set<Explanation<OWLAxiom>>> regExps = new HashSet<Set<Explanation<OWLAxiom>>>();
-			ExplanationGenerator<OWLAxiom> exGen = regFac.createExplanationGenerator(ont);
 			for(OWLAxiom ax : axioms) {
-				regExps.add(exGen.getExplanations(ax, limit));
+				ExplanationGenerator<OWLAxiom> exGen = regFac.createExplanationGenerator(ont);
+				Set<Explanation<OWLAxiom>> justs = exGen.getExplanations(ax, limit);
+				regExps.add(justs);
+				if(justs.isEmpty())
+					System.err.println("\n\t !! Could not retrieve justifications for axiom:\n\t\t" + CategoricalDiff.getManchesterRendering(ax));
 			}
 			return regExps;
 		}
@@ -204,11 +215,16 @@ public class JustificationFinder {
 		public Set<Set<OWLAxiom>> call() {
 			Set<Set<OWLAxiom>> out = new HashSet<Set<OWLAxiom>>();
 			List<String> list = new ArrayList<String>();
-			list.add("Ontology(" + ax.toString() + ")");
-			list.add(getOntologyAsString(just));
+			
+			File entFile = serializeOntAndGetFile("ent", entCounter, Collections.singleton(ax));
+			list.add(entFile.getAbsolutePath());
+			
+			File justFile = serializeOntAndGetFile("just", justCounter, just);
+			list.add(justFile.getAbsolutePath());
+			
 			String output = null;
 			try {
-				Process p = executeOperation(LaconicJustificationFinder.class, false, list);
+				Process p = executeOperation(LaconicJustificationFinder.class, true, list);
 				output = streamToString(p.getInputStream());
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
@@ -222,20 +238,27 @@ public class JustificationFinder {
 					}
 				}
 			}
+			justFile.deleteOnExit();
+			entFile.deleteOnExit();
 			return out;
 		}
 		
 		/**
-		 * Get set of axioms as an ontology string
-		 * @param axioms	Set of axioms
-		 * @return String representing an ontology containing the specified axioms 
+		 * Create and serialize an ontology containing the given axioms 
+		 * @param axioms
+		 * @return
 		 */
-		private String getOntologyAsString(Set<OWLAxiom> axioms) {
-			String out = "Ontology(";
-			for(OWLAxiom ax : axioms)
-				out += ax.toString() + "\n";
-			out += ")";
-			return out;
+		private File serializeOntAndGetFile(String desc, int counter, Set<OWLAxiom> axioms) {
+			File f = new File("temp" + File.separator + desc + counter + ".owl");
+			try {
+				OWLOntology ont = man.createOntology(axioms);
+				man.saveOntology(ont, new OWLXMLOntologyFormat(), IRI.create(f));
+				if(desc.equals("ent")) entCounter++;
+				else if(desc.equals("just")) justCounter++;
+			} catch (OWLOntologyStorageException | OWLOntologyCreationException e) {
+				e.printStackTrace();
+			}
+			return f;
 		}
 		
 		/**
@@ -277,10 +300,10 @@ public class JustificationFinder {
 			cmdArgs.addAll(args);
 
 			ProcessBuilder builder = new ProcessBuilder(cmdArgs);
-			builder.redirectError(Redirect.INHERIT);
-			builder.redirectOutput(Redirect.PIPE);
+			builder.redirectError(Redirect.INHERIT);			
 			if(redirectIO) builder.redirectOutput(Redirect.INHERIT);
-
+			else builder.redirectOutput(Redirect.PIPE);
+			
 			Process process = builder.start();
 			process.waitFor();
 			return process;

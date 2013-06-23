@@ -3,7 +3,7 @@
 
 #### a diff tool for OWL ontologies ####
 
-In order to try out *ecco*, it is available as a web-based application [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
+In order to try out *ecco*, it is available as a Web-based application [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
 
 
 intro
