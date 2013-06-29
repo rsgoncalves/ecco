@@ -3,7 +3,7 @@
 
 #### a diff tool for OWL ontologies ####
 
-In order to try out *ecco*, it is available as a Web-based application [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
+built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
 
 
 intro
@@ -29,10 +29,11 @@ usage
     * -t    Transform XML diff report into HTML
     * -s    Perform structural diff only
     * -l	Perform logical diff only
-    * -r    Analyse root ontologies only, not any of their imports
+    * -r    Analyse root ontologies only, i.e. ignore imports
     * -n    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace
     * -x		File path to XSL Transformation file
     * -i		Ignore Abox axioms
+    * -j		Maximum number of justifications per ineffectual change
     * -v		Verbose mode
     * -h -help	Print this help message
 
@@ -57,14 +58,14 @@ future plans
 * Alignment of concepts and axioms
 
 
-acknowledgments
+dependencies
 --------------------
 
 *ecco* relies on the following projects:
 
- * [The OWL API](http://owlapi.sourceforge.net/)
- * [HermiT](http://www.hermit-reasoner.com/) reasoner
- * [FaCT++](https://code.google.com/p/factplusplus/) reasoner
+ * [OWL API](http://owlapi.sourceforge.net/) (v3.4.5)
+ * [HermiT](http://www.hermit-reasoner.com/) reasoner (v1.3.8)
+ * [FaCT++](https://code.google.com/p/factplusplus/) reasoner (v1.6.2)
  
  
 license
