@@ -25,20 +25,17 @@ usage
 * `[OPTIONS]`
     * `-o`    Output directory for generated files
     * `-t`    Transform XML diff report into HTML
-    * `-s`    Perform structural diff only
-    * `-l`	Perform logical diff only
+    * `-s`    Compute structural diff only
+    * `-l`	Compute logical diff only
     * `-r`    Analyse root ontologies only, i.e. ignore imports
     * `-n`    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace
-    * `-x`		File path to XSL Transformation file
+    * `-x`		File path of XSLT file
     * `-i`		Ignore Abox axioms
-    * `-j`		Maximum number of justifications per ineffectual change
+    * `-j`		Maximum number of justifications computed per ineffectual change
     * `-v`		Verbose mode
     * `-h` `-help`	Print this help message
 
-The standard output of *ecco* is an XML file representing the change set. 
-With the **-t** flag, *ecco* will transform this XML file into HTML. If an output 
-directory is not specified (via **-o**), the HTML file is saved in the **_/out_** (or **_\out_** in Windows) folder, which 
-contains the required files for appropriate rendering on a Web browser. For a more informative progress monitoring, use the **-v** flag.
+The standard output of *ecco* is an XML file representing the change set. With the **-t** flag, *ecco* will transform this XML file into HTML using the supplied XSLT file (if the location of this file changes, specify the new location via **-x**). If an output directory is not specified (via **-o**), the HTML file is saved in the **_/out_** (or **_\out_** in Windows) folder, which contains the required files for appropriate rendering on a Web browser. For a more informative progress monitoring, use the **-v** flag.
 
 
 before running
