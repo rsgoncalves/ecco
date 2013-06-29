@@ -35,7 +35,7 @@ usage
     * `-v`		Verbose mode
     * `-h` `-help`	Print this help message
 
-The standard output of *ecco* is an XML file representing the change set. With the **-t** flag, *ecco* will transform this XML file into HTML using the supplied XSLT file (if the location of this file changes, specify the new location via **-x**). If an output directory is not specified (via **-o**), the HTML file is saved in the **_/out_** (or **_\out_** in Windows) folder, which contains the required files for appropriate rendering on a Web browser. For a more informative progress monitoring, use the **-v** flag.
+The standard output of *ecco* is an XML file representing the change set. With the **-t** flag, *ecco* will transform this XML file into HTML using the supplied XSLT file (if the location of this file changes, specify the new location via the **-x** flag). By default, the output goes to the **_/out_** (or **_\out_** in Windows) folder, which contains the required files for appropriate rendering on a Web browser. This can be altered via the **-o** flag, though make sure the contents of the default output folder are shifted over to the new output location. For a more informative progress monitoring, use the **-v** flag.
 
 
 before running
