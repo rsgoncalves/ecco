@@ -67,7 +67,7 @@ public class JustificationFinder {
 	private OWLReasonerFactory rf;
 	private OWLOntologyManager man;
 	private ExplanationGeneratorFactory<OWLAxiom> regFac, lacFac;
-	private int lacJustLimit = 1, nrJusts;
+	private int lacJustLimit, justLimit;
 	private int justCounter = 0, entCounter = 0;
 
 	/**
@@ -76,7 +76,8 @@ public class JustificationFinder {
 	 */
 	public JustificationFinder(OWLOntology ont, int nrJusts) {
 		this.ont = ont;
-		this.nrJusts = nrJusts;
+		this.justLimit = nrJusts;
+		this.lacJustLimit = nrJusts;
 		man = OWLManager.createOWLOntologyManager();
 		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
 		regFac = ExplanationManager.createExplanationGeneratorFactory(rf);
@@ -91,7 +92,7 @@ public class JustificationFinder {
 	 */
 	public Set<Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
 		ForkJoinPool fjPool = new ForkJoinPool();
-		return fjPool.invoke(new RegularJustificationFinder(entailments, nrJusts));
+		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
 	}
 	
 	
@@ -244,9 +245,11 @@ public class JustificationFinder {
 		}
 		
 		/**
-		 * Create and serialize an ontology containing the given axioms 
-		 * @param axioms
-		 * @return
+		 * Create and serialize an ontology containing the given axioms
+		 * @param desc	File description 
+		 * @param counter	File counter
+		 * @param axioms	Set of axioms
+		 * @return The serialized ontology file object
 		 */
 		private File serializeOntAndGetFile(String desc, int counter, Set<OWLAxiom> axioms) {
 			File f = new File("temp" + File.separator + desc + counter + ".owl");

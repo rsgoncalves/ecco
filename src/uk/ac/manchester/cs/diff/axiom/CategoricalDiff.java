@@ -82,7 +82,7 @@ public class CategoricalDiff implements AxiomDiff {
 	private LogicalChangeSet logicalChangeSet;
 	private OWLReasoner ont1reasoner, ont2reasoner, emptyOntReasoner;
 	private Set<OWLAxiom> sharedAxioms;
-	private double diffTime, eaTime, erTime, iaTime, irTime, lacJustTime = 0;
+	private double diffTime, eaTime, erTime, iaTime, irTime, iaJustTime, irJustTime, iaLacJustTime = 0, irLacJustTime = 0;
 	private int nrJusts;
 	private boolean verbose;
 	private static ShortFormProvider p = new SimpleShortFormProvider();
@@ -162,6 +162,10 @@ public class CategoricalDiff implements AxiomDiff {
 		categorisedChangeSet.setEffectualRemovalCategorisationTime(erTime);
 		categorisedChangeSet.setIneffectualRemovalCategorisationTime(irTime);
 		categorisedChangeSet.setIneffectualAdditionCategorisationTime(iaTime);
+		categorisedChangeSet.setIneffectualAdditionJustificationFindingTime(iaJustTime);
+		categorisedChangeSet.setIneffectualAdditionLaconicJustificationFindingTime(iaLacJustTime);
+		categorisedChangeSet.setIneffectualRemovalJustificationFindingTime(irJustTime);
+		categorisedChangeSet.setIneffectualRemovalLaconicJustificationFindingTime(irLacJustTime);
 		
 		if(verbose) printDiff();
 		return categorisedChangeSet;
@@ -495,15 +499,15 @@ public class CategoricalDiff implements AxiomDiff {
 		try { 
 			exps = just.getJustifications(axioms); 
 		} catch (OWLOntologyCreationException e) { e.printStackTrace(); }
-		if(verbose) System.out.println("done");
 		
 		double justTime = (System.currentTimeMillis()-start)/1000.0;
+		if(verbose) System.out.println("done (" + justTime + " secs)");
 		
 		ProgressMonitor progress = new ProgressMonitor(exps);
 		int status = 0;
 		for(Set<Explanation<OWLAxiom>> expsSet : exps) {
 			try {
-				if(!expsSet.isEmpty()) // Tweak: some axioms were found where the explanation generator fails to find justifications
+				if(!expsSet.isEmpty())
 					result.add(categoriseIneffectualChange(desc, expsSet, effectual, ineffectual, ont, just, src_reasoner));
 			} catch (OWLOntologyCreationException e) {
 				e.printStackTrace();
@@ -517,13 +521,21 @@ public class CategoricalDiff implements AxiomDiff {
 
 		long end = System.currentTimeMillis();
 		double total = (end-start)/1000.0;
-		if(verbose) 
-			System.out.println("\n   done (" + total + " secs, of which: " + justTime + " secs finding justifications, and " 
-					+ Math.round(lacJustTime*100.0)/100.0 + " secs finding laconic justifications)");
 		
-		lacJustTime = 0.0; // reset timer
-		if(desc.equals("rhs")) iaTime = total;
-		else irTime = total;
+		if(desc.equals("rhs")) {
+			iaTime = total;
+			iaJustTime = justTime;
+			iaLacJustTime = Math.round(iaLacJustTime*100)/100.0;
+			if(verbose)
+				System.out.println("\n   done (" + total + " secs, of which: " + iaLacJustTime + " secs finding laconic justifications)");
+		}
+		else {
+			irTime = total;
+			irJustTime = justTime;
+			irLacJustTime = Math.round(irLacJustTime*100)/100.0;
+			if(verbose)
+				System.out.println("\n   done (" + total + " secs, of which: " + irLacJustTime + " secs finding laconic justifications)");
+		}
 		
 		cleanUp(src_reasoner); cleanUp(exps); just = null;
 		return result;
@@ -592,7 +604,10 @@ public class CategoricalDiff implements AxiomDiff {
 			if(prospRedundantNovelAx && !rewrittenAx && !redundancyAx) {
 				long start = System.currentTimeMillis();
 				Set<Set<OWLAxiom>> lacJusts = just.getLaconicJustifications(entailment, Collections.singleton(explanation));
-				lacJustTime += (System.currentTimeMillis()-start)/1000.0;
+				if(desc.equals("rhs"))
+					iaLacJustTime += (System.currentTimeMillis()-start)/1000.0;
+				else 
+					irLacJustTime += (System.currentTimeMillis()-start)/1000.0;
 				
 				boolean isNew = false;
 				loopExps:

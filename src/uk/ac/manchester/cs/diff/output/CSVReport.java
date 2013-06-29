@@ -36,7 +36,7 @@ public class CSVReport {
 	 * Constructor
 	 */
 	public CSVReport() {
-		header = ""; row = "";
+		header = "\n"; row = "";
 	}
 	
 	
@@ -97,10 +97,11 @@ public class CSVReport {
 	 * @return CSV categorised change set report
 	 */
 	private String getCategorisedChangeSetReport(CategorisedChangeSet catChangeSet) {
-		header += ",Strengthening,StrengtheningNT,ExtendedDefinition,ExtendedDefinitionNT,PureAddition,PureAdditionNT,NewDescription,EAC Time,"
-				+ "Added Rewrite,Added Standing Redundancy,Added Prospective Redundancy,Added Reshuffle,New,Novel,Pseudo Novel,IAC Time,"
-				+ "Weakening,WeakeningRT,Reduced Definition,Reduced Definition RT,Pure Removal,Pure Removal RT,Retired Description,ERC Time," +
-				"Removed Rewrite,Removed Standing Redundancy,Removed Prospective Redundancy,Removed Reshuffle,New,Novel,Pseudo Novel,IRC Time";
+		header += ",Strengthening,StrengtheningNT,ExtendedDefinition,ExtendedDefinitionNT,PureAddition,PureAdditionNT,NewDescription,EAC Time," +
+				"Added Rewrite,Added Standing Redundancy,Added Prospective Redundancy,Added Reshuffle,New,Novel,Pseudo Novel,IAC Time,Just Find Time," +
+				"Lac Just Time,Weakening,WeakeningRT,Reduced Definition,Reduced Definition RT,Pure Removal,Pure Removal RT,Retired Description,ERC Time," +
+				"Removed Rewrite,Removed Standing Redundancy,Removed Prospective Redundancy,Removed Reshuffle,New,Novel,Pseudo Novel,IRC Time,Just Find Time," +
+				"Lac Just Time,Total Time";
 		// Effectual additions
 		row += "," + catChangeSet.getStrengthenings().size();
 		row += "," + catChangeSet.getStrengtheningsWithNewTerms().size();
@@ -119,6 +120,8 @@ public class CSVReport {
 		row += "," + catChangeSet.getAddedNovelRedundancies().size();
 		row += "," + catChangeSet.getAddedPseudoNovelRedundancies().size();
 		row += "," + catChangeSet.getIneffectualAdditionCategorisationTime();
+		row += "," + catChangeSet.getIneffectualAdditionJustificationFindingTime();
+		row += "," + catChangeSet.getIneffectualAdditionLaconicJustificationFindingTime();
 		// Effectual removals
 		row += "," + catChangeSet.getWeakenings().size();
 		row += "," + catChangeSet.getWeakeningsWithRetiredTerms().size();
@@ -137,6 +140,10 @@ public class CSVReport {
 		row += "," + catChangeSet.getRemovedNovelRedundancies().size();
 		row += "," + catChangeSet.getRemovedPseudoNovelRedundancies().size();
 		row += "," + catChangeSet.getIneffectualRemovalCategorisationTime();
+		row += "," + catChangeSet.getIneffectualRemovalJustificationFindingTime();
+		row += "," + catChangeSet.getIneffectualRemovalLaconicJustificationFindingTime();
+		
+		row += "," + catChangeSet.getDiffTime();
 		return header + "\n" + row;
 	}
 }

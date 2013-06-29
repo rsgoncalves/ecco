@@ -40,7 +40,7 @@ import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval.Ineff
  * University of Manchester <br/>
  */
 public class CategorisedChangeSet implements ChangeSet {
-	private double diffTime, eaTime, erTime, iaTime, irTime;
+	private double diffTime, eaTime, erTime, iaTime, irTime, iaJustTime, irJustTime, iaLacJustTime, irLacJustTime;
 	private Set<CategorisedEffectualAddition> effectualAdditions;
 	private Set<CategorisedIneffectualAddition> ineffectualAdditions; 
 	private Set<CategorisedEffectualRemoval> effectualRemovals;
@@ -109,6 +109,46 @@ public class CategorisedChangeSet implements ChangeSet {
 	
 	
 	/**
+	 * Set the ineffectual addition justification finding time
+	 * @param time	Time (in seconds)
+	 * @deprecated
+	 */
+	public void setIneffectualAdditionJustificationFindingTime(double time) {
+		iaJustTime = time;
+	}
+	
+	
+	/**
+	 * Set the ineffectual removal justification finding time
+	 * @param time	Time (in seconds)
+	 * @deprecated
+	 */
+	public void setIneffectualRemovalJustificationFindingTime(double time) {
+		irJustTime = time;
+	}
+	
+	
+	/**
+	 * Set the ineffectual addition laconic justification finding time
+	 * @param time	Time (in seconds)
+	 * @deprecated
+	 */
+	public void setIneffectualAdditionLaconicJustificationFindingTime(double time) {
+		iaLacJustTime = time;
+	}
+	
+	
+	/**
+	 * Set the ineffectual removal laconic justification finding time
+	 * @param time	Time (in seconds)
+	 * @deprecated
+	 */
+	public void setIneffectualRemovalLaconicJustificationFindingTime(double time) {
+		irLacJustTime = time;
+	}
+	
+	
+	/**
 	 * Get the effectual additions categorisation time
 	 * @return Categorisation time (in seconds)
 	 */
@@ -141,6 +181,42 @@ public class CategorisedChangeSet implements ChangeSet {
 	 */
 	public double getIneffectualAdditionCategorisationTime() {
 		return iaTime;
+	}
+	
+	
+	/**
+	 * Get the ineffectual additions justification finding time
+	 * @return Justification finding time (in seconds)
+	 */
+	public double getIneffectualAdditionJustificationFindingTime() {
+		return iaJustTime;
+	}
+	
+	
+	/**
+	 * Get the ineffectual removals justification finding time
+	 * @return Justification finding time (in seconds)
+	 */
+	public double getIneffectualRemovalJustificationFindingTime() {
+		return irJustTime;
+	}
+	
+	
+	/**
+	 * Get the ineffectual additions laconic justification finding time
+	 * @return Justification finding time (in seconds)
+	 */
+	public double getIneffectualAdditionLaconicJustificationFindingTime() {
+		return iaLacJustTime;
+	}
+	
+	
+	/**
+	 * Get the ineffectual removals laconic justification finding time
+	 * @return Justification finding time (in seconds)
+	 */
+	public double getIneffectualRemovalLaconicJustificationFindingTime() {
+		return irLacJustTime;
 	}
 	
 	

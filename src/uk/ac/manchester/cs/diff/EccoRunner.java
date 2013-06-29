@@ -340,7 +340,7 @@ public class EccoRunner {
 	private void saveStringToFile(String outputDir, String filename, String content, String sep) {
         try {
             new File(outputDir).mkdirs();
-            FileWriter fw = new FileWriter(outputDir + sep + filename);
+            FileWriter fw = new FileWriter(outputDir + sep + filename, true);
             fw.write(content);
             fw.close();
         } catch (IOException e) {
@@ -358,19 +358,19 @@ public class EccoRunner {
 		System.out.println("	[ONTOLOGY]	An input ontology file path or URL");
 		System.out.println();
 		System.out.println("	[OPTIONS]");
-		System.out.println("	-o		[o]utput directory for the XML change set and CSV log");
-		System.out.println("	-t		[t]ransform resulting XML report into HTML");
-		System.out.println("	-s		compute [s]tructural diff only");
-		System.out.println("	-l		compute [l]ogical diff only");
-		System.out.println("	-r		analyze [r]oot ontologies only, i.e., ignore imports");
-		System.out.println("	-n		[n]ormalize entity URIs, i.e. if two ontologies have the same entity names");
+		System.out.println("	-o		output directory for the XML change set and CSV log");
+		System.out.println("	-t		transform resulting XML report into HTML");
+		System.out.println("	-s		compute structural diff only");
+		System.out.println("	-l		compute logical diff only");
+		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");
+		System.out.println("	-n		normalize entity URIs, i.e. if two ontologies have the same entity names");
 		System.out.println("			in a different namespace, this trigger establishes a common namespace");
-		System.out.println("	-x		filepath to [X]SL Transformation file");
-		System.out.println("	-i		[i]gnore Abox axioms");
-		System.out.println("	-j		maximum number of [j]ustifications computed perineffectual change. Reducing");
+		System.out.println("	-x		filepath to XSL Transformation file");
+		System.out.println("	-i		ignore Abox axioms");
+		System.out.println("	-j		maximum number of justifications computed per ineffectual change. Reducing");
 		System.out.println("			this can significantly speed things up [default: 10]");
-		System.out.println("	-v		[v]erbose mode");
-		System.out.println("	-h -help	print [h]elp message\n");
+		System.out.println("	-v		verbose mode");
+		System.out.println("	-h -help	print help message\n");
 	}
 	
 	
