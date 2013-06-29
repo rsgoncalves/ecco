@@ -3,7 +3,7 @@
 
 #### a diff tool for OWL ontologies ####
 
-built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
+Built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
 
 
 intro
@@ -16,8 +16,6 @@ and then verifies whether these differences produce any *effect on entailments*.
 usage
 --------------------
 
-*ecco* can be used in the following way: 
-
 `[SCRIPT]` **-ont1** `[ONTOLOGY]` **-ont2** `[ONTOLOGY]` `[OPTIONS]`
 
 * `[SCRIPT]` in **Windows**: use *ecco.bat*, in **UNIX**-based systems: use *ecco.sh*
@@ -25,17 +23,17 @@ usage
 * `[ONTOLOGY]` an input ontology file path or URL
 
 * `[OPTIONS]`
-    * -o    Output directory for generated files
-    * -t    Transform XML diff report into HTML
-    * -s    Perform structural diff only
-    * -l	Perform logical diff only
-    * -r    Analyse root ontologies only, i.e. ignore imports
-    * -n    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace
-    * -x		File path to XSL Transformation file
-    * -i		Ignore Abox axioms
-    * -j		Maximum number of justifications per ineffectual change
-    * -v		Verbose mode
-    * -h -help	Print this help message
+    * `-o`    Output directory for generated files
+    * `-t`    Transform XML diff report into HTML
+    * `-s`    Perform structural diff only
+    * `-l`	Perform logical diff only
+    * `-r`    Analyse root ontologies only, i.e. ignore imports
+    * `-n`    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace
+    * `-x`		File path to XSL Transformation file
+    * `-i`		Ignore Abox axioms
+    * `-j`		Maximum number of justifications per ineffectual change
+    * `-v`		Verbose mode
+    * `-h` `-help`	Print this help message
 
 The standard output of *ecco* is an XML file representing the change set. 
 With the **-t** flag, *ecco* will transform this XML file into HTML. If an output 
