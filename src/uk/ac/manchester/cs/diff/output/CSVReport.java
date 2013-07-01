@@ -97,9 +97,9 @@ public class CSVReport {
 	 * @return CSV categorised change set report
 	 */
 	private String getCategorisedChangeSetReport(CategorisedChangeSet catChangeSet) {
-		header += ",Strengthening,StrengtheningNT,ExtendedDefinition,ExtendedDefinitionNT,PureAddition,PureAdditionNT,NewDescription,EAC Time," +
+		header += ",Strengthening,Strengthening NT,Extended Definition,Extended Definition NT,Pure Addition,Pure Addition NT,New Description,EAC Time," +
 				"Added Rewrite,Added Standing Redundancy,Added Prospective Redundancy,Added Reshuffle,New,Novel,Pseudo Novel,IAC Time,Just Find Time," +
-				"Lac Just Time,Weakening,WeakeningRT,Reduced Definition,Reduced Definition RT,Pure Removal,Pure Removal RT,Retired Description,ERC Time," +
+				"Lac Just Time,Weakening,Weakening RT,Reduced Definition,Reduced Definition RT,Pure Removal,Pure Removal RT,Retired Description,ERC Time," +
 				"Removed Rewrite,Removed Standing Redundancy,Removed Prospective Redundancy,Removed Reshuffle,New,Novel,Pseudo Novel,IRC Time,Just Find Time," +
 				"Lac Just Time,Total Time";
 		// Effectual additions

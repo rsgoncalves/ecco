@@ -48,7 +48,7 @@ public class LaconicJustificationFinder {
 	private OWLReasonerFactory rf;
 	private ExplanationGeneratorFactory<OWLAxiom> regFac, lacFac;
 	private OWLOntology ent, just;
-	private final long timeout = 500;	// milliseconds
+	private final long timeout = 1000;	// milliseconds
 	
 	/**
 	 * Constructor

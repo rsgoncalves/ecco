@@ -171,7 +171,7 @@ public class JustificationFinder {
 		for(Explanation<OWLAxiom> exp : exps) {
 			boolean forkProcess = false;
 			for(OWLAxiom axiom : exp.getAxioms()) {
-				if(axiom.getNestedClassExpressions().size() > 30) {
+				if(axiom.getNestedClassExpressions().size() >= 20) {
 					forkProcess = true;
 					break;
 				}
@@ -225,7 +225,7 @@ public class JustificationFinder {
 			
 			String output = null;
 			try {
-				Process p = executeOperation(LaconicJustificationFinder.class, true, list);
+				Process p = executeOperation(LaconicJustificationFinder.class, false, list);
 				output = streamToString(p.getInputStream());
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();

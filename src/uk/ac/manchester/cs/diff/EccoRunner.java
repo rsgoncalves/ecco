@@ -23,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -141,9 +143,10 @@ public class EccoRunner {
 	 */
 	public void processOutput(XMLReport report, String csvFile, String xsltPath) 
 			throws UnsupportedEncodingException, TransformerException {
-		saveDocumentToFile(report, report.getXMLDocumentReport(), outputDir, "_names", xsltPath);	// Entity name based document
-		saveDocumentToFile(report, report.getXMLDocumentReportUsingLabels(), outputDir, "_labels", xsltPath);	// Label based document
-		saveDocumentToFile(report, report.getXMLDocumentReportUsingGenSyms(), outputDir, "_gensyms", xsltPath);	// Gensym based document
+		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
+		saveDocumentToFile(report, report.getXMLDocumentReport(), outputDir, "_names_" + timeStamp , xsltPath);	// Entity name based document
+		saveDocumentToFile(report, report.getXMLDocumentReportUsingLabels(), outputDir, "_labels_" + timeStamp, xsltPath);	// Label based document
+		saveDocumentToFile(report, report.getXMLDocumentReportUsingGenSyms(), outputDir, "_gensyms_" + timeStamp, xsltPath);	// Gensym based document
 		saveStringToFile(outputDir, "eccoLog.csv", csvFile, sep);
 	}
 	
