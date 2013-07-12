@@ -1,23 +1,23 @@
 <project default="build">
     <property name="lib" location="lib"/>
-    <property name="runner" value="uk.ac.manchester.cs.diff.EccoRunner"/>
     <property name="build" value="build"/>
     <property name="src" location="src"/>
-    <property name="doc" location="build/javadoc"/>
-
+    <property name="doc" location="${build}/javadoc"/>
+    <property name="runner" value="uk.ac.manchester.cs.diff.EccoRunner"/>
+    
     <path id="project.class.path">
-        <fileset dir="lib">
+        <fileset dir="${lib}">
             <include name="**/*.jar"/>
         </fileset>
     </path>
     
-    <target name="build" depends="compile, jar, javadoc"/>
-
+    <target name="build" depends="jar, javadoc"/>
+    
     <!-- Clean -->
     <target name="clean" description="Clean up build files">
         <delete dir="${build}"/>
     </target>
-
+    
     <!-- Compile -->
     <target name="compile" description="Compile source files" depends="clean">
         <mkdir dir="${build}"/>
@@ -37,7 +37,7 @@
             <map from="${lib}/" to="./lib/"/>
             <map from="${lib}\" to="./lib/"/>
             <path>
-                <fileset dir="lib">
+                <fileset dir="${lib}">
                     <include name="**/*.jar"/>
                 </fileset>
             </path>
@@ -50,14 +50,14 @@
         </jar>
     </target>
     
-    <!-- Generate JavaDoc -->
-    <target name="javadoc" depends="clean" description="Generate documentation">
-	    <javadoc packagenames="src" sourcepath="${src}" destdir="${doc}" nodeprecatedlist="yes" nodeprecated="yes">
-		    <fileset dir="${src}">
-			    <include name="**"/>
-			    <exclude name="uk/ac/manchester/cs/diff/test/**"/>
-			</fileset>
+    <!-- Generate Javadoc -->
+    <target name="javadoc" description="Generate documentation">
+        <javadoc packagenames="src" sourcepath="${src}" destdir="${doc}" nodeprecatedlist="yes" nodeprecated="yes">
+            <fileset dir="${src}">
+                <include name="**"/>
+                <exclude name="uk/ac/manchester/cs/diff/test/**"/>
+            </fileset>
             <classpath refid="project.class.path"/>
-	    </javadoc>
+        </javadoc>
     </target>
 </project>

@@ -50,6 +50,7 @@ public class StructuralDiff implements AxiomDiff {
 	 * Constructor
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
+	 * @param verbose	true if detailed output should be printed, false otherwise
 	 */
 	public StructuralDiff(OWLOntology ont1, OWLOntology ont2, boolean verbose) {
 		this.ont1 = ont1;
@@ -63,6 +64,9 @@ public class StructuralDiff implements AxiomDiff {
 	 * Constructor 2
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
+	 * @param ont1name	Ontology 1 filename
+	 * @param ont2name	Ontology 2 filename
+	 * @param verbose	true if detailed output should be printed, false otherwise
 	 */
 	public StructuralDiff(OWLOntology ont1, OWLOntology ont2, String ont1name, String ont2name, boolean verbose) {
 		this.ont1 = ont1;
