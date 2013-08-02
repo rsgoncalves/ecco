@@ -18,6 +18,7 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.concept;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -124,30 +125,33 @@ public class SubconceptDiff {
 	 * @throws InterruptedException
 	 */
 	public ConceptChangeSet getDiff(boolean atomicOnly) throws InterruptedException {
+		System.out.println("Signature size: " + sig.size() + " concept names");
 		Map<OWLClass,OWLClassExpression> map = null;
 		if(!atomicOnly) { 
 			Set<OWLClassExpression> subcs = collectSCs();
 			map = getSubConceptsMapping(subcs);
 		}
-
+		
 		Set<RHSConceptChange> rhsConceptChanges = new HashSet<RHSConceptChange>();
 		Set<LHSConceptChange> lhsConceptChanges = new HashSet<LHSConceptChange>();
 		Set<ConceptChange> conceptChanges = new HashSet<ConceptChange>();
 		Set<OWLClass> affected = new HashSet<OWLClass>();
 
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Classifying ontologies...");
-
-		ExecutorService exec = Executors.newFixedThreadPool(2);
-		Classifier ont1worker = new Classifier(ont1);
-		Classifier ont2worker = new Classifier(ont2);
-		exec.execute(ont1worker); exec.execute(ont2worker);
-		exec.shutdown();
-		exec.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		if(verbose) System.out.println("done (" + (System.currentTimeMillis()-start)/1000.0 + " secs)");
-
-		ont1reasoner = ont1worker.getReasoner();
-		ont2reasoner = ont2worker.getReasoner();
+//		if(verbose) System.out.println("Classifying ontologies...");
+//
+//		ExecutorService exec = Executors.newFixedThreadPool(2);
+//		Classifier ont1worker = new Classifier(ont1);
+//		Classifier ont2worker = new Classifier(ont2);
+//		exec.execute(ont1worker); exec.execute(ont2worker);
+//		exec.shutdown();
+//		exec.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+//		if(verbose) System.out.println("done (" + (System.currentTimeMillis()-start)/1000.0 + " secs)");
+//
+//		ont1reasoner = ont1worker.getReasoner();
+//		ont2reasoner = ont2worker.getReasoner();
+		ont1reasoner = new ReasonerLoader(ont1, false).createFactReasoner();
+		ont2reasoner = new ReasonerLoader(ont2, false).createFactReasoner();
 
 		if(verbose) System.out.print("Computing change witnesses... ");
 		long start2 = System.currentTimeMillis();
@@ -158,10 +162,14 @@ public class SubconceptDiff {
 			WitnessConcepts genWit = getGeneralisationWitnesses(subc, map);
 			
 			if(!specWit.isEmpty() || !genWit.isEmpty()) affected.add(subc);
-			if(!specWit.getLHSWitnesses().isEmpty()) ont1_diffL.put(subc, specWit.getLHSWitnesses());
-			if(!genWit.getLHSWitnesses().isEmpty()) ont1_diffR.put(subc, genWit.getLHSWitnesses());
-			if(!specWit.getRHSWitnesses().isEmpty()) ont2_diffL.put(subc, specWit.getRHSWitnesses());
-			if(!genWit.getRHSWitnesses().isEmpty()) ont2_diffR.put(subc, genWit.getRHSWitnesses());
+//			if(!specWit.getLHSWitnesses().isEmpty()) ont1_diffL.put(subc, specWit.getLHSWitnesses());
+//			if(!genWit.getLHSWitnesses().isEmpty()) ont1_diffR.put(subc, genWit.getLHSWitnesses());
+//			if(!specWit.getRHSWitnesses().isEmpty()) ont2_diffL.put(subc, specWit.getRHSWitnesses());
+//			if(!genWit.getRHSWitnesses().isEmpty()) ont2_diffR.put(subc, genWit.getRHSWitnesses());
+			addChangeToMap(subc, specWit.getLHSWitnesses(), ont1_diffL);
+			addChangeToMap(subc, genWit.getLHSWitnesses(), ont1_diffR);
+			addChangeToMap(subc, specWit.getRHSWitnesses(), ont2_diffL);
+			addChangeToMap(subc, genWit.getRHSWitnesses(), ont2_diffR);
 		}
 		long end2 = System.currentTimeMillis();
 		if(verbose) System.out.println("done (" + (end2-start2)/1000.0 + " secs)");
@@ -216,6 +224,12 @@ public class SubconceptDiff {
 	}
 
 	
+	private void addChangeToMap(OWLClass affected, Set<OWLClassExpression> witnesses, Map<OWLClass,Set<OWLClassExpression>> map) {
+		if(!witnesses.isEmpty())
+			map.put(affected, witnesses);
+	}
+
+
 	/**
 	 * Get the sets of (LHS and RHS) generalisation witnesses for the given concept
 	 * @param subc	Concept
@@ -232,7 +246,7 @@ public class SubconceptDiff {
 			ont2_set.removeAll(ont2reasoner.getUnsatisfiableClasses().getEntities());
 			ont1_set.removeAll(ont1reasoner.getUnsatisfiableClasses().getEntities());
 		}
-		return produceWitnessDiff(ont1_set, ont2_set, map);
+		return getDifferentConcepts(ont1_set, ont2_set, map);
 	}
 	
 	
@@ -252,7 +266,7 @@ public class SubconceptDiff {
 			ont2_set.removeAll(ont2reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened());
 			ont1_set.removeAll(ont1reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened());
 		}
-		return produceWitnessDiff(ont1_set, ont2_set, map);
+		return getDifferentConcepts(ont1_set, ont2_set, map);
 	}
 	
 	
@@ -263,7 +277,7 @@ public class SubconceptDiff {
 	 * @param map	Map of fresh concept names to concepts
 	 * @return Witness concepts in the sub or superclass sets diff 
 	 */
-	private WitnessConcepts produceWitnessDiff(Set<OWLClass> set1, Set<OWLClass> set2, Map<OWLClass,OWLClassExpression> map) {
+	private WitnessConcepts getDifferentConcepts(Set<OWLClass> set1, Set<OWLClass> set2, Map<OWLClass,OWLClassExpression> map) {
 		Set<OWLClassExpression> rhsWit = getWitnessDiff(set1, set2, map);
 		Set<OWLClassExpression> lhsWit = getWitnessDiff(set2, set1, map);
 		return new WitnessConcepts(lhsWit, rhsWit);
@@ -540,7 +554,9 @@ public class SubconceptDiff {
 	/* Testing-purposes-only methods */
 	private void print(String desc, Set<? extends OWLObject> obj) {
 		try {
-			FileWriter out = new FileWriter("/Users/rafa/Desktop/ncit_05.07/" + desc + ".txt");
+			File f = new File("/Users/rafa/Desktop/ncit_05.07/" + desc + ".txt");
+			f.getParentFile().mkdirs();
+			FileWriter out = new FileWriter(f);
 			SimpleShortFormProvider fp = new SimpleShortFormProvider();
 			for(OWLObject o : obj) {
 				out.append(getManchesterSyntax(o, fp) + "\n");

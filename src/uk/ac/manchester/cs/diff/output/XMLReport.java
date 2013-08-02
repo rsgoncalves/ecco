@@ -230,52 +230,76 @@ public class XMLReport {
 		addElement("Removals", "rems", changeSet.getRemovals().size(), doc, "root", true);
 		
 		addElement("Effectual", "effadds", changeSet.getEffectualAdditions().size(), doc, "adds", true);
-		addEffectualCategoryElementAndChildren("Strengthening", "st", changeSet.getStrengthenings(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("StrengtheningWithNewTerms", "stnt", changeSet.getStrengtheningsWithNewTerms(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("NewDescription", "newdesc", changeSet.getNewDescriptions(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("PureAddition", "padd", changeSet.getPureAdditions(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("PureAdditionWithNewTerms", "paddnt", changeSet.getPureAdditionsWithNewTerms(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("NewModifiedDefinition", "stequiv", changeSet.getAddedModifiedDefinitions(), doc, "effadds", true, sf);
-		addEffectualCategoryElementAndChildren("NewModifiedDefinitionWithNewTerms", "stequivnt", changeSet.getAddedModifiedDefinitionsWithNewTerms(), 
-				doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"Strengthening", "st", changeSet.getStrengthenings(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"StrengtheningWithNewTerms", "stnt", changeSet.getStrengtheningsWithNewTerms(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"NewDescription", "newdesc", changeSet.getNewDescriptions(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"PureAddition", "padd", changeSet.getPureAdditions(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"PureAdditionWithNewTerms", "paddnt", changeSet.getPureAdditionsWithNewTerms(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"NewModifiedDefinition", "stequiv", changeSet.getAddedModifiedDefinitions(), doc, "effadds", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"NewModifiedDefinitionWithNewTerms", "stequivnt", changeSet.getAddedModifiedDefinitionsWithNewTerms(), doc, "effadds", true, sf);
 		
 		addElement("Ineffectual", "ineffadds", changeSet.getIneffectualAdditions().size(), doc, "adds", true);
-		addIneffectualAdditions("AddedRedundancy", "ared", changeSet.getAddedRedundancies(), doc, "ineffadds", true, IneffectualAdditionCategory.REDUNDANCY, sf);
+		addIneffectualAdditions(
+				"AddedRedundancy", "ared", changeSet.getAddedRedundancies(), doc, "ineffadds", true, IneffectualAdditionCategory.REDUNDANCY, sf);
 		addElement("AddedRewrite", "arws", (changeSet.getAddedRewrites().size()+changeSet.getAddedPartialRewrites().size()), doc, "ineffadds", true);
-		addIneffectualAdditions("AddedCompleteRewrite", "arw", changeSet.getAddedRewrites(), doc, "arws", true, IneffectualAdditionCategory.REWRITE, sf);
-		addIneffectualAdditions("AddedPartialRewrite", "aprw", changeSet.getAddedPartialRewrites(), doc, "arws", true, IneffectualAdditionCategory.PREWRITE, sf);
+		addIneffectualAdditions(
+				"AddedCompleteRewrite", "arw", changeSet.getAddedRewrites(), doc, "arws", true, IneffectualAdditionCategory.REWRITE, sf);
+		addIneffectualAdditions(
+				"AddedPartialRewrite", "aprw", changeSet.getAddedPartialRewrites(), doc, "arws", true, IneffectualAdditionCategory.PREWRITE, sf);
 		addElement("AddedProspectiveRedundancy", "apred", changeSet.getAddedProspectiveRedundancies().size(), doc, "ineffadds", true);
-		addIneffectualAdditions("AddedReshuffleProspectiveRedundancy", "aavred", changeSet.getAddedReshuffleRedundancies(), doc, "apred", true, 
+		addIneffectualAdditions(
+				"AddedReshuffleProspectiveRedundancy", "aavred", changeSet.getAddedReshuffleRedundancies(), doc, "apred", true, 
 				IneffectualAdditionCategory.RESHUFFLEREDUNDANCY, sf);
-		addElement("AddedNewProspectiveRedundancy", "anpred", changeSet.getAddedProspectiveNewRedundancies().size(), doc, "apred", true);
-		addIneffectualAdditions("AddedNovelProspectiveRedundancy", "weak", changeSet.getAddedNovelRedundancies(), doc, "anpred", true, 
+//		addElement("AddedNewProspectiveRedundancy", "anpred", changeSet.getAddedProspectiveNewRedundancies().size(), doc, "apred", true);
+		addIneffectualAdditions(
+				"AddedNewProspectiveRedundancy", "anpred", changeSet.getAddedProspectiveNewRedundancies(), doc, "apred", true, 
 				IneffectualAdditionCategory.NOVELPROSPREDUNDANCY, sf);
-		addIneffectualAdditions("AddedPseudoNovelProspectiveRedundancy", "apseudopred", changeSet.getAddedPseudoNovelRedundancies(), doc, "anpred", true, 
-				IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
+//		addIneffectualAdditions(
+//				"AddedPseudoNovelProspectiveRedundancy", "apseudopred", changeSet.getAddedPseudoNovelRedundancies(), doc, "anpred", true, 
+//				IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
 		
 		addElement("Effectual", "effrems", changeSet.getEffectualRemovals().size(), doc, "rems", true);
-		addEffectualCategoryElementAndChildren("Weakening", "wk", changeSet.getWeakenings(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("WeakeningWithRetiredTerms", "wkrt", changeSet.getWeakeningsWithRetiredTerms(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("RetiredDescription", "retdesc", changeSet.getRetiredDescriptions(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("PureRemoval", "prem", changeSet.getPureRemovals(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("PureRemovalWithRetiredTerms", "premrt", changeSet.getPureRemovalsWithRetiredTerms(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("RetiredModifiedDefinition", "wkequiv", changeSet.getRemovedModifiedDefinitions(), doc, "effrems", true, sf);
-		addEffectualCategoryElementAndChildren("RetiredModifiedDefinitionWithRetiredTerms", "wkequivrt", changeSet.getRemovedModifiedDefinitionsWithRetiredTerms(), 
+		addEffectualCategoryElementAndChildren(
+				"Weakening", "wk", changeSet.getWeakenings(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"WeakeningWithRetiredTerms", "wkrt", changeSet.getWeakeningsWithRetiredTerms(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"RetiredDescription", "retdesc", changeSet.getRetiredDescriptions(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"PureRemoval", "prem", changeSet.getPureRemovals(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"PureRemovalWithRetiredTerms", "premrt", changeSet.getPureRemovalsWithRetiredTerms(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"RetiredModifiedDefinition", "wkequiv", changeSet.getRemovedModifiedDefinitions(), doc, "effrems", true, sf);
+		addEffectualCategoryElementAndChildren(
+				"RetiredModifiedDefinitionWithRetiredTerms", "wkequivrt", changeSet.getRemovedModifiedDefinitionsWithRetiredTerms(), 
 				doc, "effrems", true, sf);
 		
 		addElement("Ineffectual", "ineffrems", changeSet.getIneffectualRemovals().size(), doc, "rems", true);
-		addIneffectualRemovals("RemovedRedundancy", "rred", changeSet.getRemovedRedundancies(), doc, "ineffrems", true, IneffectualRemovalCategory.REDUNDANCY, sf);
+		addIneffectualRemovals(
+				"RemovedRedundancy", "rred", changeSet.getRemovedRedundancies(), doc, "ineffrems", true, IneffectualRemovalCategory.REDUNDANCY, sf);
 		addElement("RemovedRewrite", "rrws", (changeSet.getRemovedRewrites().size()+changeSet.getRemovedPartialRewrites().size()), doc, "ineffrems", true);
-		addIneffectualRemovals("RemovedCompleteRewrite", "rrw", changeSet.getRemovedRewrites(), doc, "rrws", true, IneffectualRemovalCategory.REWRITE, sf);
-		addIneffectualRemovals("RemovedPartialRewrite", "rprw", changeSet.getRemovedPartialRewrites(), doc, "rrws", true, IneffectualRemovalCategory.PREWRITE, sf);
+		addIneffectualRemovals(
+				"RemovedCompleteRewrite", "rrw", changeSet.getRemovedRewrites(), doc, "rrws", true, IneffectualRemovalCategory.REWRITE, sf);
+		addIneffectualRemovals(
+				"RemovedPartialRewrite", "rprw", changeSet.getRemovedPartialRewrites(), doc, "rrws", true, IneffectualRemovalCategory.PREWRITE, sf);
 		addElement("RemovedProspectiveRedundancy", "rpred", changeSet.getRemovedProspectiveRedundancies().size(), doc, "ineffrems", true);
-		addIneffectualRemovals("RemovedReshuffleProspectiveRedundancy", "ravred", changeSet.getRemovedReshuffleRedundancies(), doc, "rpred", true, 
+		addIneffectualRemovals(
+				"RemovedReshuffleProspectiveRedundancy", "ravred", changeSet.getRemovedReshuffleRedundancies(), doc, "rpred", true, 
 				IneffectualRemovalCategory.RESHUFFLEREDUNDANCY, sf);
-		addElement("RemovedNewProspectiveRedundancy", "rnpred", changeSet.getRemovedProspectiveNewRedundancies().size(), doc, "rpred", true);
-		addIneffectualRemovals("RemovedNovelProspectiveRedundancy", "strength", changeSet.getRemovedNovelRedundancies(), doc, "rnpred", true, 
+//		addElement("RemovedNewProspectiveRedundancy", "rnpred", changeSet.getRemovedProspectiveNewRedundancies().size(), doc, "rpred", true);
+		addIneffectualRemovals(
+				"RemovedNewProspectiveRedundancy", "rnpred", changeSet.getRemovedProspectiveNewRedundancies(), doc, "rpred", true, 
 				IneffectualRemovalCategory.NOVELPROSPREDUNDANCY, sf);
-		addIneffectualRemovals("RemovedPseudoNovelProspectiveRedundancy", "rpseudopred", changeSet.getRemovedPseudoNovelRedundancies(), doc, "rnpred", true, 
-				IneffectualRemovalCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
+//		addIneffectualRemovals("RemovedPseudoNovelProspectiveRedundancy", "rpseudopred", changeSet.getRemovedPseudoNovelRedundancies(), doc, "rnpred", true, 
+//				IneffectualRemovalCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
 		
 		return doc;
 	}

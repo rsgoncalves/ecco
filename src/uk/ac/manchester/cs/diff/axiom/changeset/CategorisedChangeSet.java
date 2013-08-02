@@ -47,8 +47,8 @@ public class CategorisedChangeSet implements ChangeSet {
 	private Set<CategorisedIneffectualRemoval> ineffectualRemovals;
 	private Set<CategorisedEffectualAddition> strengthenings, strengtheningsnt, pureadds, pureaddsnt, newdesc, amoddef, amoddefnt;
 	private Set<CategorisedEffectualRemoval> weakenings, weakeningsrt, purerems, pureremsrt, retdesc, rmoddef, rmoddefrt;
-	private Set<CategorisedIneffectualAddition> arewrite, aprewrite, aredundancy, areshuffle, anovel, apseudo, aprosp, anew;
-	private Set<CategorisedIneffectualRemoval> rrewrite, rprewrite, rredundancy, rreshuffle, rnovel, rpseudo, rprosp, rnew;
+	private Set<CategorisedIneffectualAddition> arewrite, aprewrite, aredundancy, areshuffle, aprosp, anew; // anovel, apseudo, 
+	private Set<CategorisedIneffectualRemoval> rrewrite, rprewrite, rredundancy, rreshuffle, rprosp, rnew; // rnovel, rpseudo,
 	private Set<OWLAxiom> sharedAxioms, effRems, ineffRems, effAdds, ineffAdds;
 	
 	/**
@@ -282,15 +282,15 @@ public class CategorisedChangeSet implements ChangeSet {
 				if(cat.equals(IneffectualAdditionCategory.REDUNDANCY))
 					aredundancy.add(c);
 				if(cat.equals(IneffectualAdditionCategory.NOVELPROSPREDUNDANCY)) {
-					anovel.add(c);
+//					anovel.add(c);
 					anew.add(c);
 					aprosp.add(c);
 				}
-				if(cat.equals(IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY)) {
-					apseudo.add(c);
-					anew.add(c);
-					aprosp.add(c);
-				}
+//				if(cat.equals(IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY)) {
+//					apseudo.add(c);
+//					anew.add(c);
+//					aprosp.add(c);
+//				}
 				if(cat.equals(IneffectualAdditionCategory.RESHUFFLEREDUNDANCY)) {
 					areshuffle.add(c);
 					aprosp.add(c);
@@ -314,12 +314,12 @@ public class CategorisedChangeSet implements ChangeSet {
 				if(cat.equals(IneffectualRemovalCategory.REDUNDANCY))
 					rredundancy.add(c);
 				if(cat.equals(IneffectualRemovalCategory.NOVELPROSPREDUNDANCY)) {
-					rnovel.add(c);
+//					rnovel.add(c);
 					rnew.add(c);
 					rprosp.add(c);
 				}
 				if(cat.equals(IneffectualRemovalCategory.PSEUDONOVELPROSPREDUNDANCY)) {
-					rpseudo.add(c);
+//					rpseudo.add(c);
 					rnew.add(c);
 					rprosp.add(c);
 				}
@@ -541,24 +541,24 @@ public class CategorisedChangeSet implements ChangeSet {
 	}
 	
 	
-	/**
-	 * Get the set of added prospective novel redundancies
-	 * @return Set of added prospective novel redundancies
-	 */
-	public Set<CategorisedIneffectualAddition> getAddedNovelRedundancies() {
-		if(anovel == null) sortOutIneffectualAdditions();
-		return anovel;
-	}
-	
-	
-	/**
-	 * Get the set of added prospective pseudo-novel redundancies
-	 * @return Set of added prospective pseudo-novel redundancies
-	 */
-	public Set<CategorisedIneffectualAddition> getAddedPseudoNovelRedundancies() {
-		if(apseudo == null) sortOutIneffectualAdditions();
-		return apseudo;
-	}
+//	/**
+//	 * Get the set of added prospective novel redundancies
+//	 * @return Set of added prospective novel redundancies
+//	 */
+//	public Set<CategorisedIneffectualAddition> getAddedNovelRedundancies() {
+//		if(anovel == null) sortOutIneffectualAdditions();
+//		return anovel;
+//	}
+//	
+//	
+//	/**
+//	 * Get the set of added prospective pseudo-novel redundancies
+//	 * @return Set of added prospective pseudo-novel redundancies
+//	 */
+//	public Set<CategorisedIneffectualAddition> getAddedPseudoNovelRedundancies() {
+//		if(apseudo == null) sortOutIneffectualAdditions();
+//		return apseudo;
+//	}
 	
 	
 	/**
@@ -621,24 +621,24 @@ public class CategorisedChangeSet implements ChangeSet {
 	}
 	
 	
-	/**
-	 * Get the set of removed prospective novel redundancies
-	 * @return Set of removed prospective novel redundancies
-	 */
-	public Set<CategorisedIneffectualRemoval> getRemovedNovelRedundancies() {
-		if(rnovel == null) sortOutIneffectualRemovals();
-		return rnovel;
-	}
-	
-	
-	/**
-	 * Get the set of removed prospective pseudo-novel redundancies
-	 * @return Set of removed prospective pseudo-novel redundancies
-	 */
-	public Set<CategorisedIneffectualRemoval> getRemovedPseudoNovelRedundancies() {
-		if(rpseudo == null) sortOutIneffectualRemovals();
-		return rpseudo;
-	}
+//	/**
+//	 * Get the set of removed prospective novel redundancies
+//	 * @return Set of removed prospective novel redundancies
+//	 */
+//	public Set<CategorisedIneffectualRemoval> getRemovedNovelRedundancies() {
+//		if(rnovel == null) sortOutIneffectualRemovals();
+//		return rnovel;
+//	}
+//	
+//	
+//	/**
+//	 * Get the set of removed prospective pseudo-novel redundancies
+//	 * @return Set of removed prospective pseudo-novel redundancies
+//	 */
+//	public Set<CategorisedIneffectualRemoval> getRemovedPseudoNovelRedundancies() {
+//		if(rpseudo == null) sortOutIneffectualRemovals();
+//		return rpseudo;
+//	}
 	
 	
 	/**
@@ -865,8 +865,8 @@ public class CategorisedChangeSet implements ChangeSet {
 		aprewrite = new HashSet<CategorisedIneffectualAddition>();
 		aredundancy = new HashSet<CategorisedIneffectualAddition>();
 		areshuffle = new HashSet<CategorisedIneffectualAddition>();
-		anovel = new HashSet<CategorisedIneffectualAddition>();
-		apseudo = new HashSet<CategorisedIneffectualAddition>();
+//		anovel = new HashSet<CategorisedIneffectualAddition>();
+//		apseudo = new HashSet<CategorisedIneffectualAddition>();
 		aprosp = new HashSet<CategorisedIneffectualAddition>();
 		anew = new HashSet<CategorisedIneffectualAddition>();
 	}
@@ -880,8 +880,8 @@ public class CategorisedChangeSet implements ChangeSet {
 		rprewrite = new HashSet<CategorisedIneffectualRemoval>();
 		rredundancy = new HashSet<CategorisedIneffectualRemoval>();
 		rreshuffle = new HashSet<CategorisedIneffectualRemoval>();
-		rnovel = new HashSet<CategorisedIneffectualRemoval>();
-		rpseudo = new HashSet<CategorisedIneffectualRemoval>();
+//		rnovel = new HashSet<CategorisedIneffectualRemoval>();
+//		rpseudo = new HashSet<CategorisedIneffectualRemoval>();
 		rprosp = new HashSet<CategorisedIneffectualRemoval>();
 		rnew = new HashSet<CategorisedIneffectualRemoval>();
 	}

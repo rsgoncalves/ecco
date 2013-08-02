@@ -98,9 +98,9 @@ public class CSVReport {
 	 */
 	private String getCategorisedChangeSetReport(CategorisedChangeSet catChangeSet) {
 		header += ",Strengthening,Strengthening NT,Extended Definition,Extended Definition NT,Pure Addition,Pure Addition NT,New Description,EAC Time," +
-				"Added Rewrite,Added Standing Redundancy,Added Prospective Redundancy,Added Reshuffle,New,Novel,Pseudo Novel,IAC Time,Just Find Time," +
+				"Added Rewrite,Added Standing Redundancy,Added Prospective Redundancy,Added Reshuffle,New,IAC Time,Just Find Time," +
 				"Lac Just Time,Weakening,Weakening RT,Reduced Definition,Reduced Definition RT,Pure Removal,Pure Removal RT,Retired Description,ERC Time," +
-				"Removed Rewrite,Removed Standing Redundancy,Removed Prospective Redundancy,Removed Reshuffle,New,Novel,Pseudo Novel,IRC Time,Just Find Time," +
+				"Removed Rewrite,Removed Standing Redundancy,Removed Prospective Redundancy,Removed Reshuffle,New,IRC Time,Just Find Time," +
 				"Lac Just Time,Total Time";
 		// Effectual additions
 		row += "," + catChangeSet.getStrengthenings().size();
@@ -117,8 +117,8 @@ public class CSVReport {
 		row += "," + catChangeSet.getAddedProspectiveRedundancies().size();
 		row += "," + catChangeSet.getAddedReshuffleRedundancies().size();
 		row += "," + catChangeSet.getAddedProspectiveNewRedundancies().size();
-		row += "," + catChangeSet.getAddedNovelRedundancies().size();
-		row += "," + catChangeSet.getAddedPseudoNovelRedundancies().size();
+//		row += "," + catChangeSet.getAddedNovelRedundancies().size();
+//		row += "," + catChangeSet.getAddedPseudoNovelRedundancies().size();
 		row += "," + catChangeSet.getIneffectualAdditionCategorisationTime();
 		row += "," + catChangeSet.getIneffectualAdditionJustificationFindingTime();
 		row += "," + catChangeSet.getIneffectualAdditionLaconicJustificationFindingTime();
@@ -137,8 +137,8 @@ public class CSVReport {
 		row += "," + catChangeSet.getRemovedProspectiveRedundancies().size();
 		row += "," + catChangeSet.getRemovedReshuffleRedundancies().size();
 		row += "," + catChangeSet.getRemovedProspectiveNewRedundancies().size();
-		row += "," + catChangeSet.getRemovedNovelRedundancies().size();
-		row += "," + catChangeSet.getRemovedPseudoNovelRedundancies().size();
+//		row += "," + catChangeSet.getRemovedNovelRedundancies().size();
+//		row += "," + catChangeSet.getRemovedPseudoNovelRedundancies().size();
 		row += "," + catChangeSet.getIneffectualRemovalCategorisationTime();
 		row += "," + catChangeSet.getIneffectualRemovalJustificationFindingTime();
 		row += "," + catChangeSet.getIneffectualRemovalLaconicJustificationFindingTime();

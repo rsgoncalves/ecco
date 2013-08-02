@@ -136,7 +136,7 @@ public class CategoricalDiff implements AxiomDiff {
 		ont2reasoner = new ReasonerLoader(ont2, verbose).createReasoner();
 		
 		if(logicalChangeSet == null) {
-			LogicalDiffConcurrent lDiff = new LogicalDiffConcurrent(ont1, ont2, verbose);
+			LogicalDiff lDiff = new LogicalDiff(ont1, ont2, verbose); // TODO changed to sequential
 			logicalChangeSet = lDiff.getDiff(ont1reasoner, ont2reasoner);
 			structuralChangeSet = lDiff.getStructuralChangeSet();
 			sharedAxioms = structuralChangeSet.getShared();
@@ -527,14 +527,14 @@ public class CategoricalDiff implements AxiomDiff {
 			iaJustTime = justTime;
 			iaLacJustTime = Math.round(iaLacJustTime*100)/100.0;
 			if(verbose)
-				System.out.println("\n   done (" + total + " secs, of which: " + iaLacJustTime + " secs finding laconic justifications)");
+				System.out.println("\n   done (" + total + " secs)");
 		}
 		else {
 			irTime = total;
 			irJustTime = justTime;
 			irLacJustTime = Math.round(irLacJustTime*100)/100.0;
 			if(verbose)
-				System.out.println("\n   done (" + total + " secs, of which: " + irLacJustTime + " secs finding laconic justifications)");
+				System.out.println("\n   done (" + total + " secs)");
 		}
 		
 		cleanUp(src_reasoner); cleanUp(exps); just = null;
@@ -602,21 +602,24 @@ public class CategoricalDiff implements AxiomDiff {
 				updateJustificationMap(desc, justMap, explanation, "reshuffle");
 			// Prospective new redundancy 
 			if(prospRedundantNovelAx && !rewrittenAx && !redundancyAx) {
-				long start = System.currentTimeMillis();
-				Set<Set<OWLAxiom>> lacJusts = just.getLaconicJustifications(entailment, Collections.singleton(explanation));
-				if(desc.equals("rhs"))
-					iaLacJustTime += (System.currentTimeMillis()-start)/1000.0;
-				else 
-					irLacJustTime += (System.currentTimeMillis()-start)/1000.0;
+				updateJustificationMap(desc, justMap, explanation, "novel");
+				 
+//				long start = System.currentTimeMillis();
+//				Set<Set<OWLAxiom>> lacJusts = just.getLaconicJustifications(entailment, Collections.singleton(explanation));
+//				if(desc.equals("rhs"))
+//					iaLacJustTime += (System.currentTimeMillis()-start)/1000.0;
+//				else 
+//					irLacJustTime += (System.currentTimeMillis()-start)/1000.0;
+//				
+//				boolean isNew = false;
+//				loopExps:
+//				for(Set<OWLAxiom> exp : lacJusts) {
+//					if(!src_reasoner.isEntailed(exp))
+//						isNew = true; break loopExps;
+//				}
+//				if(isNew)  updateJustificationMap(desc, justMap, explanation, "novel");
+//				else updateJustificationMap(desc, justMap, explanation, "pseudo");
 				
-				boolean isNew = false;
-				loopExps:
-				for(Set<OWLAxiom> exp : lacJusts) {
-					if(!src_reasoner.isEntailed(exp))
-						isNew = true; break loopExps;
-				}
-				if(isNew)  updateJustificationMap(desc, justMap, explanation, "novel");
-				else updateJustificationMap(desc, justMap, explanation, "pseudo");
 			}
 		} // end for each explanation
 		cleanUp(reasoner);
@@ -658,7 +661,7 @@ public class CategoricalDiff implements AxiomDiff {
 		case "prewrite": category = IneffectualAdditionCategory.PREWRITE; break;
 		case "reshuffle": category = IneffectualAdditionCategory.RESHUFFLEREDUNDANCY; break;
 		case "novel": category = IneffectualAdditionCategory.NOVELPROSPREDUNDANCY; break;
-		case "pseudo": category = IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY; break;
+//		case "pseudo": category = IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY; break;
 		}
 		if(justMap.containsKey(exp)) {
 			Set<IneffectualAdditionCategory> catSet = (Set<IneffectualAdditionCategory>) justMap.get(exp);
@@ -828,8 +831,8 @@ public class CategoricalDiff implements AxiomDiff {
 				"\n\t   Prospective Redundancies: " + categorisedChangeSet.getAddedProspectiveRedundancies().size() +
 				"\n\t     Reshuffle Redundancies: " + categorisedChangeSet.getAddedReshuffleRedundancies().size() +
 				"\n\t     New Redundancies: " + categorisedChangeSet.getAddedProspectiveNewRedundancies().size() +
-				"\n\t       Novel Redundancies: " + categorisedChangeSet.getAddedNovelRedundancies().size() +
-				"\n\t       Pseudo-Novel Redundancies: " + categorisedChangeSet.getAddedPseudoNovelRedundancies().size() +
+//				"\n\t       Novel Redundancies: " + categorisedChangeSet.getAddedNovelRedundancies().size() +
+//				"\n\t       Pseudo-Novel Redundancies: " + categorisedChangeSet.getAddedPseudoNovelRedundancies().size() +
 				
 				"\n\tIneffectual Removals: " + categorisedChangeSet.getIneffectualRemovals().size() +
 				"\n\t   Rewrites: " + (categorisedChangeSet.getRemovedRewrites().size()+categorisedChangeSet.getRemovedPartialRewrites().size()) +
@@ -838,9 +841,9 @@ public class CategoricalDiff implements AxiomDiff {
 				"\n\t   Redundancies: " + categorisedChangeSet.getRemovedRedundancies().size() +
 				"\n\t   Prospective Redundancies: " + categorisedChangeSet.getRemovedProspectiveRedundancies().size() +
 				"\n\t     Reshuffle Redundancies: " + categorisedChangeSet.getRemovedReshuffleRedundancies().size() +
-				"\n\t     New Redundancies: " + categorisedChangeSet.getRemovedProspectiveNewRedundancies().size() +
-				"\n\t       Novel Redundancies: " + categorisedChangeSet.getRemovedNovelRedundancies().size() +
-				"\n\t       Pseudo-Novel Redundancies: " + categorisedChangeSet.getRemovedPseudoNovelRedundancies().size());
+				"\n\t     New Redundancies: " + categorisedChangeSet.getRemovedProspectiveNewRedundancies().size());
+//				"\n\t       Novel Redundancies: " + categorisedChangeSet.getRemovedNovelRedundancies().size() +
+//				"\n\t       Pseudo-Novel Redundancies: " + categorisedChangeSet.getRemovedPseudoNovelRedundancies().size());
 	}
 	
 	

@@ -86,13 +86,31 @@ public class JustificationFinder {
 	
 	
 	/**
-	 * Get all justifications for a given set of entailments
+	 * Get all justifications for a given set of entailments (concurrently)
+	 * @param entailments	Set of entailments
+	 * @return Set of (sets of) justifications for the given entailments
+	 */
+	public Set<Set<Explanation<OWLAxiom>>> getJustificationsConcurrently(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
+		ForkJoinPool fjPool = new ForkJoinPool();
+		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
+	}
+	
+	
+	/**
+	 * Get all justifications for a given set of entailments (sequentially)
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
 	 */
 	public Set<Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
-		ForkJoinPool fjPool = new ForkJoinPool();
-		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
+		Set<Set<Explanation<OWLAxiom>>> regExps = new HashSet<Set<Explanation<OWLAxiom>>>();
+		for(OWLAxiom ax : entailments) {
+			ExplanationGenerator<OWLAxiom> exGen = regFac.createExplanationGenerator(ont);
+			Set<Explanation<OWLAxiom>> justs = exGen.getExplanations(ax, justLimit);
+			regExps.add(justs);
+			if(justs.isEmpty())
+				System.err.println("\n\t !! Could not retrieve justifications for axiom:\n\t\t" + CategoricalDiff.getManchesterRendering(ax));
+		}
+		return regExps;
 	}
 	
 	
