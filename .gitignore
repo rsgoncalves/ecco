@@ -1,6 +1,7 @@
 # Preliminary and test code #
 src/uk/ac/manchester/cs/diff/test/
 temp/*
+test/*
 
 # Test files #
 *.csv

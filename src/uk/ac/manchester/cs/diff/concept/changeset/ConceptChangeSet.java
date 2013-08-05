@@ -213,7 +213,7 @@ public class ConceptChangeSet {
 	 * Get all directly generalised concepts (in ontology 1 and 2)
 	 * @return Set of all directly generalised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllDirectlyGeneralised() {
+	public Set<OWLClass> getAllDirectlyGeneralisedClasses() {
 		if(puDirGen == null || mixGen == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : puDirGen)
@@ -221,6 +221,18 @@ public class ConceptChangeSet {
 		for(ConceptChange c : mixGen) 
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get all direct generalised concept changes
+	 * @return Set of direct generalised changes
+	 */
+	public Set<ConceptChange> getAllDirectlyGeneralised() {
+		if(puDirGen == null || mixGen == null) sortOutAllChanges();
+		Set<ConceptChange> out = new HashSet<ConceptChange>();
+		out.addAll(puDirGen); out.addAll(mixGen);
+		return out;
 	}
 	
 	
@@ -252,12 +264,22 @@ public class ConceptChangeSet {
 	 * Get all purely directly generalised concepts (in ontology 1 and 2)
 	 * @return Set of all purely directly generalised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllPurelyDirectlyGeneralised() {
+	public Set<OWLClass> getAllPurelyDirectlyGeneralisedClasses() {
 		if(puDirGen == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : puDirGen)
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get all purely directly generalised concept changes
+	 * @return Set of all purely directly generalised concept changes
+	 */
+	public Set<ConceptChange> getAllPurelyDirectlyGeneralised() {
+		if(puDirGen == null) sortOutAllChanges();
+		return puDirGen;
 	}
 	
 	
@@ -285,12 +307,22 @@ public class ConceptChangeSet {
 	 * Get all purely indirectly generalised concepts (in ontology 1 and 2)
 	 * @return Set of all purely indirectly generalised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllPurelyIndirectlyGeneralised() {
+	public Set<OWLClass> getAllPurelyIndirectlyGeneralisedClasses() {
 		if(puIndGen == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : puIndGen)
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get all purely indirectly generalised concept changes
+	 * @return Set of all purely indirectly generalised concept changes
+	 */
+	public Set<ConceptChange> getAllPurelyIndirectlyGeneralised() {
+		if(puIndGen == null) sortOutAllChanges();
+		return puIndGen;
 	}
 	
 	
@@ -318,7 +350,7 @@ public class ConceptChangeSet {
 	 * Get all directly specialised concepts (in ontology 1 and 2)
 	 * @return Set of all directly specialised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllDirectlySpecialised() {
+	public Set<OWLClass> getAllDirectlySpecialisedClasses() {
 		if(puDirSpec == null || mixSpec == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : puDirSpec)
@@ -326,6 +358,18 @@ public class ConceptChangeSet {
 		for(ConceptChange c : mixSpec) 
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get all direct specialised concept changes
+	 * @return Set of direct specialised changes
+	 */
+	public Set<ConceptChange> getAllDirectlySpecialised() {
+		if(puDirSpec == null || mixSpec == null) sortOutAllChanges();
+		Set<ConceptChange> out = new HashSet<ConceptChange>();
+		out.addAll(puDirSpec); out.addAll(mixSpec);
+		return out;
 	}
 	
 	
@@ -357,12 +401,22 @@ public class ConceptChangeSet {
 	 * Get all purely directly specialised concepts (in ontology 1 and 2)
 	 * @return Set of all purely directly specialised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllPurelyDirectlySpecialised() {
+	public Set<OWLClass> getAllPurelyDirectlySpecialisedClasses() {
 		if(puDirSpec == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : puDirSpec)
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get all purely directly specialised concept changes
+	 * @return Set of purely directly specialised changes
+	 */
+	public Set<ConceptChange> getAllPurelyDirectlySpecialised() {
+		if(puDirSpec == null) sortOutAllChanges();
+		return puDirSpec;
 	}
 	
 	
@@ -390,12 +444,22 @@ public class ConceptChangeSet {
 	 * Get all purely indirectly specialised concepts (in ontology 1 and 2)
 	 * @return Set of all purely indirectly specialised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllPurelyIndirectlySpecialised() {
+	public Set<OWLClass> getAllPurelyIndirectlySpecialisedClasses() {
 		if(puIndSpec == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : puIndSpec)
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get all purely indirectly specialised concept changes
+	 * @return Set of purely indirect concepts changes
+	 */
+	public Set<ConceptChange> getAllPurelyIndirectlySpecialised() {
+		if(puIndSpec == null) sortOutAllChanges();
+		return puIndSpec;
 	}
 	
 	
@@ -423,12 +487,22 @@ public class ConceptChangeSet {
 	 * Get the mixed specialised concepts (in ontology 1 and 2)
 	 * @return Set of mixed specialised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllMixedSpecialised() {
+	public Set<OWLClass> getAllMixedSpecialisedClasses() {
 		if(mixSpec == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : mixSpec)
 			output.add(c.getConcept());
 		return output;
+	}
+	
+	
+	/**
+	 * Get the mixed specialised concept changes
+	 * @return Set of mixed specialised concept changes
+	 */
+	public Set<ConceptChange> getAllMixedSpecialised() {
+		if(mixSpec == null) sortOutAllChanges();
+		return mixSpec;
 	}
 	
 	
@@ -456,13 +530,23 @@ public class ConceptChangeSet {
 	 * Get the mixed generalised concepts (in ontology 1 and 2)
 	 * @return Set of mixed generalised concepts in both ontologies
 	 */
-	public Set<OWLClass> getAllMixedGeneralised() {
+	public Set<OWLClass> getAllMixedGeneralisedClasses() {
 		if(mixGen == null) sortOutAllChanges();
 		Set<OWLClass> output = new HashSet<OWLClass>();
 		for(ConceptChange c : mixGen)
 			output.add(c.getConcept());
 		return output;
-	}	
+	}
+	
+	
+	/**
+	 * Get the mixed generalised concept changes
+	 * @return Set of mixed generalised concept changes
+	 */
+	public Set<ConceptChange> getAllMixedGeneralised() {
+		if(mixGen == null) sortOutAllChanges();
+		return mixGen;
+	}
 	
 	
 	/**
