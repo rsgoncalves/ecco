@@ -110,7 +110,7 @@ public class XMLReportConceptDiff {
 		StringWriter sw = new StringWriter();
 		StreamResult result = new StreamResult(sw);
 		DOMSource source = new DOMSource(doc);
-
+		
 		trans.transform(source, result);
 		return sw.toString();
 	}
@@ -122,11 +122,8 @@ public class XMLReportConceptDiff {
 	private void populateDocument() {
 		addElement("Ontology1", "lhs", changeSet.getLHSAffectedConcepts().size(), doc, "root", true);
 		addElement("Ontology2", "rhs", changeSet.getRHSAffectedConcepts().size(), doc, "root", true);
-		addElement("Overall", "all", changeSet.getAllAffectedConcepts().size(), doc, "root", true);
-		
 		addLHSConceptDiff("lhs", doc);
 		addRHSConceptDiff("rhs", doc);
-		addOverallConceptDiff("all", doc);
 	}
 	
 	
@@ -162,24 +159,6 @@ public class XMLReportConceptDiff {
 		addGeneralisationChanges("PurelyDirect", "rhs_pdg", changeSet.getRHSPurelyDirectlyGeneralised(), d, "rhs_gen");
 		addGeneralisationChanges("PurelyIndirect", "rhs_pig", changeSet.getRHSPurelyIndirectlyGeneralised(), d, "rhs_gen");
 		addGeneralisationChanges("Mixed", "rhs_mg", changeSet.getRHSMixedGeneralised(), d, "rhs_gen");
-	}
-	
-	
-	/**
-	 * Add overall affected concepts
-	 * @param parent	Parent element
-	 * @param d	XML document
-	 */
-	private void addOverallConceptDiff(String parent, Document d) {
-		addElement("Specialised", "all_spec", changeSet.getAllSpecialisedConcepts().size(), d, parent, true);
-		addSpecialisationChanges("PurelyDirect", "all_pds", changeSet.getAllPurelyDirectlySpecialised(), d, "all_spec");
-		addSpecialisationChanges("PurelyIndirect", "all_pis", changeSet.getAllPurelyIndirectlySpecialised(), d, "all_spec");
-		addSpecialisationChanges("Mixed", "all_ms", changeSet.getAllMixedSpecialised(), d, "all_spec");
-		
-		addElement("Generalised", "all_gen", changeSet.getAllGeneralisedConcepts().size(), d, parent, true);
-		addGeneralisationChanges("PurelyDirect", "all_pdg", changeSet.getAllPurelyDirectlyGeneralised(), d, "all_gen");
-		addGeneralisationChanges("PurelyIndirect", "all_pig", changeSet.getAllPurelyIndirectlyGeneralised(), d, "all_gen");
-		addGeneralisationChanges("Mixed", "all_mg", changeSet.getAllMixedGeneralised(), d, "all_gen");
 	}
 	
 	

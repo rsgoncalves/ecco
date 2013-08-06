@@ -88,7 +88,7 @@ public class ReasonerLoader {
 		if(verbose) System.out.println("   Creating reasoner...");
 		long start = System.currentTimeMillis();
 		
-		OWLReasoner reasoner = fac.createReasoner(ont, config);
+		OWLReasoner reasoner = fac.createNonBufferingReasoner(ont, config);
 		
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("   done (" + (end-start)/1000.0 + " secs)");

@@ -19,17 +19,27 @@
 package uk.ac.manchester.cs.diff.concept;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -38,6 +48,7 @@ import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLLogicalAxiom;
 import org.semanticweb.owlapi.model.OWLObject;
@@ -45,7 +56,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.util.SimpleShortFormProvider;
+import org.w3c.dom.Document;
 
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.LHSConceptChange;
@@ -56,7 +67,6 @@ import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
 import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
-import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -70,6 +80,7 @@ public class SubconceptDiff {
 	private OWLOntologyManager man;
 	private OWLDataFactory df;
 	private Map<OWLClass,Set<OWLClassExpression>> ont1_diffL, ont1_diffR, ont2_diffL, ont2_diffR;
+	private Set<OWLAxiom> extraAxioms;
 	private Set<OWLClass> sig;
 	private boolean verbose;
 
@@ -88,6 +99,7 @@ public class SubconceptDiff {
 		sig = new HashSet<OWLClass>(ont1.getClassesInSignature());
 		sig.addAll(ont2.getClassesInSignature());
 		initDataStructures();
+		equalizeSignatures(ont1, ont2);
 	}
 	
 	
@@ -106,6 +118,7 @@ public class SubconceptDiff {
 		df = man.getOWLDataFactory();
 		this.sig = sig;
 		initDataStructures();
+		equalizeSignatures(ont1, ont2);
 	}
 
 	
@@ -148,6 +161,11 @@ public class SubconceptDiff {
 
 		ont1reasoner = ont1worker.getReasoner(); ont2reasoner = ont2worker.getReasoner();
 		Set<OWLClass> affected = computeChangeWitnesses(ont1reasoner, ont2reasoner, map);
+		
+		// Removing extra axioms
+		ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
+		ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
+		
 		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected);
 		if(verbose) printDiff(changeSet);
 		
@@ -174,7 +192,14 @@ public class SubconceptDiff {
 		Set<OWLClass> topSuper2 = ont2reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
 		Set<OWLClass> botSub1 = ont1reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 		Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
-	
+		
+//		System.out.println("!!!!");
+//		System.out.println("Top superclasses ont1: " + topSuper1.size());
+//		System.out.println("Top superclasses ont2: " + topSuper2.size());
+//		System.out.println("Bottom subclasses ont2: " + botSub1.size());
+//		System.out.println("Bottom subclasses ont1: " + botSub2.size());
+//		System.out.println("!!!!");
+		
 		// Get specialisation and generalisation witnesses for each concept
 		for(OWLClass subc : sig) {
 			WitnessConcepts specWit = getSpecialisationWitnesses(subc, map, topSuper1, topSuper2);
@@ -345,11 +370,14 @@ public class SubconceptDiff {
 		Map<OWLClass, Set<OWLAxiom>> directWits = new HashMap<OWLClass,Set<OWLAxiom>>();
 		Map<OWLClass, Set<OWLAxiom>> indirectWits = new HashMap<OWLClass,Set<OWLAxiom>>();
 		for(OWLClassExpression ce : witMap.keySet()) {
+//			System.out.println("Checking concept: " + getManchesterRendering(ce));
 			Set<OWLClass> subs = null;
 			if(diffL) subs = reasoner.getSubClasses(ce, true).getFlattened();
 			else subs = reasoner.getSuperClasses(ce, true).getFlattened();
+			
 			for(OWLClass c : witMap.get(ce)) {
 				if(subs.contains(c)) { // direct witness
+//					System.out.println("\tDirect witness for " + getManchesterRendering(c) );
 					if(directWits.containsKey(c)) {
 						Set<OWLAxiom> wits = directWits.get(c);
 						if(diffL) wits.add(df.getOWLSubClassOfAxiom(c, ce));
@@ -362,6 +390,7 @@ public class SubconceptDiff {
 					}
 				}
 				else { // indirect witness
+//					System.out.println("\tIndirect witness for " + getManchesterRendering(c));
 					if(indirectWits.containsKey(c)) {
 						Set<OWLAxiom> wits = indirectWits.get(c);
 						if(diffL) wits.add(df.getOWLSubClassOfAxiom(c, ce));
@@ -458,6 +487,30 @@ public class SubconceptDiff {
 		System.out.println("    Purely indirectly specialised: " + changeSet.getAllPurelyIndirectlySpecialised().size());
 		System.out.println("    Mixed generalised: " + changeSet.getAllMixedGeneralised().size());
 		System.out.println("    Mixed specialised: " + changeSet.getAllMixedSpecialised().size());
+		
+		serializeXMLReport(changeSet);
+	}
+	
+	
+	private void serializeXMLReport(ConceptChangeSet changeSet) {
+		XMLReportConceptDiff report = getXMLReport(changeSet);
+		Document doc = report.getReport();
+		
+		Transformer transformer = null;
+		try {
+			transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
+			e.printStackTrace();
+		}
+		Result output = new StreamResult(new File("/Users/rafa/Documents/PhD/workspace/ecco/test/subcdifflog.xml"));
+		Source input = new DOMSource(doc);
+
+		try {
+			transformer.transform(input, output);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -476,7 +529,7 @@ public class SubconceptDiff {
 	 * @return Set of subconcepts
 	 */
 	private Set<OWLClassExpression> collectSCs() {
-		if(verbose) System.out.print("Getting subconcepts of O1 and O2... ");
+		if(verbose) System.out.print("Extracting subconcepts from given ontologies... ");
 		Set<OWLClassExpression> scs = new HashSet<OWLClassExpression>(); 
 		getSubConcepts(ont1, scs);
 		getSubConcepts(ont2, scs);
@@ -535,11 +588,13 @@ public class SubconceptDiff {
 	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(Set<OWLClassExpression> sc) {
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
 		int counter = 1;
+		extraAxioms = new HashSet<OWLAxiom>();
 		for(OWLClassExpression ce : sc) {
 			if(ce.isAnonymous()) {
 				OWLClass c = df.getOWLClass(IRI.create("diffSubc_" + counter));
 				map.put(c, ce);
 				OWLEquivalentClassesAxiom ax = df.getOWLEquivalentClassesAxiom(c, ce);
+				extraAxioms.add(ax);
 				AddAxiom add1 = new AddAxiom(ont1, ax);
 				AddAxiom add2 = new AddAxiom(ont2, ax);
 				man.applyChange(add1);
@@ -576,44 +631,29 @@ public class SubconceptDiff {
 		}
 		return isEqual;
 	}
-
 	
-	/* Testing */
-	SimpleShortFormProvider sf = new SimpleShortFormProvider();
-	@SuppressWarnings("unused")
-	private void printSet(String desc, Set<? extends ConceptChange> set) {
-		System.out.print(desc + " (" + set.size() + "): ");
-		for(ConceptChange obj : set) {
-			System.out.print(getManchesterSyntax(obj.getConcept(), sf) + ", ");
+	
+	/**
+	 * Given two ontologies, inject entity declarations so that both ontologies
+	 * end up with the same signature
+	 */
+	private void equalizeSignatures(OWLOntology ont1, OWLOntology ont2) {
+		Set<OWLEntity> ont1sig = ont1.getSignature();
+		Set<OWLEntity> ont2sig = ont2.getSignature();
+		
+		ont1sig.removeAll(ont2sig);
+		ont2sig.removeAll(ont1sig);
+		
+		List<AddAxiom> ont1axs = new ArrayList<AddAxiom>();
+		for(OWLEntity c : ont1sig) {
+			ont1axs.add(new AddAxiom(ont2, df.getOWLDeclarationAxiom(c)));
 		}
-		System.out.println();
-	}
-	
-	@SuppressWarnings("unused")
-	private void print(String desc, Set<? extends OWLObject> obj) {
-		try {
-			File f = new File("/Users/rafa/Desktop/ncit_05.07/" + desc + ".txt");
-			f.getParentFile().mkdirs();
-			FileWriter out = new FileWriter(f);
-			SimpleShortFormProvider fp = new SimpleShortFormProvider();
-			for(OWLObject o : obj) {
-				out.append(getManchesterSyntax(o, fp) + "\n");
-			}
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		ont2.getOWLOntologyManager().applyChanges(ont1axs);
+		
+		List<AddAxiom> ont2axs = new ArrayList<AddAxiom>();
+		for(OWLEntity c : ont2sig) {
+			ont2axs.add(new AddAxiom(ont1, df.getOWLDeclarationAxiom(c)));
 		}
-	}
-	
-	public static String getManchesterSyntax(OWLObject obj, SimpleShortFormProvider fp) {
-		StringWriter wr = new StringWriter();
-
-		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, fp);
-		render.setUseWrapping(false);
-		obj.accept(render);
-
-		String str = wr.getBuffer().toString();
-
-		return str;
+		ont1.getOWLOntologyManager().applyChanges(ont2axs);
 	}
 }
