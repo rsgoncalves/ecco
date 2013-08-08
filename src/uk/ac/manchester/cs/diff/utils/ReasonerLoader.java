@@ -85,13 +85,13 @@ public class ReasonerLoader {
 		SimpleConfiguration config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE);
 		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
 		
-		if(verbose) System.out.println("   Creating reasoner...");
+		if(verbose) System.out.print("   Creating reasoner... ");
 		long start = System.currentTimeMillis();
 		
-		OWLReasoner reasoner = fac.createNonBufferingReasoner(ont, config);
+		OWLReasoner reasoner = fac.createReasoner(ont, config);
 		
 		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("   done (" + (end-start)/1000.0 + " secs)");
+		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
 		return reasoner;
 	}
 	
