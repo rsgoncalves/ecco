@@ -244,7 +244,6 @@ public class GrammarDiff extends SubconceptDiff {
 		}
 		mod_ont1.getOWLOntologyManager().addAxioms(mod_ont1, extraAxioms);
 		mod_ont2.getOWLOntologyManager().addAxioms(mod_ont2, extraAxioms);
-		System.out.println("Total added axioms: " + wits.size());
 		return map;
 	}
 	

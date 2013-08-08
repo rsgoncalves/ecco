@@ -45,7 +45,7 @@ import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class GrammarDiffv1 extends SubconceptDiff {
+public class ContentCVSDiff extends SubconceptDiff {
 
 	/**
 	 * Constructor for grammar diff w.r.t. Sigma = sig(O1) U sig(O2)
@@ -54,7 +54,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiffv1(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
+	public ContentCVSDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
 		super(ont1, ont2, outputDir, verbose);
 	}
 	
@@ -67,7 +67,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiffv1(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
+	public ContentCVSDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 	}
 
@@ -90,7 +90,6 @@ public class GrammarDiffv1 extends SubconceptDiff {
 					new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
 			ont2 = man.createOntology(
 					new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
-			if(verbose) System.out.println("M1 size: " + ont1.getLogicalAxiomCount() + " axioms\nM2 size: " + ont2.getLogicalAxiomCount() + " axioms");
 		}
 		
 		Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping("E");
@@ -117,7 +116,6 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @return Map of new terms to subconcepts
 	 */
 	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(String diff) {
-		Set<OWLClassExpression> sc = collectSCs();
 		OWLDataFactory df = OWLManager.getOWLDataFactory();
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
 		
@@ -127,10 +125,9 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		
 		// Collect possible witnesses
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>();
-		wits.addAll(sc);
-		wits.addAll(getExistentialWitnesses(sc, roles));
-		wits.addAll(getUniversalWitnesses(sc, roles));
-		wits.addAll(getNegationWitnesses(sc));
+		wits.addAll(getExistentialWitnesses(sig, roles));
+		wits.addAll(getUniversalWitnesses(sig, roles));
+		wits.addAll(getNegationWitnesses(sig));
 		
 		int counter = 1;
 		extraAxioms = new HashSet<OWLAxiom>();
