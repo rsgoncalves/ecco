@@ -55,7 +55,7 @@ public class ConceptDiffRunner {
 		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
 		// Get random signature sample
-		SignatureSampler sampler = new SignatureSampler(ont2);
+		SignatureSampler sampler = new SignatureSampler(ont1);
 		Set<OWLClass> sampleSet = sampler.getSample(381);
 		
 		// Serialize sample for reuse

@@ -246,6 +246,7 @@ public class XMLReportConceptDiff {
 			axEle.setTextContent(getManchesterRendering(ax, sf));
 			parent.appendChild(axEle);
 		}
+		parent.setAttribute("size", ""+witnesses.size());
 	}
 	
 	
