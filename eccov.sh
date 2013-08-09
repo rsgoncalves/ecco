@@ -65,14 +65,15 @@ do
             break
             ;;
         -*)
-            echo "Warning: Unknown option (ignored): $1" >&2
-            shift
+            #echo "Warning: Unknown option (ignored): $1" >&2
+            break
             ;;
         *)
             break
             ;;
     esac
 done
+echo "ecco arguments: $@"
 # 
 # Ensure required argument is specified
 # 
@@ -95,5 +96,5 @@ do
 		ont2=${versions[$i+1]}/"$ontname"
 	fi
 	# Run ecco with the specified arguments
-	java -Xmx"$maxmem" -Djava.library.path="$factlib" -DentityExpansionLimit=100000000 -jar ecco.jar -ont1 "$ont1" -ont2 "$ont2"
+	java -Xmx"$maxmem" -Djava.library.path="$factlib" -DentityExpansionLimit=100000000 -jar ecco.jar -ont1 "$ont1" -ont2 "$ont2" "$@"
 done
