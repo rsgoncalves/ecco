@@ -173,15 +173,23 @@ public class XMLReportConceptDiff {
 	private void addGeneralisationChanges(String desc, String id, Set<? extends ConceptChange> changes, Document d, String parent) {
 		addElement(desc, id, changes.size(), d, parent, true);
 		for(ConceptChange c : changes) {
-			Element change = addConceptChange(c, d, id);
+			Element witAxsEle = addConceptChange(c, d, id);
+			Set<OWLAxiom> dirgen = c.getDirectGeneralisationWitnesses();
+			Set<OWLAxiom> indirgen = c.getIndirectGeneralisationWitnesses();
+			
 			if(c.isDirectlyGeneralised() && c.isIndirectlyGeneralised()) {
-				addWitnessAxioms(change, c.getDirectGeneralisationWitnesses(), d, true);
-				addWitnessAxioms(change, c.getIndirectGeneralisationWitnesses(), d, false);
+				addWitnessAxioms(witAxsEle, dirgen, d, true);
+				addWitnessAxioms(witAxsEle, indirgen, d, false);
+				witAxsEle.setAttribute("size", ""+(dirgen.size()+indirgen.size()));
 			}
-			else if(c.isDirectlyGeneralised())
-				addWitnessAxioms(change, c.getDirectGeneralisationWitnesses(), d, true);
-			else if(c.isIndirectlyGeneralised())
-				addWitnessAxioms(change, c.getIndirectGeneralisationWitnesses(), d, false);
+			else if(c.isDirectlyGeneralised()) {
+				addWitnessAxioms(witAxsEle, dirgen, d, true);
+				witAxsEle.setAttribute("size", ""+dirgen.size());
+			}
+			else if(c.isIndirectlyGeneralised()) {
+				addWitnessAxioms(witAxsEle, indirgen, d, false);
+				witAxsEle.setAttribute("size", ""+indirgen.size());
+			}
 		}
 	}
 	
@@ -197,15 +205,22 @@ public class XMLReportConceptDiff {
 	private void addSpecialisationChanges(String desc, String id, Set<? extends ConceptChange> changes, Document d, String parent) {
 		addElement(desc, id, changes.size(), d, parent, true);
 		for(ConceptChange c : changes) {
-			Element change = addConceptChange(c, d, id);
+			Element witAxsEle = addConceptChange(c, d, id);
+			Set<OWLAxiom> dirspec = c.getDirectSpecialisationWitnesses();
+			Set<OWLAxiom> indirspec = c.getIndirectSpecialisationWitnesses();
 			if(c.isDirectlySpecialised() && c.isIndirectlySpecialised()) {
-				addWitnessAxioms(change, c.getDirectSpecialisationWitnesses(), d, true);
-				addWitnessAxioms(change, c.getIndirectSpecialisationWitnesses(), d, false);
+				addWitnessAxioms(witAxsEle, dirspec, d, true);
+				addWitnessAxioms(witAxsEle, indirspec, d, false);
+				witAxsEle.setAttribute("size", ""+(dirspec.size()+indirspec.size()));
 			}
-			else if(c.isDirectlySpecialised())
-				addWitnessAxioms(change, c.getDirectSpecialisationWitnesses(), d, true);
-			else if(c.isIndirectlySpecialised())
-				addWitnessAxioms(change, c.getIndirectSpecialisationWitnesses(), d, false);
+			else if(c.isDirectlySpecialised()) {
+				addWitnessAxioms(witAxsEle, dirspec, d, true);
+				witAxsEle.setAttribute("size", ""+dirspec.size());
+			}
+			else if(c.isIndirectlySpecialised()) {
+				addWitnessAxioms(witAxsEle, indirspec, d, false);
+				witAxsEle.setAttribute("size", ""+indirspec.size());
+			}
 		}
 	}
 	
@@ -246,7 +261,6 @@ public class XMLReportConceptDiff {
 			axEle.setTextContent(getManchesterRendering(ax, sf));
 			parent.appendChild(axEle);
 		}
-		parent.setAttribute("size", ""+witnesses.size());
 	}
 	
 	

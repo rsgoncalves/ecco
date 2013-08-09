@@ -93,14 +93,14 @@ public class ContentCVSDiff extends SubconceptDiff {
 		}
 		
 		Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping("E");
-		classifyOntologies();
+		classifyOntologies(ont1, ont2);
 		Set<OWLClass> affected = computeChangeWitnesses(map);
 		
 		// Remove extra axioms and create fresh reasoner instances
 		ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 		ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
 
-		classifyOntologies();
+		classifyOntologies(ont1, ont2);
 		
 		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		if(verbose) printDiff(changeSet);
@@ -135,9 +135,9 @@ public class ContentCVSDiff extends SubconceptDiff {
 			OWLClass c = df.getOWLClass(IRI.create("diffSubc_" + counter));
 			map.put(c, ce);
 			OWLAxiom ax = null;
-			if(diff.equals("L"))
+			if(diff.equals("R"))
 				ax = df.getOWLSubClassOfAxiom(c, ce);
-			else if (diff.equals("R"))
+			else if (diff.equals("L"))
 				ax = df.getOWLSubClassOfAxiom(ce, c);
 			else if (diff.equals("E"))
 				ax = df.getOWLEquivalentClassesAxiom(c, ce);

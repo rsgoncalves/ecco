@@ -13,7 +13,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import uk.ac.manchester.cs.diff.concept.GrammarDiffv1;
+import uk.ac.manchester.cs.diff.concept.GrammarDiff;
+import uk.ac.manchester.cs.diff.concept.Signature;
 
 public class ConceptDiffRunner {
 
@@ -22,6 +23,7 @@ public class ConceptDiffRunner {
 		String sigList = "";
 		for(OWLClass c : sampleSet) sigList += c.getIRI() + "\n";
 		try {
+			new File(outputDir).mkdirs();
 			File file = new File(outputDir + "randomSample.txt");
 			Writer output = new BufferedWriter(new FileWriter(file, false));
 			System.out.println("Saved random sample at: " + file.getAbsolutePath());
@@ -35,7 +37,10 @@ public class ConceptDiffRunner {
 	
 	/**
 	 * Tester class
-	 * @param args
+	 * @param 0: ontology1
+	 * @param 1: ontology2
+	 * @param 2: output directory
+	 * @param 3: signature file
 	 * @throws OWLOntologyCreationException 
 	 * @throws InterruptedException 
 	 */
@@ -54,15 +59,18 @@ public class ConceptDiffRunner {
 		// Remove abox for NCIt
 		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
-		// Get random signature sample
-		SignatureSampler sampler = new SignatureSampler(ont1);
-		Set<OWLClass> sampleSet = sampler.getSample(381);
-		
-		// Serialize sample for reuse
-		serializeSample(sampleSet, outputDir);
+		Set<OWLClass> sampleSet = null;
+		if(args[3] != null)
+			sampleSet = new Signature().getSignatureFromFile(new File(args[3]));
+		else {
+			// Get random signature sample
+			SignatureSampler sampler = new SignatureSampler(ont1, ont2);
+			sampleSet = sampler.getSample(381);
+			serializeSample(sampleSet, outputDir);
+		}
 		
 		// Instantiate diff
-		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, sampleSet, outputDir, true);
+		GrammarDiff diff = new GrammarDiff(ont1, ont2, sampleSet, outputDir, true);
 		diff.getDiff();
 	}
 }

@@ -94,14 +94,14 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		}
 		
 		Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping("E");
-		classifyOntologies();
+		classifyOntologies(ont1, ont2);
 		Set<OWLClass> affected = computeChangeWitnesses(map);
 		
 		// Remove extra axioms and create fresh reasoner instances
 		ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 		ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
 
-		classifyOntologies();
+		classifyOntologies(ont1, ont2);
 		
 		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		if(verbose) printDiff(changeSet);

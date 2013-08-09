@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -42,6 +45,8 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasoner;
+import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
+import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -52,6 +57,7 @@ import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasoner;
 public class GrammarDiff extends SubconceptDiff {
 	private FaCTPlusPlusReasoner ont1modExtractor, ont2modExtractor;
 	private OWLOntologyManager man;
+	private final boolean debug = true;
 
 	/**
 	 * Constructor
@@ -63,8 +69,6 @@ public class GrammarDiff extends SubconceptDiff {
 	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
 		super(ont1, ont2, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
-		ont1modExtractor = new FaCTPlusPlusReasoner(ont1, new SimpleConfiguration(), BufferingMode.BUFFERING);
-		ont2modExtractor = new FaCTPlusPlusReasoner(ont2, new SimpleConfiguration(), BufferingMode.BUFFERING);
 	}
 
 	
@@ -79,12 +83,8 @@ public class GrammarDiff extends SubconceptDiff {
 	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
-		ont1modExtractor = new FaCTPlusPlusReasoner(ont1, new SimpleConfiguration(), BufferingMode.BUFFERING);
-		ont2modExtractor = new FaCTPlusPlusReasoner(ont2, new SimpleConfiguration(), BufferingMode.BUFFERING);
 	}
 
-	
-	/* Note: FPP module extractor: 0 - bot modules, 1 - top modules, 2 - star modules */
 
 	/**
 	 * Get the concept-based change set between the given ontologies 
@@ -98,6 +98,23 @@ public class GrammarDiff extends SubconceptDiff {
 		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
 		roles.addAll(ont1.getObjectPropertiesInSignature());
 		roles.addAll(ont2.getObjectPropertiesInSignature());
+		
+		if(sig.size() < ont1.getClassesInSignature().size() &&
+				sig.size() < ont2.getClassesInSignature().size()) {
+			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
+			modsig.addAll(roles);
+			
+			ont1 = man.createOntology(
+					new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
+			ont2 = man.createOntology(
+					new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
+			
+			if(debug) System.out.println("M1 size: " + ont1.getLogicalAxiomCount() + " axioms\nM2 size: " + ont2.getLogicalAxiomCount() + " axioms");
+		}
+		
+		// Initialise FaCT++ based module extractors. Note: 0 - bot modules, 1 - top modules, 2 - star modules
+		ont1modExtractor = new FaCTPlusPlusReasoner(ont1, new SimpleConfiguration(), BufferingMode.BUFFERING);
+		ont2modExtractor = new FaCTPlusPlusReasoner(ont2, new SimpleConfiguration(), BufferingMode.BUFFERING);
 		
 		// Get specialisation and generalisation witnesses for each concept
 		Set<OWLClass> specialised = computeSpecialisations(roles);
@@ -124,44 +141,78 @@ public class GrammarDiff extends SubconceptDiff {
 	 * @param roles	Set of role names
 	 * @return Set of affected concept names
 	 * @throws OWLOntologyCreationException 
+	 * @throws InterruptedException 
 	 */
-	private Set<OWLClass> computeSpecialisations(Set<OWLObjectProperty> roles) throws OWLOntologyCreationException {
+	private Set<OWLClass> computeSpecialisations(Set<OWLObjectProperty> roles) throws OWLOntologyCreationException, InterruptedException {
 		if(verbose) System.out.print("Computing specialisations... ");
 		Set<OWLClass> affected = new HashSet<OWLClass>();
 		long start = System.currentTimeMillis();
 
+		if(debug) System.out.println("\n--------------------------------\nDIFF L\n--------------------------------");
+		int counter = 1;
 		// Get specialisation witnesses for each concept
 		for(OWLClass subc : sig) {
 			if(!subc.isOWLNothing()) {
-				System.out.println("\n-------------------------\nChecking concept: " + subc);
+				if(debug) System.out.println("   Checking concept " + counter + "/" + sig.size() + ": " + getManchesterRendering(subc));
+				
 				Set<OWLEntity> modsig = new HashSet<OWLEntity>();
 				modsig.add(subc); modsig.addAll(roles);
 				OWLOntology mod_ont1 = man.createOntology(ont1modExtractor.getModule(modsig, false, 0));
 				OWLOntology mod_ont2 = man.createOntology(ont2modExtractor.getModule(modsig, false, 0));
-				System.out.println("\tModule1: " + mod_ont1.getLogicalAxiomCount() + "\n\tModule2: " + mod_ont2.getLogicalAxiomCount());
+				
+				if(debug) System.out.println("\t|mod1| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2| = " + mod_ont2.getLogicalAxiomCount());
 				
 				if(!equiv(mod_ont1, mod_ont2)) {
-					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(mod_ont1, mod_ont2, "L");
-
-					OWLReasoner ont1reasoner = new ReasonerLoader(mod_ont1).createReasoner();
-					OWLReasoner ont2reasoner = new ReasonerLoader(mod_ont2).createReasoner();
-					System.out.println("\tModule1': " + mod_ont1.getLogicalAxiomCount() + 
-							"\n\tModule2': " + mod_ont2.getLogicalAxiomCount());
+					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(mod_ont1, mod_ont2, "E");
+					if(debug) System.out.println("\t|mod1'| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2'| = " + mod_ont2.getLogicalAxiomCount());
+					
+					// Classify modules
+					if(debug) System.out.print("\tClassifying modules... ");
+					long start2 = System.currentTimeMillis();
+					ExecutorService exec = Executors.newFixedThreadPool(2);
+					
+					Classifier ont1worker = new Classifier(mod_ont1);
+					Classifier ont2worker = new Classifier(mod_ont2);
+					
+					exec.execute(ont1worker); exec.execute(ont2worker);
+					exec.shutdown();
+					exec.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+					OWLReasoner ont1reasoner = ont1worker.getReasoner();
+					OWLReasoner ont2reasoner = ont2worker.getReasoner();
+					if(debug) System.out.println("done ("+ (System.currentTimeMillis()-start2)/1000.0 + " secs)");
+					
 					Set<OWLClass> topSuper1 = ont1reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
 					Set<OWLClass> topSuper2 = ont2reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
 
 					WitnessConcepts specWit = getSpecialisationWitnesses(subc, map, topSuper1, topSuper2, ont1reasoner, ont2reasoner);
 
-					if(!specWit.isEmpty()) affected.add(subc);
+					if(!specWit.isEmpty()) {
+						affected.add(subc);
+						if(debug) System.out.println("   Specialised!");
+					} else if(debug) 
+						System.out.println("   Unaffected!");
+					
 					addChangeToMap(subc, specWit.getLHSWitnesses(), ont1_diffL);
 					addChangeToMap(subc, specWit.getRHSWitnesses(), ont2_diffL);
+					
+					ont1reasoner.dispose(); ont1reasoner = null;
+					ont2reasoner.dispose(); ont2reasoner = null;
+					map.clear(); map = null;
+					topSuper1.clear(); topSuper1 = null;
+					topSuper2.clear(); topSuper2 = null;
 				}
-				else 
-					System.out.println("\tEquivalent!");
+				else if(debug) 
+					System.out.println("   Equivalent!");
+				
+				mod_ont1.getOWLOntologyManager().removeOntology(mod_ont1);
+				mod_ont2.getOWLOntologyManager().removeOntology(mod_ont2);
+				modsig.clear(); modsig = null;
+				if(debug) System.out.println("   -------------------------");
 			}
+			counter++;
 		}
 		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs). Nr. of specialised concept names: " + affected.size() + "\n");
 		return affected;
 	}
 	
@@ -171,39 +222,79 @@ public class GrammarDiff extends SubconceptDiff {
 	 * @param roles	Set of role names
 	 * @return Set of affected concept names
 	 * @throws OWLOntologyCreationException 
+	 * @throws InterruptedException 
 	 */
-	private Set<OWLClass> computeGeneralisations(Set<OWLObjectProperty> roles) throws OWLOntologyCreationException {
+	private Set<OWLClass> computeGeneralisations(Set<OWLObjectProperty> roles) throws OWLOntologyCreationException, InterruptedException {
 		if(verbose) System.out.print("Computing generalisations... ");
 		Set<OWLClass> affected = new HashSet<OWLClass>();
 		long start = System.currentTimeMillis();
 
+		if(debug) System.out.println("\n--------------------------------\nDIFF R\n--------------------------------");
+		int counter = 1;
 		// Get specialisation witnesses for each concept
 		for(OWLClass subc : sig) {
 			if(!subc.isOWLThing()) {
+				if(debug) System.out.println("   Checking concept " + counter + "/" + sig.size() + ": " + getManchesterRendering(subc));
+				
 				Set<OWLEntity> modsig = new HashSet<OWLEntity>();
 				modsig.add(subc); modsig.addAll(roles);
 				OWLOntology mod_ont1 = man.createOntology(ont1modExtractor.getModule(modsig, false, 1));
 				OWLOntology mod_ont2 = man.createOntology(ont2modExtractor.getModule(modsig, false, 1));
-
+				
+				if(debug) System.out.println("\t|mod1| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2| = " + mod_ont2.getLogicalAxiomCount());
+				
 				if(!equiv(mod_ont1, mod_ont2)) {
 					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(mod_ont1, mod_ont2, "R");
-
-					OWLReasoner ont1reasoner = new ReasonerLoader(mod_ont1).createReasoner();
-					OWLReasoner ont2reasoner = new ReasonerLoader(mod_ont2).createReasoner();
-
+					if(debug) System.out.println("\t|mod1'| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2'| = " + mod_ont2.getLogicalAxiomCount());
+					
+					// Classify modules
+					if(debug) System.out.print("\tClassifying modules... ");
+					long start2 = System.currentTimeMillis();
+					ExecutorService exec = Executors.newFixedThreadPool(2);
+					
+					Classifier ont1worker = new Classifier(mod_ont1);
+					Classifier ont2worker = new Classifier(mod_ont2);
+					
+					exec.execute(ont1worker); exec.execute(ont2worker);
+					exec.shutdown();
+					exec.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+					OWLReasoner ont1reasoner = ont1worker.getReasoner();
+					OWLReasoner ont2reasoner = ont2worker.getReasoner();
+					
+					if(debug) System.out.println("done ("+ (System.currentTimeMillis()-start2)/1000.0 + " secs)");
+		
 					Set<OWLClass> botSub1 = ont1reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 					Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 
 					WitnessConcepts genWit = getGeneralisationWitnesses(subc, map, botSub1, botSub2, ont1reasoner, ont2reasoner);
 
-					if(!genWit.isEmpty()) affected.add(subc);
+					if(!genWit.isEmpty()) {
+						affected.add(subc);
+						if(debug) System.out.println("   Generalised!");
+					} else if(debug) 
+						System.out.println("   Unaffected!");
+				
 					addChangeToMap(subc, genWit.getLHSWitnesses(), ont1_diffR);
 					addChangeToMap(subc, genWit.getRHSWitnesses(), ont2_diffR);
+					
+					ont1reasoner.dispose(); ont1reasoner = null;
+					ont2reasoner.dispose(); ont2reasoner = null;
+					map.clear(); map = null;
+					botSub1.clear(); botSub1 = null;
+					botSub2.clear(); botSub2 = null;
 				}
+				else if(debug) 
+					System.out.println("   Equivalent!");
+				
+				mod_ont1.getOWLOntologyManager().removeOntology(mod_ont1);
+				mod_ont2.getOWLOntologyManager().removeOntology(mod_ont2);
+				modsig.clear(); modsig = null;
+				if(debug) System.out.println("   -------------------------");
 			}
+			counter++;
 		}
 		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs). Nr. of generalised concept names: " + affected.size() + "\n");
 		return affected;
 	}
 
@@ -228,22 +319,25 @@ public class GrammarDiff extends SubconceptDiff {
 		wits.addAll(getExistentialWitnesses(scs, roles));
 		wits.addAll(getUniversalWitnesses(scs, roles));
 		wits.addAll(getNegationWitnesses(scs));
-//		System.out.println("Total possible witnesses: " + wits.size());
-		
+
 		int counter = 1;
 		Set<OWLAxiom> extraAxioms = new HashSet<OWLAxiom>();
 		for(OWLClassExpression ce : wits) {
 			OWLClass c = df.getOWLClass(IRI.create("diffSubc_" + counter));
 			map.put(c, ce);
 			OWLAxiom ax = null;
-			if(diff.equals("L"))
+			if(diff.equals("R"))
 				ax = df.getOWLSubClassOfAxiom(c, ce);
-			else if (diff.equals("R"))
+			else if (diff.equals("L"))
 				ax = df.getOWLSubClassOfAxiom(ce, c);
-			extraAxioms.add(ax); counter++;
+			else if (diff.equals("E"))
+				ax = df.getOWLEquivalentClassesAxiom(c, ce);
+			
+			if(ax!=null) extraAxioms.add(ax); 
+			counter++;
 		}
-		mod_ont1.getOWLOntologyManager().addAxioms(mod_ont1, extraAxioms);
-		mod_ont2.getOWLOntologyManager().addAxioms(mod_ont2, extraAxioms);
+		man.addAxioms(mod_ont1, extraAxioms);
+		man.addAxioms(mod_ont2, extraAxioms);
 		return map;
 	}
 	

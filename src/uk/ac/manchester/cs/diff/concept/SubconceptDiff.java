@@ -149,7 +149,7 @@ public class SubconceptDiff {
 		Map<OWLClass,OWLClassExpression> map = null;
 		if(!atomicOnly) map = getSubConceptsMapping("E");
 
-		classifyOntologies();
+		classifyOntologies(ont1, ont2);
 		
 		ont1reasoner = new ReasonerLoader(ont1, false).createFactReasoner();
 		ont2reasoner = new ReasonerLoader(ont2, false).createFactReasoner();
@@ -159,7 +159,7 @@ public class SubconceptDiff {
 			ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 			ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
 		}
-		classifyOntologies();
+		classifyOntologies(ont1, ont2);
 		
 		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		if(verbose) printDiff(changeSet);
@@ -174,7 +174,7 @@ public class SubconceptDiff {
 	 * Classify both ontologies
 	 * @throws InterruptedException
 	 */
-	public void classifyOntologies() throws InterruptedException {
+	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) throws InterruptedException {
 		long start = System.currentTimeMillis();
 		if(verbose) System.out.println("Classifying ontologies...");
 		
@@ -664,7 +664,7 @@ public class SubconceptDiff {
 	 * Given two ontologies, inject entity declarations so that both ontologies
 	 * end up with the same signature
 	 */
-	private void equalizeSignatures(OWLOntology ont1, OWLOntology ont2) {
+	protected void equalizeSignatures(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLEntity> ont1sig = ont1.getSignature();
 		Set<OWLEntity> ont2sig = ont2.getSignature();
 		
@@ -684,10 +684,10 @@ public class SubconceptDiff {
 		ont1.getOWLOntologyManager().applyChanges(ont2axs);
 	}
 	
-	/* temp */
+	
+	
 	SimpleShortFormProvider sf = new SimpleShortFormProvider();
-	@SuppressWarnings("unused")
-	private String getManchesterRendering(OWLObject obj) {
+	protected String getManchesterRendering(OWLObject obj) {
 		StringWriter wr = new StringWriter();
 		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, sf);
 		obj.accept(render);

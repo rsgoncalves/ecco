@@ -33,6 +33,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
+import uk.ac.manchester.cs.diff.concept.Signature;
+
 /**
  * @author Rafael S. Goncalves <br/>
  * Information Management Group (IMG) <br/>
@@ -40,14 +42,25 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
  * University of Manchester <br/>
  */
 public class SignatureSampler {
-	private OWLOntology ont;
+	private OWLOntology ont1, ont2;
+
+	/**
+	 * Single ontology constructor
+	 * @param ont1	Ontology 1
+	 */
+	public SignatureSampler(OWLOntology ont1) {
+		this.ont1 = ont1;
+	}
+	
 	
 	/**
-	 * Constructor
-	 * @param ont	OWL ontology
+	 * Constructor for two ontologies
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
 	 */
-	public SignatureSampler(OWLOntology ont) {
-		this.ont = ont;
+	public SignatureSampler(OWLOntology ont1, OWLOntology ont2) {
+		this.ont1 = ont1;
+		this.ont2 = ont2;
 	}
 	
 	
@@ -58,14 +71,16 @@ public class SignatureSampler {
 	 */
 	public Set<OWLClass> getSample(int sampleSize) {
 		System.out.print("Fetching signature sample... ");
-		
 		Set<OWLClass> sample = new HashSet<OWLClass>();
-		Object[] arr = ont.getClassesInSignature().toArray();
+		Object[] arr = null;
+		if(ont2 != null)
+			arr = new Signature().getSharedSignature(ont1, ont2).toArray();
+		else
+			arr = ont1.getClassesInSignature().toArray();
+		
+		if(sampleSize > arr.length) sampleSize = arr.length;
+		
 		Random rand = new Random();
-		
-		if(sampleSize > arr.length)
-			sampleSize = arr.length;
-		
 		while(sample.size() < sampleSize) {
 			int random = rand.nextInt(arr.length);
 			OWLClass c = (OWLClass)arr[random];
