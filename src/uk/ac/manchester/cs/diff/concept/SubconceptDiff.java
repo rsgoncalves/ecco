@@ -65,6 +65,7 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
+import uk.ac.manchester.cs.diff.output.CSVReportConceptDiff;
 import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
@@ -84,6 +85,7 @@ public class SubconceptDiff {
 	protected Set<OWLEntity> sig;
 	protected String outputDir;
 	protected boolean verbose;
+	protected ConceptChangeSet changeSet;
 	
 	/**
 	 * Constructor for subconcept diff w.r.t. Sigma = sig(O1) U sig(O2)
@@ -155,17 +157,21 @@ public class SubconceptDiff {
 		ont2reasoner = new ReasonerLoader(ont2, false).createFactReasoner();
 		Set<OWLClass> affected = computeChangeWitnesses(map);
 		
+		long mid = System.currentTimeMillis();
+		
 		if(!atomicOnly) { // Remove extra axioms and create fresh reasoner instances
 			ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 			ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
 		}
 		classifyOntologies(ont1, ont2);
 		
-		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
-		if(verbose) printDiff(changeSet);
+		changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		long end = System.currentTimeMillis();
-		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");
+		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
+		changeSet.setPartitioningTime((end-mid)/1000.0);
 		
+		if(verbose) printDiff(changeSet);
+		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");
 		return changeSet;
 	}
 	
@@ -540,6 +546,15 @@ public class SubconceptDiff {
 	 */
 	public XMLReportConceptDiff getXMLReport(ConceptChangeSet changeSet) {
 		return new XMLReportConceptDiff(changeSet);
+	}
+	
+	
+	/**
+	 * Get a CSV change report
+	 * @return Change report as a CSV document
+	 */
+	public String getCSVChangeReport() {
+		return new CSVReportConceptDiff().getReport(changeSet);
 	}
 
 	

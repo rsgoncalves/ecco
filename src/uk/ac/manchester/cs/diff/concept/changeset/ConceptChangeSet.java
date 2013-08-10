@@ -42,11 +42,13 @@ public class ConceptChangeSet {
 	private Set<RHSConceptChange> rhsPuDirSpec, rhsPuDirGen, rhsPuIndSpec, rhsPuIndGen, rhsMixGen, rhsMixSpec;
 	private Set<LHSConceptChange> lhsPuDirSpec, lhsPuDirGen, lhsPuIndSpec, lhsPuIndGen, lhsMixGen, lhsMixSpec;
 	private Set<OWLClass> lhsSpec, rhsSpec, allSpec, lhsGen, rhsGen, allGen, lhsAffected, rhsAffected, allAffected;
+	private double diffTime, partitionTime;
 	
 	/**
 	 * Constructor
 	 * @param lhsChanges	Ontology 1 concept changes
 	 * @param rhsChanges	Ontology 2 concept changes
+	 * @param allChanges	All concept changes
 	 */
 	public ConceptChangeSet(Set<LHSConceptChange> lhsChanges, Set<RHSConceptChange> rhsChanges, Set<ConceptChange> allChanges) {
 		this.lhsChanges = lhsChanges;
@@ -304,6 +306,18 @@ public class ConceptChangeSet {
 	
 	
 	/**
+	 * Get all indirect generalised concept changes
+	 * @return Set of indirect generalised changes
+	 */
+	public Set<ConceptChange> getAllIndirectlyGeneralised() {
+		if(puIndGen == null || mixGen == null) sortOutAllChanges();
+		Set<ConceptChange> out = new HashSet<ConceptChange>();
+		out.addAll(puIndGen); out.addAll(mixGen);
+		return out;
+	}
+	
+	
+	/**
 	 * Get all purely indirectly generalised concepts (in ontology 1 and 2)
 	 * @return Set of all purely indirectly generalised concepts in both ontologies
 	 */
@@ -437,6 +451,18 @@ public class ConceptChangeSet {
 	public Set<RHSConceptChange> getRHSPurelyDirectlySpecialised() {
 		if(rhsPuDirSpec == null) sortOutRHSChanges();
 		return rhsPuDirSpec;
+	}
+	
+	
+	/**
+	 * Get all indirect specialised concept changes
+	 * @return Set of indirect specialised changes
+	 */
+	public Set<ConceptChange> getAllIndirectlySpecialised() {
+		if(puIndSpec == null || mixSpec == null) sortOutAllChanges();
+		Set<ConceptChange> out = new HashSet<ConceptChange>();
+		out.addAll(puIndSpec); out.addAll(mixSpec);
+		return out;
 	}
 	
 	
@@ -745,5 +771,41 @@ public class ConceptChangeSet {
 		allSpec = new HashSet<OWLClass>();
 		allGen = new HashSet<OWLClass>();
 		allAffected = new HashSet<OWLClass>();
+	}
+	
+	
+	/**
+	 * Set the direct-indirect change partitioning time
+	 * @param d	Time in seconds
+	 */
+	public void setPartitioningTime(double d) {
+		partitionTime = d;
+	}
+	
+	
+	/**
+	 * Set the entailment diff time
+	 * @param d	Time in seconds
+	 */
+	public void setEntailmentDiffTime(double d) {
+		diffTime = d;
+	}
+	
+	
+	/**
+	 * Get the direct-indirect change partitioning time
+	 * @return Partitioning time in seconds
+	 */
+	public double getPartitioningTime() {
+		return partitionTime;
+	}
+	
+	
+	/**
+	 * Get the entailment diff time
+	 * @return Diff time in seconds
+	 */
+	public double getEntailmentDiffTime() {
+		return diffTime;
 	}
 }

@@ -85,8 +85,7 @@ public class ReasonerLoader {
 	 */
 	public OWLReasoner createFactReasoner() {
 //		SimpleConfiguration config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE);
-		SimpleConfiguration config = new SimpleConfiguration(new ConsoleProgressMonitor(), FreshEntityPolicy.ALLOW, Long.MAX_VALUE, 
-				IndividualNodeSetPolicy.BY_NAME);
+		SimpleConfiguration config = new SimpleConfiguration(new ConsoleProgressMonitor(), FreshEntityPolicy.ALLOW, Long.MAX_VALUE, IndividualNodeSetPolicy.BY_NAME);
 		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
 		
 		if(verbose) System.out.print("   Creating reasoner... ");

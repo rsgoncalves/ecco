@@ -137,7 +137,7 @@ public class GrammarDiff extends SubconceptDiff {
 		OWLReasoner ont1reasoner = new ReasonerLoader(ont1).createFactReasoner();
 		OWLReasoner ont2reasoner = new ReasonerLoader(ont2).createFactReasoner();
 		
-		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
+		changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		long end = System.currentTimeMillis();
 		printDiff(changeSet);
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");

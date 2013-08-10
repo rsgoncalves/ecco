@@ -113,15 +113,21 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		classifyOntologies(ont1, ont2);
 		Set<OWLClass> affected = computeChangeWitnesses(map);
 		
+		long mid = System.currentTimeMillis();
+		
 		// Remove extra axioms and create fresh reasoner instances
 		ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 		ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
 
 		classifyOntologies(ont1, ont2);
 		
-		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
-		if(verbose) printDiff(changeSet);
+		changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		long end = System.currentTimeMillis();
+		
+		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
+		changeSet.setPartitioningTime((end-mid)/1000.0);
+		
+		if(verbose) printDiff(changeSet);
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");	
 		return changeSet;
 	}
@@ -189,10 +195,8 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 */
 	private Set<OWLClassExpression> getNegationWitnesses(Set<? extends OWLClassExpression> sc) {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
-		for(OWLClassExpression c : sc) {
-//			if(this.sig.contains(c))
-				out.add(df.getOWLObjectComplementOf(c));
-		}
+		for(OWLClassExpression c : sc)
+			out.add(df.getOWLObjectComplementOf(c));
 		if(verbose) System.out.println("\tNegation witnesses: " + out.size());
 		return out;
 	}
@@ -207,12 +211,8 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	private Set<OWLClassExpression> getExistentialWitnesses(Set<? extends OWLClassExpression> sc, Set<OWLObjectProperty> roles) {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
 		for(OWLClassExpression c : sc) {
-//			if(this.sig.contains(c)) {
-				for(OWLObjectProperty r : roles) {
-//					if(this.sig.contains(r))
-						out.add(df.getOWLObjectSomeValuesFrom(r, c));
-				}
-//			}
+			for(OWLObjectProperty r : roles)
+				out.add(df.getOWLObjectSomeValuesFrom(r, c));
 		}
 		if(verbose) System.out.println("\tExistential witnesses: " + out.size());
 		return out;
@@ -228,12 +228,8 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	private Set<OWLClassExpression> getUniversalWitnesses(Set<? extends OWLClassExpression> sc, Set<OWLObjectProperty> roles) {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
 		for(OWLClassExpression c : sc) {
-//			if(this.sig.contains(c)) {
-				for(OWLObjectProperty r : roles) {
-//					if(this.sig.contains(r))
-						out.add(df.getOWLObjectAllValuesFrom(r, c));
-				}
-//			}
+			for(OWLObjectProperty r : roles)
+				out.add(df.getOWLObjectAllValuesFrom(r, c));
 		}
 		if(verbose) System.out.println("\tUniversal witnesses: " + out.size());
 		return out;

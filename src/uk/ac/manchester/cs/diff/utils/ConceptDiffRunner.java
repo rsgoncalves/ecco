@@ -27,15 +27,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import uk.ac.manchester.cs.diff.concept.GrammarDiff;
-import uk.ac.manchester.cs.diff.concept.GrammarDiffv1;
 import uk.ac.manchester.cs.diff.concept.Signature;
+import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -96,7 +94,10 @@ public class ConceptDiffRunner {
 		}
 		
 		// Instantiate diff
-		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, sampleSet, outputDir, true);
-		diff.getDiff();
+		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, sampleSet, outputDir, true);
+		diff.getDiff(false);
+		
+		String report = diff.getCSVChangeReport();
+		System.out.println(report);
 	}
 }
