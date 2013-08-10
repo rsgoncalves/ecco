@@ -381,18 +381,12 @@ public class SubconceptDiff {
 		Map<OWLClass, Set<OWLAxiom>> directWits = new HashMap<OWLClass,Set<OWLAxiom>>();
 		Map<OWLClass, Set<OWLAxiom>> indirectWits = new HashMap<OWLClass,Set<OWLAxiom>>();
 		for(OWLClassExpression ce : witMap.keySet()) {
-//			System.out.println("Checking concept: " + getManchesterRendering(ce));
 			Set<OWLClass> subs = null;
 			if(diffL) subs = reasoner.getSubClasses(ce, true).getFlattened();
 			else subs = reasoner.getSuperClasses(ce, true).getFlattened();
 			
-//			for(OWLClass c : subs) {
-//				System.out.println("\tDirect subclass: " + getManchesterRendering(c));
-//			}
-			
 			for(OWLClass c : witMap.get(ce)) {
 				if(subs.contains(c)) { // direct witness
-//					System.out.println("\tDirect witness for " + getManchesterRendering(c) );
 					if(directWits.containsKey(c)) {
 						Set<OWLAxiom> wits = directWits.get(c);
 						if(diffL) wits.add(df.getOWLSubClassOfAxiom(c, ce));
@@ -405,7 +399,6 @@ public class SubconceptDiff {
 					}
 				}
 				else { // indirect witness
-//					System.out.println("\tIndirect witness for " + getManchesterRendering(c));
 					if(indirectWits.containsKey(c)) {
 						Set<OWLAxiom> wits = indirectWits.get(c);
 						if(diffL) wits.add(df.getOWLSubClassOfAxiom(c, ce));

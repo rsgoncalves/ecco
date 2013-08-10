@@ -71,7 +71,7 @@ public class ConceptDiffRunner {
 		}
 		
 		// Instantiate diff
-		GrammarDiff diff = new GrammarDiff(ont1, ont2, sampleSet, outputDir, true);
+		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, sampleSet, outputDir, true);
 		diff.getDiff();
 	}
 }

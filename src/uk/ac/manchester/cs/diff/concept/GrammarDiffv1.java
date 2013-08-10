@@ -133,9 +133,12 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		roles.addAll(ont1.getObjectPropertiesInSignature());
 		roles.addAll(ont2.getObjectPropertiesInSignature());
 		
+		Set<OWLClass> sig = new HashSet<OWLClass>(ont1.getClassesInSignature());
+		sig.addAll(ont2.getClassesInSignature());
+		
 		// Collect possible witnesses
-		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>();
-		wits.addAll(sc);
+		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(sc);
+		sc.addAll(sig);
 		wits.addAll(getExistentialWitnesses(sc, roles));
 		wits.addAll(getUniversalWitnesses(sc, roles));
 		wits.addAll(getNegationWitnesses(sc));
@@ -150,7 +153,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 				ax = df.getOWLSubClassOfAxiom(c, ce);
 			else if (diff.equals("R"))
 				ax = df.getOWLSubClassOfAxiom(ce, c);
-			else if (diff.equals("E"))
+			else if (diff.equals("L") || diff.equals("E"))
 				ax = df.getOWLEquivalentClassesAxiom(c, ce);
 			extraAxioms.add(ax); counter++;
 		}

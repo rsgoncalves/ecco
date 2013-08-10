@@ -45,6 +45,7 @@ import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
+import uk.ac.manchester.cs.diff.utils.ChangeBroadcastStrategy;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasoner;
 import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
@@ -71,6 +72,7 @@ public class GrammarDiff extends SubconceptDiff {
 	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
 		super(ont1, ont2, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
+		man.setDefaultChangeBroadcastStrategy(new ChangeBroadcastStrategy());
 	}
 
 	
@@ -85,6 +87,7 @@ public class GrammarDiff extends SubconceptDiff {
 	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
+		man.setDefaultChangeBroadcastStrategy(new ChangeBroadcastStrategy());
 	}
 
 
@@ -124,11 +127,11 @@ public class GrammarDiff extends SubconceptDiff {
 		roles.addAll(ont2.getObjectPropertiesInSignature());
 		
 		// Get specialisation and generalisation witnesses for each concept
-		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
+//		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
 		Set<OWLClass> generalised = computeGeneralisations(mod_roles);
 		
 		Set<OWLClass> affected = new HashSet<OWLClass>();
-		affected.addAll(specialised);
+//		affected.addAll(specialised);
 		affected.addAll(generalised);
 		
 		OWLReasoner ont1reasoner = new ReasonerLoader(ont1).createFactReasoner();
@@ -259,6 +262,7 @@ public class GrammarDiff extends SubconceptDiff {
 				if(debug) System.out.println("\t|mod1| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2| = " + mod_ont2.getLogicalAxiomCount());
 				
 				if(!equiv(mod_ont1, mod_ont2)) {
+					if(debug) System.out.print("\tClassifying modules... ");
 					ExecutorService exec1 = Executors.newFixedThreadPool(2);
 					Classifier mod1worker = new Classifier(mod_ont1);
 					Classifier mod2worker = new Classifier(mod_ont2);
@@ -266,6 +270,7 @@ public class GrammarDiff extends SubconceptDiff {
 					exec1.shutdown(); exec1.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
 					OWLReasoner mod1reasoner = mod1worker.getReasoner();
 					OWLReasoner mod2reasoner = mod2worker.getReasoner();
+					if(debug) System.out.println("done");
 					
 					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(subc, mod1reasoner, mod2reasoner, mod_ont1, mod_ont2, "R");
 					if(debug) System.out.println("\t|mod1'| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2'| = " + mod_ont2.getLogicalAxiomCount());
@@ -362,6 +367,7 @@ public class GrammarDiff extends SubconceptDiff {
 		}
 		man.addAxioms(mod_ont1, extraAxioms);
 		man.addAxioms(mod_ont2, extraAxioms);
+		
 		return map;
 	}
 	
