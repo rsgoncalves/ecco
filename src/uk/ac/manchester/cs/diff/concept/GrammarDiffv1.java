@@ -81,16 +81,24 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	public ConceptChangeSet getDiff() throws InterruptedException, OWLOntologyCreationException {
 		long start = System.currentTimeMillis();
 		if(verbose) System.out.println("Signature size: " + sig.size() + " concept names");
-	
+		
+//		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
+//		roles.addAll(ont1.getObjectPropertiesInSignature());
+//		roles.addAll(ont2.getObjectPropertiesInSignature());
+		
 		if(sig.size() < ont1.getClassesInSignature().size() &&
 				sig.size() < ont2.getClassesInSignature().size()) {
+			
 			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
+//			modsig.addAll(roles);
+			
 			OWLOntologyManager man = OWLManager.createOWLOntologyManager();
 			ont1 = man.createOntology(
 					new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
 			ont2 = man.createOntology(
 					new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
-			if(verbose) System.out.println("M1 size: " + ont1.getLogicalAxiomCount() + " axioms\nM2 size: " + ont2.getLogicalAxiomCount() + " axioms");
+			if(verbose) System.out.println("M1 size: " + ont1.getLogicalAxiomCount() + " axioms\n" +
+					"M2 size: " + ont2.getLogicalAxiomCount() + " axioms");
 		}
 		
 		Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping("E");

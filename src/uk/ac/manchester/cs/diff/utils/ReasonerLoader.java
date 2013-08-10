@@ -85,10 +85,10 @@ public class ReasonerLoader {
 	 */
 	public OWLReasoner createFactReasoner() {
 		SimpleConfiguration config = new SimpleConfiguration(
-				/*new ConsoleProgressMonitor(), */
+				new ConsoleProgressMonitor(),
 				FreshEntityPolicy.ALLOW, 
 				Long.MAX_VALUE 
-				/*, IndividualNodeSetPolicy.BY_NAME*/ 
+				, IndividualNodeSetPolicy.BY_NAME 
 				);
 		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
 		

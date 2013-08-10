@@ -14,6 +14,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import uk.ac.manchester.cs.diff.concept.GrammarDiff;
+import uk.ac.manchester.cs.diff.concept.GrammarDiffv1;
 import uk.ac.manchester.cs.diff.concept.Signature;
 
 public class ConceptDiffRunner {
@@ -60,17 +61,17 @@ public class ConceptDiffRunner {
 		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
 		Set<OWLClass> sampleSet = null;
-		if(args[3] != null)
+		if(args.length > 3)
 			sampleSet = new Signature().getSignatureFromFile(new File(args[3]));
 		else {
 			// Get random signature sample
 			SignatureSampler sampler = new SignatureSampler(ont1, ont2);
-			sampleSet = sampler.getSample(381);
+			sampleSet = sampler.getSample(658);
 			serializeSample(sampleSet, outputDir);
 		}
 		
 		// Instantiate diff
-		GrammarDiff diff = new GrammarDiff(ont1, ont2, sampleSet, outputDir, true);
+		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, sampleSet, outputDir, true);
 		diff.getDiff();
 	}
 }

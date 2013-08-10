@@ -478,11 +478,11 @@ public class SubconceptDiff {
 
 
 	/**
-	 * Print diff
+	 * Print diff results
 	 * @param changeSet	Concept-based change set
 	 */
 	public void printDiff(ConceptChangeSet changeSet) {
-		System.out.println("\nSubconcept diff results:");
+		System.out.println("\ndiff results:");
 		System.out.println("  [ont1]" +
 				"\tSpecialised: " + changeSet.getLHSSpecialisedConcepts().size() + 
 				"\tGeneralised: " + changeSet.getLHSGeneralisedConcepts().size() +
@@ -496,7 +496,7 @@ public class SubconceptDiff {
 				"\tGeneralised: " + changeSet.getAllGeneralisedConcepts().size() +
 				"\tTotal affected: " + changeSet.getAllAffectedConcepts().size());
 		
-		System.out.println("\n  Overall affected concepts categorisation:");
+		System.out.println("\n  Affected concepts categorisation:");
 		System.out.println("    Direct Generalised: " + changeSet.getAllDirectlyGeneralised().size());
 		System.out.println("    Direct Specialised: " + changeSet.getAllDirectlySpecialised().size());
 		System.out.println("    Purely directly generalised: " + changeSet.getAllPurelyDirectlyGeneralised().size());
