@@ -92,23 +92,20 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		if(verbose) System.out.println("Input signature: sigma contains " + sig.size() + " concept names");
 		
 		if(sig.size() < ont1.getClassesInSignature().size() && sig.size() < ont2.getClassesInSignature().size()) {
-			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
 			if(includeAllRoles) {
-				Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
-				roles.addAll(ont1.getObjectPropertiesInSignature());
-				roles.addAll(ont2.getObjectPropertiesInSignature());
-				modsig.addAll(roles);
+				Set<OWLObjectProperty> allRoles = new Signature().getRolesInWholeSignature(ont1, ont2);
+				sig.addAll(allRoles);
+				System.out.println("\tInflated sigma with " + allRoles.size() + " roles");
 			}
 			
-			ont1 = man.createOntology(new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
-			ont2 = man.createOntology(new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
+			ont1 = man.createOntology(new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(sig));
+			ont2 = man.createOntology(new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(sig));
 			
-			modsig.clear();
 			if(verbose) {
-				System.out.println("  mod(sigma)_1 size: " + ont1.getLogicalAxiomCount() + " axioms, " +
+				System.out.println("mod(sigma)_1 size: " + ont1.getLogicalAxiomCount() + " axioms, " +
 						"nr. classes: " + ont1.getClassesInSignature().size() + ", nr. roles: " + ont1.getObjectPropertiesInSignature().size());
-				System.out.println("  mod(sigma)_2 size: " + ont2.getLogicalAxiomCount() + " axioms, "+ 
-						"nr. classes: " + ont2.getClassesInSignature().size() + ", nr. roles: " + ont2.getObjectPropertiesInSignature().size());
+				System.out.println("mod(sigma)_2 size: " + ont2.getLogicalAxiomCount() + " axioms, "+ 
+						"nr. classes: " + ont2.getClassesInSignature().size() + ", nr. roles: " + ont2.getObjectPropertiesInSignature().size() + "\n");
 			}
 		}
 		
@@ -142,19 +139,19 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		
 		Set<OWLObjectProperty> roles = new Signature().getSharedRoles(ont1, ont2);		
 		Set<OWLClass> sig = new Signature().getSharedConceptNames(ont1, ont2);
-		this.sig.addAll(roles);
-		
-		Set<OWLClassExpression> toRemove = new HashSet<OWLClassExpression>();
-		for(OWLClassExpression ce : sc) {
-			if(!sig.containsAll(ce.getClassesInSignature()) || !roles.containsAll(ce.getObjectPropertiesInSignature()))
-				toRemove.add(ce);
-		}
-		sc.removeAll(toRemove);
-		
+
+//		Set<OWLClassExpression> toRemove = new HashSet<OWLClassExpression>();
+//		for(OWLClassExpression ce : sc) {
+//			if(!this.sig.containsAll(ce.getSignature()))
+//				toRemove.add(ce);
+//		}
+//		sc.removeAll(toRemove);
+//		
+//		System.out.println("\tNr. of sigma-subconcepts: " + sc.size());
 		System.out.println("Inflating ontologies...");
 		System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
 		
-		// Collect possible witnesses
+		// Collect witnesses
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(sc);
 		sc.addAll(sig);
 		wits.addAll(getExistentialWitnesses(sc, roles));
@@ -192,9 +189,11 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 */
 	private Set<OWLClassExpression> getNegationWitnesses(Set<? extends OWLClassExpression> sc) {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
-		for(OWLClassExpression c : sc)
-			out.add(df.getOWLObjectComplementOf(c));
-		System.out.println("\tNegation witnesses: " + out.size());
+		for(OWLClassExpression c : sc) {
+//			if(this.sig.contains(c))
+				out.add(df.getOWLObjectComplementOf(c));
+		}
+		if(verbose) System.out.println("\tNegation witnesses: " + out.size());
 		return out;
 	}
 	
@@ -208,10 +207,14 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	private Set<OWLClassExpression> getExistentialWitnesses(Set<? extends OWLClassExpression> sc, Set<OWLObjectProperty> roles) {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
 		for(OWLClassExpression c : sc) {
-			for(OWLObjectProperty r : roles)
-				out.add(df.getOWLObjectSomeValuesFrom(r, c));
+//			if(this.sig.contains(c)) {
+				for(OWLObjectProperty r : roles) {
+//					if(this.sig.contains(r))
+						out.add(df.getOWLObjectSomeValuesFrom(r, c));
+				}
+//			}
 		}
-		System.out.println("\tExistential witnesses: " + out.size());
+		if(verbose) System.out.println("\tExistential witnesses: " + out.size());
 		return out;
 	}
 	
@@ -225,10 +228,14 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	private Set<OWLClassExpression> getUniversalWitnesses(Set<? extends OWLClassExpression> sc, Set<OWLObjectProperty> roles) {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
 		for(OWLClassExpression c : sc) {
-			for(OWLObjectProperty r : roles)
-				out.add(df.getOWLObjectAllValuesFrom(r, c));
+//			if(this.sig.contains(c)) {
+				for(OWLObjectProperty r : roles) {
+//					if(this.sig.contains(r))
+						out.add(df.getOWLObjectAllValuesFrom(r, c));
+				}
+//			}
 		}
-		System.out.println("\tUniversal witnesses: " + out.size());
+		if(verbose) System.out.println("\tUniversal witnesses: " + out.size());
 		return out;
 	}
 }

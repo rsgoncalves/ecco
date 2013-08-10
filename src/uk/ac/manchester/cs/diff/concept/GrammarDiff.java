@@ -102,20 +102,21 @@ public class GrammarDiff extends SubconceptDiff {
 		if(verbose) System.out.println("Input signature: sigma contains " + sig.size() + " concept names");
 		
 		if(sig.size() < ont1.getClassesInSignature().size() && sig.size() < ont2.getClassesInSignature().size()) {
-			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
 			if(includeAllRoles) {
-				Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
-				roles.addAll(ont1.getObjectPropertiesInSignature());
-				roles.addAll(ont2.getObjectPropertiesInSignature());
-				modsig.addAll(roles);
+				Set<OWLObjectProperty> allRoles = new Signature().getRolesInWholeSignature(ont1, ont2);
+				sig.addAll(allRoles);
+				System.out.println("\tInflated sigma with " + allRoles.size() + " roles");
 			}
 			
-			ont1 = man.createOntology(new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
-			ont2 = man.createOntology(new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
+			ont1 = man.createOntology(new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(sig));
+			ont2 = man.createOntology(new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(sig));
 			
-			modsig.clear();
-			if(debug) System.out.println("  mod(sigma)_1 size: " + ont1.getLogicalAxiomCount() + " axioms\n" +
-					"  mod(sigma)_2 size: " + ont2.getLogicalAxiomCount() + " axioms");
+			if(verbose) {
+				System.out.println("mod(sigma)_1 size: " + ont1.getLogicalAxiomCount() + " axioms, " +
+						"nr. classes: " + ont1.getClassesInSignature().size() + ", nr. roles: " + ont1.getObjectPropertiesInSignature().size());
+				System.out.println("mod(sigma)_2 size: " + ont2.getLogicalAxiomCount() + " axioms, "+ 
+						"nr. classes: " + ont2.getClassesInSignature().size() + ", nr. roles: " + ont2.getObjectPropertiesInSignature().size() + "\n");
+			}
 		}
 		
 		// Initialise FaCT++ based module extractors. Note: 0 - bot modules, 1 - top modules, 2 - star modules
