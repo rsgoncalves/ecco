@@ -21,9 +21,7 @@ package uk.ac.manchester.cs.diff.utils;
 import org.semanticweb.HermiT.Configuration;
 import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.reasoner.ConsoleProgressMonitor;
 import org.semanticweb.owlapi.reasoner.FreshEntityPolicy;
-import org.semanticweb.owlapi.reasoner.IndividualNodeSetPolicy;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
@@ -84,12 +82,7 @@ public class ReasonerLoader {
 	 * @return Reasoner instance
 	 */
 	public OWLReasoner createFactReasoner() {
-		SimpleConfiguration config = new SimpleConfiguration(
-				new ConsoleProgressMonitor(),
-				FreshEntityPolicy.ALLOW, 
-				Long.MAX_VALUE 
-				, IndividualNodeSetPolicy.BY_NAME 
-				);
+		SimpleConfiguration config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE); 
 		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
 		
 		if(verbose) System.out.print("   Creating reasoner... ");

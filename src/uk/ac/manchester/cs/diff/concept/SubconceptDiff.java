@@ -144,7 +144,7 @@ public class SubconceptDiff {
 	 */
 	public ConceptChangeSet getDiff(boolean atomicOnly) throws InterruptedException {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Signature size: " + sig.size() + " concept names");
+		if(verbose) System.out.println("Input signature: sigma contains " + sig.size() + " concept names");
 		
 		Map<OWLClass,OWLClassExpression> map = null;
 		if(!atomicOnly) map = getSubConceptsMapping("E");

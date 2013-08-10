@@ -18,8 +18,10 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.concept;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -94,9 +96,9 @@ public class GrammarDiff extends SubconceptDiff {
 	 */
 	public ConceptChangeSet getDiff() throws InterruptedException, OWLOntologyCreationException {
 		long start = System.currentTimeMillis();
-
-		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
-		roles.addAll(ont1.getObjectPropertiesInSignature());
+		if(verbose) System.out.println("Input signature: sigma contains " + sig.size() + " concept names");
+		
+		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>(ont1.getObjectPropertiesInSignature());
 		roles.addAll(ont2.getObjectPropertiesInSignature());
 		
 		if(sig.size() < ont1.getClassesInSignature().size() &&
@@ -104,21 +106,26 @@ public class GrammarDiff extends SubconceptDiff {
 			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
 			modsig.addAll(roles);
 			
-			ont1 = man.createOntology(
-					new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
-			ont2 = man.createOntology(
-					new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
+			ont1 = man.createOntology(new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
+			ont2 = man.createOntology(new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
 			
-			if(debug) System.out.println("M1 size: " + ont1.getLogicalAxiomCount() + " axioms\nM2 size: " + ont2.getLogicalAxiomCount() + " axioms");
+			modsig.clear();
+			if(debug) System.out.println(" mod(sigma)1 size: " + ont1.getLogicalAxiomCount() + " axioms\n" +
+					" mod(sigma)2 size: " + ont2.getLogicalAxiomCount() + " axioms");
 		}
+		roles.clear();
 		
 		// Initialise FaCT++ based module extractors. Note: 0 - bot modules, 1 - top modules, 2 - star modules
 		ont1modExtractor = new FaCTPlusPlusReasoner(ont1, new SimpleConfiguration(), BufferingMode.BUFFERING);
 		ont2modExtractor = new FaCTPlusPlusReasoner(ont2, new SimpleConfiguration(), BufferingMode.BUFFERING);
 		
+		
+		Set<OWLObjectProperty> mod_roles = new HashSet<OWLObjectProperty>(ont1.getObjectPropertiesInSignature());
+		roles.addAll(ont2.getObjectPropertiesInSignature());
+		
 		// Get specialisation and generalisation witnesses for each concept
-		Set<OWLClass> specialised = computeSpecialisations(roles);
-		Set<OWLClass> generalised = computeGeneralisations(roles);
+		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
+		Set<OWLClass> generalised = computeGeneralisations(mod_roles);
 		
 		Set<OWLClass> affected = new HashSet<OWLClass>();
 		affected.addAll(specialised);
@@ -163,7 +170,15 @@ public class GrammarDiff extends SubconceptDiff {
 				if(debug) System.out.println("\t|mod1| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2| = " + mod_ont2.getLogicalAxiomCount());
 				
 				if(!equiv(mod_ont1, mod_ont2)) {
-					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(mod_ont1, mod_ont2, "E");
+					ExecutorService exec1 = Executors.newFixedThreadPool(2);
+					Classifier mod1worker = new Classifier(mod_ont1);
+					Classifier mod2worker = new Classifier(mod_ont2);
+					exec1.execute(mod1worker); exec1.execute(mod2worker);
+					exec1.shutdown(); exec1.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+					OWLReasoner mod1reasoner = mod1worker.getReasoner();
+					OWLReasoner mod2reasoner = mod2worker.getReasoner();
+					
+					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(subc, mod1reasoner, mod2reasoner, mod_ont1, mod_ont2, "L");
 					if(debug) System.out.println("\t|mod1'| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2'| = " + mod_ont2.getLogicalAxiomCount());
 					
 					// Classify modules
@@ -244,7 +259,15 @@ public class GrammarDiff extends SubconceptDiff {
 				if(debug) System.out.println("\t|mod1| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2| = " + mod_ont2.getLogicalAxiomCount());
 				
 				if(!equiv(mod_ont1, mod_ont2)) {
-					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(mod_ont1, mod_ont2, "R");
+					ExecutorService exec1 = Executors.newFixedThreadPool(2);
+					Classifier mod1worker = new Classifier(mod_ont1);
+					Classifier mod2worker = new Classifier(mod_ont2);
+					exec1.execute(mod1worker); exec1.execute(mod2worker);
+					exec1.shutdown(); exec1.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+					OWLReasoner mod1reasoner = mod1worker.getReasoner();
+					OWLReasoner mod2reasoner = mod2worker.getReasoner();
+					
+					Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping(subc, mod1reasoner, mod2reasoner, mod_ont1, mod_ont2, "R");
 					if(debug) System.out.println("\t|mod1'| = " + mod_ont1.getLogicalAxiomCount() + "\t|mod2'| = " + mod_ont2.getLogicalAxiomCount());
 					
 					// Classify modules
@@ -304,14 +327,13 @@ public class GrammarDiff extends SubconceptDiff {
 	 * equivalence axioms to each ontology
 	 * @return Map of new terms to subconcepts
 	 */
-	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(OWLOntology mod_ont1, OWLOntology mod_ont2, String diff) {
+	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(OWLClass subc, OWLReasoner mod1reasoner, OWLReasoner mod2reasoner, OWLOntology mod_ont1, OWLOntology mod_ont2, String diff) {
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
 		
 		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
 		roles.addAll(mod_ont1.getObjectPropertiesInSignature());
 		roles.addAll(mod_ont2.getObjectPropertiesInSignature());
 		
-		// Collect possible witnesses
 		Set<OWLClassExpression> scs = collectSCs(mod_ont1, mod_ont2);
 		
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>();
@@ -319,7 +341,11 @@ public class GrammarDiff extends SubconceptDiff {
 		wits.addAll(getExistentialWitnesses(scs, roles));
 		wits.addAll(getUniversalWitnesses(scs, roles));
 		wits.addAll(getNegationWitnesses(scs));
-
+		if(diff.equals("L"))
+			wits.addAll(getConjunctionWitnesses(subc, mod1reasoner, mod2reasoner, scs));
+		else if(diff.equals("R"))
+			wits.addAll(getDisjunctionWitnesses(subc, mod1reasoner, mod2reasoner, scs));
+		
 		int counter = 1;
 		Set<OWLAxiom> extraAxioms = new HashSet<OWLAxiom>();
 		for(OWLClassExpression ce : wits) {
@@ -328,9 +354,7 @@ public class GrammarDiff extends SubconceptDiff {
 			OWLAxiom ax = null;
 			if(diff.equals("R"))
 				ax = df.getOWLSubClassOfAxiom(c, ce);
-			else if (diff.equals("L"))
-				ax = df.getOWLSubClassOfAxiom(ce, c);
-			else if (diff.equals("E"))
+			else if (diff.equals("L") || diff.equals("E"))
 				ax = df.getOWLEquivalentClassesAxiom(c, ce);
 			
 			if(ax!=null) extraAxioms.add(ax); 
@@ -396,6 +420,56 @@ public class GrammarDiff extends SubconceptDiff {
 		for(OWLClassExpression c : sc) {
 			for(OWLObjectProperty r : roles)
 				out.add(df.getOWLObjectAllValuesFrom(r, c));
+		}
+		return out;
+	}
+	
+	
+	/**
+	 * Get the set of conjunction witnesses for a given concept
+	 * @param c	Concept being verified
+	 * @param mod1reasoner	Reasoner instance of module for ontology 1
+	 * @param mod2reasoner	Reasoner instance of module for ontology 2
+	 * @param sc	Set of subconcepts within the modules
+	 * @return Set of conjunction witnesses
+	 */
+	private Set<OWLClassExpression> getConjunctionWitnesses(OWLClass c, OWLReasoner mod1reasoner, OWLReasoner mod2reasoner, Set<OWLClassExpression> sc) {
+		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
+		List<OWLClassExpression> pool = new ArrayList<OWLClassExpression>();
+		for(OWLClassExpression ce : sc) {
+			if(!ce.equals(c)) {
+				if(!mod1reasoner.isEntailed(df.getOWLSubClassOfAxiom(c, ce)) && !mod2reasoner.isEntailed(df.getOWLSubClassOfAxiom(c, ce)))
+					pool.add(ce);
+			}
+		}
+		for(int i = 0; i < pool.size(); i++) {
+			for(int j = i+1; j < pool.size(); j++)
+				out.add(df.getOWLObjectIntersectionOf(pool.get(i), pool.get(j)));
+		}
+		return out;
+	}
+	
+	
+	/**
+	 * Get the set of disjunction witnesses for a given concept
+	 * @param c	Concept being verified
+	 * @param mod1reasoner	Reasoner instance of module for ontology 1
+	 * @param mod2reasoner	Reasoner instance of module for ontology 2
+	 * @param sc	Set of subconcepts within the modules
+	 * @return Set of disjunction witnesses
+	 */
+	private Set<OWLClassExpression> getDisjunctionWitnesses(OWLClass c, OWLReasoner mod1reasoner, OWLReasoner mod2reasoner, Set<OWLClassExpression> sc) {
+		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
+		List<OWLClassExpression> pool = new ArrayList<OWLClassExpression>();
+		for(OWLClassExpression ce : sc) {
+			if(!ce.equals(c)) {
+				if(!mod1reasoner.isEntailed(df.getOWLSubClassOfAxiom(ce, c)) && !mod2reasoner.isEntailed(df.getOWLSubClassOfAxiom(ce, c)))
+					pool.add(ce);
+			}
+		}
+		for(int i = 0; i < pool.size(); i++) {
+			for(int j = i+1; j < pool.size(); j++)
+				out.add(df.getOWLObjectUnionOf(pool.get(i), pool.get(j)));
 		}
 		return out;
 	}
