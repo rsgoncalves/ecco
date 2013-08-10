@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.OWLOntologyChangeListener;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class ChangeBroadcastStrategy implements OWLOntologyChangeBroadcastStrategy {
+public class SilentChangeBroadcastStrategy implements OWLOntologyChangeBroadcastStrategy {
 	private static final long serialVersionUID = 8035434562859540956L;
 
 	/* (non-Javadoc)

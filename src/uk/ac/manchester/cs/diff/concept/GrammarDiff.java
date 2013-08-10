@@ -45,7 +45,7 @@ import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
-import uk.ac.manchester.cs.diff.utils.ChangeBroadcastStrategy;
+import uk.ac.manchester.cs.diff.utils.SilentChangeBroadcastStrategy;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasoner;
 import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
@@ -60,7 +60,7 @@ import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
 public class GrammarDiff extends SubconceptDiff {
 	private FaCTPlusPlusReasoner ont1modExtractor, ont2modExtractor;
 	private OWLOntologyManager man;
-	private final boolean debug = true;
+	private final boolean debug = true, includeAllRoles = false;
 
 	/**
 	 * Constructor
@@ -72,7 +72,7 @@ public class GrammarDiff extends SubconceptDiff {
 	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
 		super(ont1, ont2, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
-		man.setDefaultChangeBroadcastStrategy(new ChangeBroadcastStrategy());
+		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
 	}
 
 	
@@ -87,7 +87,7 @@ public class GrammarDiff extends SubconceptDiff {
 	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
-		man.setDefaultChangeBroadcastStrategy(new ChangeBroadcastStrategy());
+		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
 	}
 
 
@@ -101,37 +101,36 @@ public class GrammarDiff extends SubconceptDiff {
 		long start = System.currentTimeMillis();
 		if(verbose) System.out.println("Input signature: sigma contains " + sig.size() + " concept names");
 		
-		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>(ont1.getObjectPropertiesInSignature());
-		roles.addAll(ont2.getObjectPropertiesInSignature());
-		
-		if(sig.size() < ont1.getClassesInSignature().size() &&
-				sig.size() < ont2.getClassesInSignature().size()) {
+		if(sig.size() < ont1.getClassesInSignature().size() && sig.size() < ont2.getClassesInSignature().size()) {
 			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
-			modsig.addAll(roles);
+			if(includeAllRoles) {
+				Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
+				roles.addAll(ont1.getObjectPropertiesInSignature());
+				roles.addAll(ont2.getObjectPropertiesInSignature());
+				modsig.addAll(roles);
+			}
 			
 			ont1 = man.createOntology(new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
 			ont2 = man.createOntology(new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
 			
 			modsig.clear();
-			if(debug) System.out.println(" mod(sigma)1 size: " + ont1.getLogicalAxiomCount() + " axioms\n" +
-					" mod(sigma)2 size: " + ont2.getLogicalAxiomCount() + " axioms");
+			if(debug) System.out.println("  mod(sigma)_1 size: " + ont1.getLogicalAxiomCount() + " axioms\n" +
+					"  mod(sigma)_2 size: " + ont2.getLogicalAxiomCount() + " axioms");
 		}
-		roles.clear();
 		
 		// Initialise FaCT++ based module extractors. Note: 0 - bot modules, 1 - top modules, 2 - star modules
 		ont1modExtractor = new FaCTPlusPlusReasoner(ont1, new SimpleConfiguration(), BufferingMode.BUFFERING);
 		ont2modExtractor = new FaCTPlusPlusReasoner(ont2, new SimpleConfiguration(), BufferingMode.BUFFERING);
 		
-		
 		Set<OWLObjectProperty> mod_roles = new HashSet<OWLObjectProperty>(ont1.getObjectPropertiesInSignature());
-		roles.addAll(ont2.getObjectPropertiesInSignature());
+		mod_roles.addAll(ont2.getObjectPropertiesInSignature());
 		
 		// Get specialisation and generalisation witnesses for each concept
-//		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
+		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
 		Set<OWLClass> generalised = computeGeneralisations(mod_roles);
 		
 		Set<OWLClass> affected = new HashSet<OWLClass>();
-//		affected.addAll(specialised);
+		affected.addAll(specialised);
 		affected.addAll(generalised);
 		
 		OWLReasoner ont1reasoner = new ReasonerLoader(ont1).createFactReasoner();
@@ -167,6 +166,7 @@ public class GrammarDiff extends SubconceptDiff {
 				
 				Set<OWLEntity> modsig = new HashSet<OWLEntity>();
 				modsig.add(subc); modsig.addAll(roles);
+				
 				OWLOntology mod_ont1 = man.createOntology(ont1modExtractor.getModule(modsig, false, 0));
 				OWLOntology mod_ont2 = man.createOntology(ont2modExtractor.getModule(modsig, false, 0));
 				
@@ -340,12 +340,17 @@ public class GrammarDiff extends SubconceptDiff {
 		roles.addAll(mod_ont2.getObjectPropertiesInSignature());
 		
 		Set<OWLClassExpression> scs = collectSCs(mod_ont1, mod_ont2);
+		if(verbose) System.out.print("Inflating ontologies... ");
+		if(debug) System.out.println("\n\tUnion roles: " + roles.size() + ", union classes: " + sig.size());
 		
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>();
 		wits.addAll(scs);
 		wits.addAll(getExistentialWitnesses(scs, roles));
 		wits.addAll(getUniversalWitnesses(scs, roles));
 		wits.addAll(getNegationWitnesses(scs));
+		
+		if(debug) System.out.println("\tTotal nr. of witnesses: " + wits.size());
+		
 		if(diff.equals("L"))
 			wits.addAll(getConjunctionWitnesses(subc, mod1reasoner, mod2reasoner, scs));
 		else if(diff.equals("R"))
@@ -367,6 +372,7 @@ public class GrammarDiff extends SubconceptDiff {
 		}
 		man.addAxioms(mod_ont1, extraAxioms);
 		man.addAxioms(mod_ont2, extraAxioms);
+		if(verbose) System.out.println("done (nr. of extra axioms: " + extraAxioms.size() + ")");
 		
 		return map;
 	}
@@ -395,6 +401,7 @@ public class GrammarDiff extends SubconceptDiff {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
 		for(OWLClassExpression c : sc)
 			out.add(df.getOWLObjectComplementOf(c));
+		if(debug) System.out.println("\tNegation witnesses: " + out.size());
 		return out;
 	}
 	
@@ -411,6 +418,7 @@ public class GrammarDiff extends SubconceptDiff {
 			for(OWLObjectProperty r : roles)
 				out.add(df.getOWLObjectSomeValuesFrom(r, c));
 		}
+		if(debug) System.out.println("\tExistential witnesses: " + out.size());
 		return out;
 	}
 	
@@ -427,6 +435,7 @@ public class GrammarDiff extends SubconceptDiff {
 			for(OWLObjectProperty r : roles)
 				out.add(df.getOWLObjectAllValuesFrom(r, c));
 		}
+		if(debug) System.out.println("\tUniversal witnesses: " + out.size());
 		return out;
 	}
 	
@@ -452,6 +461,7 @@ public class GrammarDiff extends SubconceptDiff {
 			for(int j = i+1; j < pool.size(); j++)
 				out.add(df.getOWLObjectIntersectionOf(pool.get(i), pool.get(j)));
 		}
+		if(debug) System.out.println("\tConjunction witnesses: " + out.size());
 		return out;
 	}
 	
@@ -477,6 +487,7 @@ public class GrammarDiff extends SubconceptDiff {
 			for(int j = i+1; j < pool.size(); j++)
 				out.add(df.getOWLObjectUnionOf(pool.get(i), pool.get(j)));
 		}
+		if(debug) System.out.println("\tDisjunction witnesses: " + out.size());
 		return out;
 	}
 	
