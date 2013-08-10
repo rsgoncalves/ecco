@@ -50,7 +50,7 @@ import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
  */
 public class GrammarDiffv1 extends SubconceptDiff {
 	private OWLOntologyManager man;
-	private boolean includeAllRoles = false;
+	private boolean includeAllRoles = true;
 
 	/**
 	 * Constructor for grammar diff w.r.t. sigma := sig(O1) U sig(O2)
@@ -74,7 +74,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiffv1(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
+	public GrammarDiffv1(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
 		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
@@ -140,14 +140,19 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		Set<OWLClassExpression> sc = collectSCs();
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
 		
-		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
-		roles.addAll(ont1.getObjectPropertiesInSignature());
-		roles.addAll(ont2.getObjectPropertiesInSignature());
+		Set<OWLObjectProperty> roles = new Signature().getSharedRoles(ont1, ont2);		
+		Set<OWLClass> sig = new Signature().getSharedConceptNames(ont1, ont2);
+		this.sig.addAll(roles);
 		
-		Set<OWLClass> sig = new HashSet<OWLClass>(ont1.getClassesInSignature());
-		sig.addAll(ont2.getClassesInSignature());
+		Set<OWLClassExpression> toRemove = new HashSet<OWLClassExpression>();
+		for(OWLClassExpression ce : sc) {
+			if(!sig.containsAll(ce.getClassesInSignature()) || !roles.containsAll(ce.getObjectPropertiesInSignature()))
+				toRemove.add(ce);
+		}
+		sc.removeAll(toRemove);
+		
 		System.out.println("Inflating ontologies...");
-		System.out.println("\tUnion roles: " + roles.size() + ", union classes: " + sig.size());
+		System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
 		
 		// Collect possible witnesses
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(sc);

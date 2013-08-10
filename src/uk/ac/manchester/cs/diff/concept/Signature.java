@@ -76,12 +76,12 @@ public class Signature {
 
 
 	/**
-	 * Get union of both ontologies' signatures
+	 * Get union of both ontologies concept names
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @return Set of concepts in the signature-union
+	 * @return Set of concept names in the signature-union
 	 */
-	public Set<OWLClass> getWholeSignature(OWLOntology ont1, OWLOntology ont2) {
+	public Set<OWLClass> getUnionConceptNames(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLClass> sig = new HashSet<OWLClass>();
 		Set<OWLClass> ont1sig = ont1.getClassesInSignature();
 		Set<OWLClass> ont2sig = ont2.getClassesInSignature();
@@ -91,16 +91,34 @@ public class Signature {
 
 
 	/**
-	 * Get shared signature between given ontologies
+	 * Get shared concept names between given ontologies
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @return Set of concepts in the signature-intersection
+	 * @return Set of concept names in the signature-intersection
 	 */
-	public Set<OWLClass> getSharedSignature(OWLOntology ont1, OWLOntology ont2) {
+	public Set<OWLClass> getSharedConceptNames(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLClass> sig = new HashSet<OWLClass>();
 		Set<OWLClass> ont1sig = ont1.getClassesInSignature();
 		Set<OWLClass> ont2sig = ont2.getClassesInSignature();
 		for(OWLClass c : ont1sig) {
+			if(ont2sig.contains(c))
+				sig.add(c);
+		}
+		return sig;
+	}
+	
+	
+	/**
+	 * Get shared roles between given ontologies
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
+	 * @return Set of roles in the signature-intersection
+	 */
+	public Set<OWLObjectProperty> getSharedRoles(OWLOntology ont1, OWLOntology ont2) {
+		Set<OWLObjectProperty> sig = new HashSet<OWLObjectProperty>();
+		Set<OWLObjectProperty> ont1sig = ont1.getObjectPropertiesInSignature();
+		Set<OWLObjectProperty> ont2sig = ont2.getObjectPropertiesInSignature();
+		for(OWLObjectProperty c : ont1sig) {
 			if(ont2sig.contains(c))
 				sig.add(c);
 		}

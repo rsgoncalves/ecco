@@ -81,7 +81,7 @@ public class SubconceptDiff {
 	protected OWLDataFactory df;
 	protected Map<OWLClass,Set<OWLClassExpression>> ont1_diffL, ont1_diffR, ont2_diffL, ont2_diffR;
 	protected Set<OWLAxiom> extraAxioms;
-	protected Set<OWLClass> sig;
+	protected Set<OWLEntity> sig;
 	protected String outputDir;
 	protected boolean verbose;
 	
@@ -98,7 +98,7 @@ public class SubconceptDiff {
 		this.outputDir = outputDir;
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
-		sig = new HashSet<OWLClass>(ont1.getClassesInSignature());
+		sig = new HashSet<OWLEntity>(ont1.getClassesInSignature());
 		sig.addAll(ont2.getClassesInSignature());
 		initDataStructures();
 		equalizeSignatures(ont1, ont2);
@@ -113,7 +113,7 @@ public class SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
+	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.sig = sig;
@@ -210,15 +210,18 @@ public class SubconceptDiff {
 		Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 		
 		// Get specialisation and generalisation witnesses for each concept
-		for(OWLClass subc : sig) {
-			WitnessConcepts specWit = getSpecialisationWitnesses(subc, map, topSuper1, topSuper2, ont1reasoner, ont2reasoner);
-			WitnessConcepts genWit = getGeneralisationWitnesses(subc, map, botSub1, botSub2, ont1reasoner, ont2reasoner);
-			
-			if(!specWit.isEmpty() || !genWit.isEmpty()) affected.add(subc);
-			addChangeToMap(subc, specWit.getLHSWitnesses(), ont1_diffL);
-			addChangeToMap(subc, genWit.getLHSWitnesses(), ont1_diffR);
-			addChangeToMap(subc, specWit.getRHSWitnesses(), ont2_diffL);
-			addChangeToMap(subc, genWit.getRHSWitnesses(), ont2_diffR);
+		for(OWLEntity subc : sig) {
+			if(subc instanceof OWLClass) {
+				OWLClass c = (OWLClass)subc;
+				WitnessConcepts specWit = getSpecialisationWitnesses(c, map, topSuper1, topSuper2, ont1reasoner, ont2reasoner);
+				WitnessConcepts genWit = getGeneralisationWitnesses(c, map, botSub1, botSub2, ont1reasoner, ont2reasoner);
+
+				if(!specWit.isEmpty() || !genWit.isEmpty()) affected.add(c);
+				addChangeToMap(c, specWit.getLHSWitnesses(), ont1_diffL);
+				addChangeToMap(c, genWit.getLHSWitnesses(), ont1_diffR);
+				addChangeToMap(c, specWit.getRHSWitnesses(), ont2_diffL);
+				addChangeToMap(c, genWit.getRHSWitnesses(), ont2_diffR);
+			}
 		}
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");

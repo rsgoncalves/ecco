@@ -67,7 +67,7 @@ public class ContentCVSDiff extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public ContentCVSDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
+	public ContentCVSDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 	}
 
@@ -125,9 +125,9 @@ public class ContentCVSDiff extends SubconceptDiff {
 		
 		// Collect possible witnesses
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>();
-		wits.addAll(getExistentialWitnesses(sig, roles));
-		wits.addAll(getUniversalWitnesses(sig, roles));
-		wits.addAll(getNegationWitnesses(sig));
+//		wits.addAll(getExistentialWitnesses(sig, roles));
+//		wits.addAll(getUniversalWitnesses(sig, roles));
+//		wits.addAll(getNegationWitnesses(sig));
 		
 		int counter = 1;
 		extraAxioms = new HashSet<OWLAxiom>();

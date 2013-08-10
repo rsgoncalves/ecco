@@ -84,7 +84,7 @@ public class GrammarDiff extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLClass> sig, String outputDir, boolean verbose) {
+	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
 		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
@@ -160,8 +160,9 @@ public class GrammarDiff extends SubconceptDiff {
 		if(debug) System.out.println("\n--------------------------------\nDIFF L\n--------------------------------");
 		int counter = 1;
 		// Get specialisation witnesses for each concept
-		for(OWLClass subc : sig) {
-			if(!subc.isOWLNothing()) {
+		for(OWLEntity c : sig) {
+			if(c instanceof OWLClass && !c.asOWLClass().isOWLNothing()) {
+				OWLClass subc = (OWLClass)c;
 				if(debug) System.out.println("   Checking concept " + counter + "/" + sig.size() + ": " + getManchesterRendering(subc));
 				
 				Set<OWLEntity> modsig = new HashSet<OWLEntity>();
@@ -250,8 +251,9 @@ public class GrammarDiff extends SubconceptDiff {
 		if(debug) System.out.println("\n--------------------------------\nDIFF R\n--------------------------------");
 		int counter = 1;
 		// Get specialisation witnesses for each concept
-		for(OWLClass subc : sig) {
-			if(!subc.isOWLThing()) {
+		for(OWLEntity c : sig) {
+			if(c instanceof OWLClass && !c.asOWLClass().isOWLThing()) {
+				OWLClass subc = (OWLClass)c;
 				if(debug) System.out.println("   Checking concept " + counter + "/" + sig.size() + ": " + getManchesterRendering(subc));
 				
 				Set<OWLEntity> modsig = new HashSet<OWLEntity>();

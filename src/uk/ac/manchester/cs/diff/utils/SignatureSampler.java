@@ -74,7 +74,7 @@ public class SignatureSampler {
 		Set<OWLClass> sample = new HashSet<OWLClass>();
 		Object[] arr = null;
 		if(ont2 != null)
-			arr = new Signature().getSharedSignature(ont1, ont2).toArray();
+			arr = new Signature().getSharedConceptNames(ont1, ont2).toArray();
 		else
 			arr = ont1.getClassesInSignature().toArray();
 		
