@@ -31,6 +31,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 
@@ -74,12 +75,27 @@ public class Signature {
 		return sig;
 	}
 
-
+	
 	/**
-	 * Get union of both ontologies concept names
+	 * Get union of both ontologies signatures
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @return Set of concept names in the signature-union
+	 * @return Set of terms in the signature union
+	 */
+	public Set<OWLEntity> getUnionSignature(OWLOntology ont1, OWLOntology ont2) {
+		Set<OWLEntity> sig = new HashSet<OWLEntity>();
+		Set<OWLEntity> ont1sig = ont1.getSignature();
+		Set<OWLEntity> ont2sig = ont2.getSignature();
+		sig.addAll(ont1sig); sig.addAll(ont2sig);
+		return sig;
+	}
+	
+
+	/**
+	 * Get all concept names in signature union
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
+	 * @return Set of concept names in the signature union
 	 */
 	public Set<OWLClass> getUnionConceptNames(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLClass> sig = new HashSet<OWLClass>();
@@ -88,13 +104,45 @@ public class Signature {
 		sig.addAll(ont1sig); sig.addAll(ont2sig);
 		return sig;
 	}
+	
+	
+	/**
+	 * Get all object properties in signature union
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
+	 * @return Set of roles in the signature union
+	 */
+	public Set<OWLObjectProperty> getUnionRoles(OWLOntology ont1, OWLOntology ont2) {
+		Set<OWLObjectProperty> set = new HashSet<OWLObjectProperty>();
+		set.addAll(ont1.getObjectPropertiesInSignature());
+		set.addAll(ont2.getObjectPropertiesInSignature());
+		return set;
+	}
 
+	
+	/**
+	 * Get intersection of both ontologies signatures
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
+	 * @return Set of terms in the signature intersection
+	 */
+	public Set<OWLEntity> getSharedSignature(OWLOntology ont1, OWLOntology ont2) {
+		Set<OWLEntity> sig = new HashSet<OWLEntity>();
+		Set<OWLEntity> ont1sig = ont1.getSignature();
+		Set<OWLEntity> ont2sig = ont2.getSignature();
+		for(OWLEntity e : ont1sig) {
+			if (ont2sig.contains(e))
+				sig.add(e);
+		}
+		return sig;
+	}
+	
 
 	/**
 	 * Get shared concept names between given ontologies
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @return Set of concept names in the signature-intersection
+	 * @return Set of concept names in the signature intersection
 	 */
 	public Set<OWLClass> getSharedConceptNames(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLClass> sig = new HashSet<OWLClass>();
@@ -112,7 +160,7 @@ public class Signature {
 	 * Get shared roles between given ontologies
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @return Set of roles in the signature-intersection
+	 * @return Set of roles in the signature intersection
 	 */
 	public Set<OWLObjectProperty> getSharedRoles(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLObjectProperty> sig = new HashSet<OWLObjectProperty>();
@@ -123,19 +171,5 @@ public class Signature {
 				sig.add(c);
 		}
 		return sig;
-	}
-	
-	
-	/**
-	 * Get all object properties in signature union
-	 * @param ont1	Ontology 1
-	 * @param ont2	Ontology 2
-	 * @return Set of roles in the signature-union
-	 */
-	public Set<OWLObjectProperty> getRolesInWholeSignature(OWLOntology ont1, OWLOntology ont2) {
-		Set<OWLObjectProperty> set = new HashSet<OWLObjectProperty>();
-		set.addAll(ont1.getObjectPropertiesInSignature());
-		set.addAll(ont2.getObjectPropertiesInSignature());
-		return set;
 	}
 }

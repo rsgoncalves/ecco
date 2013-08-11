@@ -32,6 +32,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
+import uk.ac.manchester.cs.diff.concept.GrammarDiff;
+import uk.ac.manchester.cs.diff.concept.GrammarDiffv1;
 import uk.ac.manchester.cs.diff.concept.Signature;
 import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 
@@ -94,8 +96,8 @@ public class ConceptDiffRunner {
 		}
 		
 		// Instantiate diff
-		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, sampleSet, outputDir, true);
-		diff.getDiff(false);
+		GrammarDiff diff = new GrammarDiff(ont1, ont2, sampleSet, outputDir, true);
+		diff.getDiff();
 		
 		String report = diff.getCSVChangeReport();
 		System.out.println(report);

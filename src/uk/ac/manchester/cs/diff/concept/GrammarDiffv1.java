@@ -34,13 +34,13 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import com.clarkparsia.owlapi.modularity.locality.LocalityClass;
-import com.clarkparsia.owlapi.modularity.locality.SyntacticLocalityEvaluator;
-
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.utils.SilentChangeBroadcastStrategy;
 import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
 import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
+
+import com.clarkparsia.owlapi.modularity.locality.LocalityClass;
+import com.clarkparsia.owlapi.modularity.locality.SyntacticLocalityEvaluator;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -50,7 +50,7 @@ import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
  */
 public class GrammarDiffv1 extends SubconceptDiff {
 	private OWLOntologyManager man;
-	private boolean includeAllRoles = true;
+	private boolean includeAllRoles = false;
 
 	/**
 	 * Constructor for grammar diff w.r.t. sigma := sig(O1) U sig(O2)
@@ -93,7 +93,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		
 		if(sig.size() < ont1.getClassesInSignature().size() && sig.size() < ont2.getClassesInSignature().size()) {
 			if(includeAllRoles) {
-				Set<OWLObjectProperty> allRoles = new Signature().getRolesInWholeSignature(ont1, ont2);
+				Set<OWLObjectProperty> allRoles = new Signature().getUnionRoles(ont1, ont2);
 				sig.addAll(allRoles);
 				System.out.println("\tInflated sigma with " + allRoles.size() + " roles");
 			}
@@ -140,30 +140,21 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @return Map of new terms to subconcepts
 	 */
 	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(String diff) {
-		Set<OWLClassExpression> sc = collectSCs();
+		Set<OWLClassExpression> scs = collectSCs();
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
 		
 		Set<OWLObjectProperty> roles = new Signature().getSharedRoles(ont1, ont2);		
 		Set<OWLClass> sig = new Signature().getSharedConceptNames(ont1, ont2);
 
-//		Set<OWLClassExpression> toRemove = new HashSet<OWLClassExpression>();
-//		for(OWLClassExpression ce : sc) {
-//			if(!this.sig.containsAll(ce.getSignature()))
-//				toRemove.add(ce);
-//		}
-//		sc.removeAll(toRemove);
-//		
-//		System.out.println("\tNr. of sigma-subconcepts: " + sc.size());
 		System.out.println("Inflating ontologies...");
 		System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
 		
 		// Collect witnesses
-		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(sc);
-		sc.addAll(sig);
-		wits.addAll(getExistentialWitnesses(sc, roles));
-		wits.addAll(getUniversalWitnesses(sc, roles));
-		wits.addAll(getNegationWitnesses(sc));
-		
+		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(scs);
+		scs.addAll(sig);
+		wits.addAll(getExistentialWitnesses(scs, roles));
+		wits.addAll(getUniversalWitnesses(scs, roles));
+		wits.addAll(getNegationWitnesses(scs));		
 		System.out.println("\tTotal nr. of witnesses: " + wits.size());
 		
 		SyntacticLocalityEvaluator eval = new SyntacticLocalityEvaluator(LocalityClass.TOP_BOTTOM);
@@ -232,6 +223,42 @@ public class GrammarDiffv1 extends SubconceptDiff {
 				out.add(df.getOWLObjectAllValuesFrom(r, c));
 		}
 		if(verbose) System.out.println("\tUniversal witnesses: " + out.size());
+		return out;
+	}
+	
+	
+	/**
+	 * Get the set of conjunction witnesses
+	 * @param sc	Set of subconcepts within the modules
+	 * @return Set of conjunction witnesses
+	 */
+	@SuppressWarnings("unused")
+	private Set<OWLClassExpression> getConjunctionWitnesses(Set<OWLClassExpression> sc) {
+		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
+		OWLClassExpression[] scarr = sc.toArray(new OWLClassExpression[sc.size()]);
+		for(int i = 0; i < sc.size(); i++) {
+			for(int j = i+1; j < sc.size(); j++)
+				out.add(df.getOWLObjectIntersectionOf(scarr[i], scarr[j]));
+		}
+		if(verbose) System.out.println("\tConjunction witnesses: " + out.size());
+		return out;
+	}
+	
+	
+	/**
+	 * Get the set of disjunction witnesses
+	 * @param sc	Set of subconcepts within the modules
+	 * @return Set of disjunction witnesses
+	 */
+	@SuppressWarnings("unused")
+	private Set<OWLClassExpression> getDisjunctionWitnesses(Set<OWLClassExpression> sc) {
+		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
+		OWLClassExpression[] scarr = sc.toArray(new OWLClassExpression[sc.size()]);
+		for(int i = 0; i < sc.size(); i++) {
+			for(int j = i+1; j < sc.size(); j++)
+				out.add(df.getOWLObjectUnionOf(scarr[i], scarr[j]));
+		}
+		if(verbose) System.out.println("\tDisjunction witnesses: " + out.size());
 		return out;
 	}
 }
