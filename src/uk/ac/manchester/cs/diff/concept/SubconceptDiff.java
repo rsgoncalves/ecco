@@ -153,8 +153,6 @@ public class SubconceptDiff {
 
 		classifyOntologies(ont1, ont2);
 		
-		ont1reasoner = new ReasonerLoader(ont1, false).createFactReasoner();
-		ont2reasoner = new ReasonerLoader(ont2, false).createFactReasoner();
 		Set<OWLClass> affected = computeChangeWitnesses(map);
 		
 		long mid = System.currentTimeMillis();

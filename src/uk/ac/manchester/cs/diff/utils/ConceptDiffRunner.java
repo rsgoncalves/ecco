@@ -45,6 +45,12 @@ import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
  */
 public class ConceptDiffRunner {
 
+	
+	/**
+	 * Serialize signature sample as a text file
+	 * @param sampleSet	Set of entities in the sample
+	 * @param outputDir	Output directory
+	 */
 	public static void serializeSample(Set<OWLEntity> sampleSet, String outputDir) {
 		String sigList = "";
 		for(OWLEntity c : sampleSet) sigList += c.getIRI() + "\n";
@@ -55,6 +61,23 @@ public class ConceptDiffRunner {
 			System.out.println("Saved random sample at: " + file.getAbsolutePath());
 			output.write(sigList);
 			output.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * Serialize string to file
+	 * @param s	String to serialize
+	 * @param outputDir	Output directory
+	 * @param filename	File name
+	 */
+	public static void serializeString(String s, String outputDir, String filename) {
+		try {
+			FileWriter fw = new FileWriter(new File(outputDir + filename), true);
+			fw.append(s);
+			fw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -81,6 +104,7 @@ public class ConceptDiffRunner {
 		System.out.println("Loaded ontology 2: " + f2.getAbsolutePath());
 		
 		String outputDir = args[2];
+		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
 		
 		// Remove abox for NCIt
 		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
@@ -96,10 +120,10 @@ public class ConceptDiffRunner {
 		}
 		
 		// Instantiate diff
-		GrammarDiff diff = new GrammarDiff(ont1, ont2, sampleSet, outputDir, true);
-		diff.getDiff();
+		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, outputDir, true);
+		diff.getDiff(false);
 		
 		String report = diff.getCSVChangeReport();
-		System.out.println(report);
+		serializeString(report, outputDir, "diffLog.csv");
 	}
 }
