@@ -63,7 +63,7 @@ import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
 public class GrammarDiff extends SubconceptDiff {
 	private FaCTPlusPlusReasoner ont1modExtractor, ont2modExtractor;
 	private OWLOntologyManager man;
-	private final boolean debug = true, includeAllRoles = false;
+	private final boolean debug = true, includeAllRoles = true;
 
 	/**
 	 * Constructor
@@ -129,11 +129,11 @@ public class GrammarDiff extends SubconceptDiff {
 		Set<OWLObjectProperty> mod_roles = new Signature().getUnionRoles(ont1, ont2);
 		
 		// Get specialisation and generalisation witnesses for each concept
-//		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
+		Set<OWLClass> specialised = computeSpecialisations(mod_roles);
 		Set<OWLClass> generalised = computeGeneralisations(mod_roles);
 		
 		Set<OWLClass> affected = new HashSet<OWLClass>();
-//		affected.addAll(specialised);
+		affected.addAll(specialised);
 		affected.addAll(generalised);
 		
 		OWLReasoner ont1reasoner = new ReasonerLoader(ont1).createFactReasoner();
@@ -344,22 +344,22 @@ public class GrammarDiff extends SubconceptDiff {
 		Set<OWLObjectProperty> roles = new Signature().getSharedRoles(ont1, ont2);		
 		Set<OWLClass> sig = new Signature().getSharedConceptNames(ont1, ont2);
 		
-		System.out.println("Inflating ontologies...");
-		System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
+		if(debug) System.out.println("Inflating ontologies...");
+		if(debug) System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
 		
 		// Collect witnesses
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(scs);
 		scs.addAll(sig);
-//		wits.addAll(getExistentialWitnesses(scs, roles));
-//		wits.addAll(getUniversalWitnesses(scs, roles));
-//		wits.addAll(getNegationWitnesses(scs));
+		wits.addAll(getExistentialWitnesses(scs, roles));
+		wits.addAll(getUniversalWitnesses(scs, roles));
+		wits.addAll(getNegationWitnesses(scs));
 		if(diff.equals("L"))
 			wits.addAll(getConjunctionWitnesses(subc, mod1reasoner, mod2reasoner, scs));
 		else if(diff.equals("R"))
 			wits.addAll(getDisjunctionWitnesses(subc, mod1reasoner, mod2reasoner, scs));
-		System.out.println("\tTotal nr. of witnesses: " + wits.size());
+		if(debug) System.out.println("\tTotal nr. of witnesses: " + wits.size());
 		
-		SyntacticLocalityEvaluator eval = new SyntacticLocalityEvaluator(LocalityClass.TOP_TOP);
+		SyntacticLocalityEvaluator eval = new SyntacticLocalityEvaluator(LocalityClass.TOP_BOTTOM);
 		int counter = 1;
 		Set<OWLAxiom> extraAxioms = new HashSet<OWLAxiom>();
 		for(OWLClassExpression ce : wits) {
