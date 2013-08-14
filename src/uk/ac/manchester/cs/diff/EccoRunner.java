@@ -47,6 +47,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.OWLEntityURIConverter;
 import org.semanticweb.owlapi.util.OWLEntityURIConverterStrategy;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
+import org.semanticweb.owlapi.util.VersionInfo;
 import org.w3c.dom.Document;
 
 import uk.ac.manchester.cs.diff.axiom.AxiomDiff;
@@ -69,7 +70,8 @@ public class EccoRunner {
 			"	     ecco: a diff tool for OWL ontologies\n" +
 			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
-			"by Rafael Goncalves. Copyright 2011-2013 University of Manchester";
+			"by Rafael Goncalves. Copyright 2011-2013 University of Manchester\n" + 
+			"powered by the OWL API version " + VersionInfo.getVersionInfo().getVersion() + "\n";
 	
 	private boolean processImports, ignoreAbox, transform, verbose, normalizeURIs;
 	private static String sep = File.separator;
