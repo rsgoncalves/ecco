@@ -536,7 +536,7 @@ public class SubconceptDiff {
 			e.printStackTrace();
 		}
 		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
-		Result output = new StreamResult(new File(outputDir + "difflog.xml"));
+		Result output = new StreamResult(new File(outputDir + "diffChangeSet.xml"));
 		Source input = new DOMSource(doc);
 
 		try {
@@ -704,7 +704,11 @@ public class SubconceptDiff {
 	}
 	
 	
-	
+	/**
+	 * Get Manchester rendering of a given OWL object
+	 * @param obj	OWL object
+	 * @return String representation of the given object 
+	 */
 	SimpleShortFormProvider sf = new SimpleShortFormProvider();
 	protected String getManchesterRendering(OWLObject obj) {
 		StringWriter wr = new StringWriter();

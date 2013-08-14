@@ -146,8 +146,8 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		Set<OWLObjectProperty> roles = new Signature().getSharedRoles(ont1, ont2);		
 		Set<OWLClass> sig = new Signature().getSharedConceptNames(ont1, ont2);
 
-		System.out.println("Inflating ontologies...");
-		System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
+		if(verbose) System.out.println("Inflating ontologies...");
+		if(verbose) System.out.println("\tShared roles: " + roles.size() + ", shared classes: " + sig.size());
 		
 		// Collect witnesses
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>(scs);
@@ -155,7 +155,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 		wits.addAll(getExistentialWitnesses(scs, roles));
 		wits.addAll(getUniversalWitnesses(scs, roles));
 		wits.addAll(getNegationWitnesses(scs));		
-		System.out.println("\tTotal nr. of witnesses: " + wits.size());
+		if(verbose) System.out.println("\tTotal nr. of witnesses: " + wits.size());
 		
 		SyntacticLocalityEvaluator eval = new SyntacticLocalityEvaluator(LocalityClass.TOP_BOTTOM);
 		int counter = 1;
