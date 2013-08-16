@@ -120,8 +120,8 @@ public class ConceptDiffRunner {
 		}
 		
 		// Instantiate diff
-		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, sampleSet, outputDir, true);
-		diff.getDiff();
+		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, outputDir, true);
+		diff.getDiff(false);
 		
 		String report = diff.getCSVChangeReport();
 		serializeString(report, outputDir, "diffLog.csv");

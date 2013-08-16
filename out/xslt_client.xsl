@@ -199,13 +199,16 @@ If not, see http://www.gnu.org/licenses/
 									/>
 								<ul>
 									<xsl:variable name="rreshuf"><xsl:value-of select="/root/Removals/Ineffectual/RemovedProspectiveRedundancy/RemovedReshuffleProspectiveRedundancy/@size"/></xsl:variable>
-									<xsl:variable name="rnov">
+									<!-- <xsl:variable name="rnov">
 										<xsl:value-of select="/root/Removals/Ineffectual/RemovedProspectiveRedundancy/RemovedNewProspectiveRedundancy/RemovedNovelProspectiveRedundancy/@size"/>
 									</xsl:variable>
 									<xsl:variable name="rpsnov">
 										<xsl:value-of select="/root/Removals/Ineffectual/RemovedProspectiveRedundancy/RemovedNewProspectiveRedundancy/RemovedPseudoNovelProspectiveRedundancy/@size"/>
 									</xsl:variable>
-									<xsl:variable name="rprospnewred"><xsl:value-of select="$rpsnov + $rnov"></xsl:value-of></xsl:variable>
+									 -->
+									<xsl:variable name="rprospnewred">
+										<xsl:value-of select="/root/Removals/Ineffectual/RemovedProspectiveRedundancy/RemovedNewProspectiveRedundancy/@size"/>
+									</xsl:variable>
 									<xsl:variable name="rprospred"><xsl:value-of select="$rreshuf + $rprospnewred"/></xsl:variable>
 									<xsl:variable name="rcrewrite"><xsl:value-of select="/root/Removals/Ineffectual/RemovedRewrite/RemovedCompleteRewrite/@size"/></xsl:variable>
 									<xsl:variable name="rprewrite"><xsl:value-of select="/root/Removals/Ineffectual/RemovedRewrite/RemovedPartialRewrite/@size"/></xsl:variable>
@@ -228,13 +231,13 @@ If not, see http://www.gnu.org/licenses/
 														<xsl:text>  </xsl:text><a href="#ravred">Reshuffle (<xsl:value-of select="$rreshuf"/>)</a>
 													</li>
 												</xsl:if>
-												<xsl:if test="$rprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Prospective Redundancy (0)</li></xsl:if>
+												<xsl:if test="$rprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New (0)</li></xsl:if>
 												<xsl:if test="$rprospnewred > 0">
 													<li><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('rst','rpsnovred');"/>
 														<xsl:text>  </xsl:text>
-														<b>Retired Prospective Redundancy (<xsl:value-of select="$rprospnewred"/>)</b><b id="t1"/><xsl:text>  </xsl:text>
-														<ul style="display:none">
+														<a href="#rst">New (<xsl:value-of select="$rprospnewred"/>)</a><b id="t1"/><xsl:text>  </xsl:text>
+														<!-- <ul style="display:none">
 															<xsl:if test="$rnov = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Novel (0)</li></xsl:if>
 															<xsl:if test="$rnov > 0">
 																<li id="rsttrig">
@@ -251,7 +254,8 @@ If not, see http://www.gnu.org/licenses/
 																	<xsl:text>  </xsl:text><a href="#rpsnovred">Pseudo Novel (<xsl:value-of select="$rpsnov"/>)</a>
 																</li>
 															</xsl:if>
-														</ul>
+														</ul>  
+														-->
 													</li>
 												</xsl:if>
 											</ul>
@@ -418,16 +422,20 @@ If not, see http://www.gnu.org/licenses/
 										onmouseover="tooltip.show('Axioms that are in Ontology 2, not in Ontology 1, but are entailed by Ontology 1, i.e., that have been added but were already entailed');"
 									/> 
 								<ul>
+									<!-- 
 									<xsl:variable name="aprospnovred">
 										<xsl:value-of select="/root/Additions/Ineffectual/AddedProspectiveRedundancy/AddedNewProspectiveRedundancy/AddedNovelProspectiveRedundancy/@size"/>
 									</xsl:variable>
 									<xsl:variable name="aprosppseudonovred">
 										<xsl:value-of select="/root/Additions/Ineffectual/AddedProspectiveRedundancy/AddedNewProspectiveRedundancy/AddedPseudoNovelProspectiveRedundancy/@size"/>
 									</xsl:variable>
+									-->
 									<xsl:variable name="aprospresred">
 										<xsl:value-of select="/root/Additions/Ineffectual/AddedProspectiveRedundancy/AddedReshuffleProspectiveRedundancy/@size"/>
 									</xsl:variable>
-									<xsl:variable name="aprospnewred"><xsl:value-of select="$aprospnovred + $aprosppseudonovred"/></xsl:variable>
+									<xsl:variable name="aprospnewred">
+										<xsl:value-of select="/root/Additions/Ineffectual/AddedProspectiveRedundancy/AddedNewProspectiveRedundancy/@size"/>
+									</xsl:variable>
 									<xsl:variable name="addedprospred"><xsl:value-of select="$aprospnewred + $aprospresred"/></xsl:variable>
 									<xsl:variable name="addedrewrite"><xsl:value-of select="/root/Additions/Ineffectual/AddedRewrite/AddedCompleteRewrite/@size"/></xsl:variable>
 									<xsl:variable name="addedprewrite"><xsl:value-of select="/root/Additions/Ineffectual/AddedRewrite/AddedPartialRewrite/@size"/></xsl:variable>
@@ -450,12 +458,13 @@ If not, see http://www.gnu.org/licenses/
 														<xsl:text>  </xsl:text><a href="#aavred">Reshuffle (<xsl:value-of select="$aprospresred"/>)</a>
 													</li>
 												</xsl:if>
-												<xsl:if test="$aprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New Retrospective Redundancy (0)</li></xsl:if>
+												<xsl:if test="$aprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New (0)</li></xsl:if>
 												<xsl:if test="$aprospnewred > 0">
 													<li><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aweak','apseudopred');"/>
 														<xsl:text>  </xsl:text>
-														<b>New Retrospective Redundancy (<xsl:value-of select="$aprospnewred"/>)</b><xsl:text>  </xsl:text>
+														<a href="#aweak">New (<xsl:value-of select="$aprospnewred"/>)</a><xsl:text>  </xsl:text>
+														<!-- 
 														<ul style="display:none">
 															<xsl:if test="$aprospnovred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Novel (0)</li></xsl:if>
 															<xsl:if test="$aprospnovred > 0">
@@ -474,6 +483,7 @@ If not, see http://www.gnu.org/licenses/
 																</li>
 															</xsl:if>
 														</ul>
+														-->
 													</li>
 												</xsl:if>
 											</ul>
@@ -846,6 +856,25 @@ If not, see http://www.gnu.org/licenses/
 		</xsl:if>
 	</xsl:template>
 	
+	
+	<!-- New Redundancy 	-->
+	<xsl:template match="AddedNewProspectiveRedundancy">
+		<xsl:if test="child::node()">
+			<tbody id="aweak" style="display:none">
+				<tr class="withoutstyle">
+					<td colspan="3"><h4 style="display: inline-block;">Retrospective New Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
+				</tr>
+				<tr>
+					<th class="addition">ID</th>
+					<th class="normaladd">Justifications in Ontology 1</th>
+					<th class="addition">Axiom in Ontology 2</th>
+				</tr>
+				<xsl:apply-templates mode="IneffectualAdditionTemplate"/>
+			</tbody>
+		</xsl:if>
+	</xsl:template>
+	
+	
 	<!-- Novel Redundancy 	-->
 	<xsl:template match="AddedNovelProspectiveRedundancy">
 		<xsl:if test="child::node()">
@@ -940,6 +969,23 @@ If not, see http://www.gnu.org/licenses/
 			<tbody id="ravred" style="display:none">
 				<tr class="withoutstyle">
 					<td colspan="3"><a name="ravred"/><h4 style="display: inline-block;">Reshuffle Prospective Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
+				</tr>
+				<tr>
+					<th class="removal">ID</th>
+					<th class="removal">Axiom in Ontology 1</th>
+					<th class="normalrem">Justifications in Ontology 2</th>
+				</tr>
+				<xsl:apply-templates mode="IneffectualRemovalTemplate"/>
+			</tbody>
+		</xsl:if>
+	</xsl:template>
+	
+	<!-- New Redundancy  -->
+	<xsl:template match="RemovedNewProspectiveRedundancy">
+		<xsl:if test="child::node()">
+			<tbody id="rst" style="display:none">
+				<tr class="withoutstyle">
+					<td colspan="3"><h4 style="display: inline-block;">Prospective New Redundant (<xsl:value-of select="count(./*)"/>)</h4> [<a href="#">back to top</a>]</td>
 				</tr>
 				<tr>
 					<th class="removal">ID</th>

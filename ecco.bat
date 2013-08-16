@@ -19,4 +19,4 @@ set maxmem=4G
 set lib=%cd%\lib 
 ::
 :: Run ecco with the specified arguments
-java -Xmx"%maxmem%" -Djava.library.path="%lib%" -DentityExpansionLimit=100000000 -jar ecco.jar $*
+java -Xmx"%maxmem%" -Djava.library.path="%lib%" -DentityExpansionLimit=100000000 -jar ecco.jar %*

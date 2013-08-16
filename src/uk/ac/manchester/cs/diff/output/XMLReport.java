@@ -37,6 +37,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.model.OWLAnnotation;
@@ -692,7 +693,7 @@ public class XMLReport {
 	 */
 	public String getReportAsHTML(Document doc, String xsltPath) throws TransformerException {
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		Transformer trans = transfac.newTransformer(new javax.xml.transform.stream.StreamSource(xsltPath));
+		Transformer trans = transfac.newTransformer(new StreamSource(xsltPath));
 		return getXMLAsString(trans, doc);
 	}
 	
