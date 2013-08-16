@@ -11,12 +11,7 @@
 :: 
 :: Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
 if not exist ecco.jar echo Building ecco from sources... && ant
-:: 
-:: Set the maximum memory to be used, by default, 4GB
-set maxmem=4G
-::
-:: Library folder to load FaCT++'s native library
-set lib=%cd%\lib 
 ::
 :: Run ecco with the specified arguments
-java -Xmx"%maxmem%" -Djava.library.path="%lib%" -DentityExpansionLimit=100000000 -jar ecco.jar %*
+:: Maximum heap space is set to: 4GB, and Java library path to: .\lib
+java -Xmx4G -Djava.library.path=".\lib" -DentityExpansionLimit=100000000 -jar ecco.jar %*
