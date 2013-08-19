@@ -206,7 +206,7 @@ public class Diff implements Callable<DiffResult>{
 	
 	private OWLReasoner classifyHere(OWLOntology ont) {
 		System.out.println("[diff" + diff + "] [internal] Starting classification on given ontology");
-		OWLReasoner reasoner = new ReasonerLoader(ont, verbose).createFactReasoner();
+		OWLReasoner reasoner = new ReasonerLoader(ont, verbose).createFactReasoner(false);
 		
 		reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 		
@@ -437,7 +437,7 @@ public class Diff implements Callable<DiffResult>{
 		@Override
 		public void run() {
 			System.out.println("[diff" + diff + "] [Classifier] Starting classification on given ontology");
-			reasoner = new ReasonerLoader(ont, verbose).createFactReasoner();
+			reasoner = new ReasonerLoader(ont, verbose).createFactReasoner(false);
 			reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 			System.out.println("[diff" + diff + "] [Classifier] done classifying ");
 		}

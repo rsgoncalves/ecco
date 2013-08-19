@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -32,10 +31,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.GrammarDiffv1;
-import uk.ac.manchester.cs.diff.concept.Signature;
-import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
+import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -109,21 +106,26 @@ public class ConceptDiffRunner {
 		// Remove abox for NCIt
 		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
-		Set<OWLEntity> sampleSet = new HashSet<OWLEntity>();
-		if(args.length > 3)
-			sampleSet.addAll(new Signature().getSignatureFromFile(new File(args[3])));
-		else {
-			// Get random signature sample
-			SignatureSampler sampler = new SignatureSampler(ont1, ont2);
-			sampleSet.addAll(sampler.getSample(658));
-			serializeSample(sampleSet, outputDir);
+//		Set<OWLEntity> sampleSet = new HashSet<OWLEntity>();
+//		if(args.length > 3)
+//			sampleSet.addAll(new Signature().getSignatureFromFile(new File(args[3])));
+//		else {
+//			// Get random signature sample
+//			SignatureSampler sampler = new SignatureSampler(ont1, ont2);
+//			sampleSet.addAll(sampler.getSample(658));
+//			serializeSample(sampleSet, outputDir);
+//		}
+		
+//		ont1 = new NCItTopModExtractor(ont1).findModule("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Cancer-Related_Condition");
+//		ont2 = new NCItTopModExtractor(ont2).findModule("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Cancer-Related_Condition");
+		
+		// get diff
+		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, outputDir, true);
+		ConceptChangeSet cs = diff.getDiff();
+		
+		if(cs != null) {
+			String report = diff.getCSVChangeReport();
+			serializeString(report, outputDir, "diffLog.csv");
 		}
-		
-		// Instantiate diff
-		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, outputDir, true);
-		diff.getDiff(false);
-		
-		String report = diff.getCSVChangeReport();
-		serializeString(report, outputDir, "diffLog.csv");
 	}
 }

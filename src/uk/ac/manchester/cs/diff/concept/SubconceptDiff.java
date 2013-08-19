@@ -58,6 +58,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 import org.w3c.dom.Document;
 
+import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.LHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.RHSConceptChange;
@@ -82,7 +83,7 @@ public class SubconceptDiff {
 	protected OWLDataFactory df;
 	protected Map<OWLClass,Set<OWLClassExpression>> ont1_diffL, ont1_diffR, ont2_diffL, ont2_diffR;
 	protected Set<OWLAxiom> extraAxioms;
-	protected Set<OWLEntity> sig;
+	protected Set<OWLEntity> sigma;
 	protected String outputDir;
 	protected boolean verbose;
 	protected ConceptChangeSet changeSet;
@@ -100,10 +101,9 @@ public class SubconceptDiff {
 		this.outputDir = outputDir;
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
-		sig = new HashSet<OWLEntity>(ont1.getClassesInSignature());
-		sig.addAll(ont2.getClassesInSignature());
+		sigma = new HashSet<OWLEntity>(new Signature().getUnionConceptNames(ont1, ont2));
 		initDataStructures();
-		equalizeSignatures(ont1, ont2);
+//		equalizeSignatures(ont1, ont2);
 	}
 	
 	
@@ -118,12 +118,12 @@ public class SubconceptDiff {
 	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
-		this.sig = sig;
+		this.sigma = sig;
 		this.outputDir = outputDir;
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
 		initDataStructures();
-		equalizeSignatures(ont1, ont2);
+//		equalizeSignatures(ont1, ont2);
 	}
 
 	
@@ -146,18 +146,17 @@ public class SubconceptDiff {
 	 */
 	public ConceptChangeSet getDiff(boolean atomicOnly) throws InterruptedException {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Input signature: sigma contains " + sig.size() + " concept names");
+		if(verbose) System.out.println("Input signature: sigma contains " + sigma.size() + " concept names");
 		
 		Map<OWLClass,OWLClassExpression> map = null;
-		if(!atomicOnly) map = getSubConceptsMapping("E");
-
+		if(!atomicOnly) 
+			map = getSubConceptsMapping();
 		classifyOntologies(ont1, ont2);
 		
 		Set<OWLClass> affected = computeChangeWitnesses(map);
-		
 		long mid = System.currentTimeMillis();
 		
-		if(!atomicOnly) { // Remove extra axioms and create fresh reasoner instances
+		if(!atomicOnly) {
 			ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 			ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
 		}
@@ -182,7 +181,7 @@ public class SubconceptDiff {
 	 */
 	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) throws InterruptedException {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Classifying ontologies...");
+		if(verbose) System.out.print("Classifying ontologies... ");
 		
 		ExecutorService exec = Executors.newFixedThreadPool(2);
 		
@@ -205,7 +204,8 @@ public class SubconceptDiff {
 	 */
 	protected Set<OWLClass> computeChangeWitnesses(Map<OWLClass,OWLClassExpression> map) {
 		if(verbose) System.out.print("Computing change witnesses... ");
-		Set<OWLClass> affected = new HashSet<OWLClass>();
+		Set<OWLClass> affected = new HashSet<OWLClass>(), 
+				specialised = new HashSet<OWLClass>(), generalised = new HashSet<OWLClass>();
 		long start = System.currentTimeMillis();
 
 		Set<OWLClass> topSuper1 = ont1reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
@@ -214,19 +214,29 @@ public class SubconceptDiff {
 		Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 		
 		// Get specialisation and generalisation witnesses for each concept
-		for(OWLEntity subc : sig) {
+		for(OWLEntity subc : sigma) {
 			if(subc instanceof OWLClass) {
 				OWLClass c = (OWLClass)subc;
 				WitnessConcepts specWit = getSpecialisationWitnesses(c, map, topSuper1, topSuper2, ont1reasoner, ont2reasoner);
 				WitnessConcepts genWit = getGeneralisationWitnesses(c, map, botSub1, botSub2, ont1reasoner, ont2reasoner);
 
-				if(!specWit.isEmpty() || !genWit.isEmpty()) affected.add(c);
+				if(!specWit.isEmpty()) specialised.add(c);
+				if(!genWit.isEmpty()) generalised.add(c);
 				addChangeToMap(c, specWit.getLHSWitnesses(), ont1_diffL);
 				addChangeToMap(c, genWit.getLHSWitnesses(), ont1_diffR);
 				addChangeToMap(c, specWit.getRHSWitnesses(), ont2_diffL);
 				addChangeToMap(c, genWit.getRHSWitnesses(), ont2_diffR);
 			}
 		}
+		affected.addAll(specialised);
+		affected.addAll(generalised);
+		
+		if(verbose) {
+			System.out.println("\n\tSpecialised concepts: " + specialised.size());
+			System.out.println("\tGeneralised concepts: " + generalised.size());
+			System.out.println("\tTotal affected concepts: " + affected.size());
+		}
+		
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
 		return affected;
@@ -470,7 +480,7 @@ public class SubconceptDiff {
 
 		@Override
 		public void run() {
-			reasoner = new ReasonerLoader(ont, false).createFactReasoner();
+			reasoner = new ReasonerLoader(ont, false).createFactReasoner(true);
 			long start = System.currentTimeMillis();
 			reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 			long end = System.currentTimeMillis();
@@ -592,7 +602,7 @@ public class SubconceptDiff {
 			Set<OWLClassExpression> ax_sc = ax.getNestedClassExpressions();
 			for(OWLClassExpression ce : ax_sc) {
 				if(!sc.contains(ce) && !ce.isOWLThing() && !ce.isOWLNothing()) {
-					if(ce.isAnonymous()) {
+					if(ce.isAnonymous() && sigma.containsAll(ce.getClassesInSignature())) {
 						sc.add(ce); getSubConcepts(ce, sc);
 					}
 				}
@@ -626,7 +636,7 @@ public class SubconceptDiff {
 	 * equivalence axioms to each ontology
 	 * @return Map of new terms to subconcepts
 	 */
-	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(String diff) {
+	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping() {
 		Set<OWLClassExpression> sc = collectSCs();
 		OWLDataFactory df = OWLManager.getOWLDataFactory();
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
@@ -636,13 +646,7 @@ public class SubconceptDiff {
 			if(ce.isAnonymous()) {
 				OWLClass c = df.getOWLClass(IRI.create("diffSubc_" + counter));
 				map.put(c, ce);
-				OWLAxiom ax = null;
-				if(diff.equals("L"))
-					ax = df.getOWLSubClassOfAxiom(c, ce);
-				else if (diff.equals("R"))
-					ax = df.getOWLSubClassOfAxiom(ce, c);
-				else if (diff.equals("E"))
-					ax = df.getOWLEquivalentClassesAxiom(c, ce);
+				OWLAxiom ax = df.getOWLEquivalentClassesAxiom(c, ce);
 				extraAxioms.add(ax); counter++;
 			}
 		}
@@ -676,6 +680,18 @@ public class SubconceptDiff {
 			}
 		}
 		return isEqual;
+	}
+	
+	
+	/**
+	 * Determine if the given pair of ontologies are logically equivalent
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
+	 * @return true if ontologies are equivalent, false otherwise
+	 */
+	protected boolean equiv(OWLOntology ont1, OWLOntology ont2) {
+		LogicalDiff diff = new LogicalDiff(ont1, ont2, false);
+		return diff.isEquivalent();
 	}
 	
 	

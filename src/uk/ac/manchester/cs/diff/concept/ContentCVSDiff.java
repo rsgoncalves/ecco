@@ -28,7 +28,6 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -36,8 +35,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
-import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
-import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
+import uk.ac.manchester.cs.diff.utils.SilentChangeBroadcastStrategy;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -46,9 +44,10 @@ import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
  * University of Manchester <br/>
  */
 public class ContentCVSDiff extends SubconceptDiff {
+	private OWLOntologyManager man;
 
 	/**
-	 * Constructor for grammar diff w.r.t. Sigma = sig(O1) U sig(O2)
+	 * Constructor for contentcvs diff w.r.t. sigma := sig(O1) U sig(O2)
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param outputDir	Output directory
@@ -56,11 +55,13 @@ public class ContentCVSDiff extends SubconceptDiff {
 	 */
 	public ContentCVSDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
 		super(ont1, ont2, outputDir, verbose);
+		man = OWLManager.createOWLOntologyManager();
+		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
 	}
 	
 	
 	/**
-	 * Constructor for grammar diff w.r.t. given signature
+	 * Constructor for contentcvs diff w.r.t. given signature
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param sig	Signature (set of concept names)
@@ -69,6 +70,8 @@ public class ContentCVSDiff extends SubconceptDiff {
 	 */
 	public ContentCVSDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
+		man = OWLManager.createOWLOntologyManager();
+		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
 	}
 
 
@@ -80,21 +83,13 @@ public class ContentCVSDiff extends SubconceptDiff {
 	 */
 	public ConceptChangeSet getDiff() throws InterruptedException, OWLOntologyCreationException {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Signature size: " + sig.size() + " concept names");
-	
-		if(sig.size() < ont1.getClassesInSignature().size() &&
-				sig.size() < ont2.getClassesInSignature().size()) {
-			Set<OWLEntity> modsig = new HashSet<OWLEntity>(sig);
-			OWLOntologyManager man = OWLManager.createOWLOntologyManager();
-			ont1 = man.createOntology(
-					new SyntacticLocalityModuleExtractor(ont1.getOWLOntologyManager(), ont1, ModuleType.STAR).extract(modsig));
-			ont2 = man.createOntology(
-					new SyntacticLocalityModuleExtractor(ont2.getOWLOntologyManager(), ont2, ModuleType.STAR).extract(modsig));
-		}
-		
-		Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping("E");
+		if(verbose) System.out.println("Input signature: sigma contains " + sigma.size() + " terms");
+
+		Map<OWLClass,OWLClassExpression> map = getSubConceptsMapping();
 		classifyOntologies(ont1, ont2);
 		Set<OWLClass> affected = computeChangeWitnesses(map);
+		
+		long mid = System.currentTimeMillis();
 		
 		// Remove extra axioms and create fresh reasoner instances
 		ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
@@ -102,9 +97,13 @@ public class ContentCVSDiff extends SubconceptDiff {
 
 		classifyOntologies(ont1, ont2);
 		
-		ConceptChangeSet changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
-		if(verbose) printDiff(changeSet);
+		changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		long end = System.currentTimeMillis();
+		
+		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
+		changeSet.setPartitioningTime((end-mid)/1000.0);
+		
+		if(verbose) printDiff(changeSet);
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");	
 		return changeSet;
 	}
@@ -113,39 +112,38 @@ public class ContentCVSDiff extends SubconceptDiff {
 	/**
 	 * Create a mapping between a new term "TempX" and each sub-concept, and add the appropriate
 	 * equivalence axioms to each ontology
+	 * @param diff	Type of diff that determines the kind of axiom to be added 
 	 * @return Map of new terms to subconcepts
 	 */
-	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping(String diff) {
-		OWLDataFactory df = OWLManager.getOWLDataFactory();
+	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping() {
+		Set<OWLObjectProperty> roles = new Signature().getSharedRoles(ont1, ont2);
 		Map<OWLClass,OWLClassExpression> map = new HashMap<OWLClass,OWLClassExpression>();
 		
-		Set<OWLObjectProperty> roles = new HashSet<OWLObjectProperty>();
-		roles.addAll(ont1.getObjectPropertiesInSignature());
-		roles.addAll(ont2.getObjectPropertiesInSignature());
+		Set<OWLClass> concept_names = new HashSet<OWLClass>();
+		for(OWLEntity e : sigma) {
+			if(e.isOWLClass() && ont1.containsEntityInSignature(e) && ont2.containsEntityInSignature(e))
+				concept_names.add(e.asOWLClass());
+		}
 		
-		// Collect possible witnesses
+		// Generate witnesses
+		if(verbose) System.out.println("Inflating ontologies...");
 		Set<OWLClassExpression> wits = new HashSet<OWLClassExpression>();
-//		wits.addAll(getExistentialWitnesses(sig, roles));
-//		wits.addAll(getUniversalWitnesses(sig, roles));
-//		wits.addAll(getNegationWitnesses(sig));
+		wits.addAll(getExistentialWitnesses(concept_names, roles));
+		wits.addAll(getUniversalWitnesses(concept_names, roles));
+		wits.addAll(getNegationWitnesses(concept_names));		
+		if(verbose) System.out.println("\tTotal nr. of witnesses: " + wits.size());
 		
 		int counter = 1;
 		extraAxioms = new HashSet<OWLAxiom>();
 		for(OWLClassExpression ce : wits) {
 			OWLClass c = df.getOWLClass(IRI.create("diffSubc_" + counter));
 			map.put(c, ce);
-			OWLAxiom ax = null;
-			if(diff.equals("R"))
-				ax = df.getOWLSubClassOfAxiom(c, ce);
-			else if (diff.equals("L"))
-				ax = df.getOWLSubClassOfAxiom(ce, c);
-			else if (diff.equals("E"))
-				ax = df.getOWLEquivalentClassesAxiom(c, ce);
+			OWLAxiom ax = df.getOWLEquivalentClassesAxiom(c, ce);
 			extraAxioms.add(ax); counter++;
 		}
 		ont1.getOWLOntologyManager().addAxioms(ont1, extraAxioms);
 		ont2.getOWLOntologyManager().addAxioms(ont2, extraAxioms);
-		if(verbose) System.out.println("Nr. of extra axioms: " + extraAxioms.size());
+		if(verbose) System.out.println("done (nr. of extra axioms: " + extraAxioms.size() + ")");
 		return map;
 	}
 	
@@ -159,6 +157,7 @@ public class ContentCVSDiff extends SubconceptDiff {
 		Set<OWLClassExpression> out = new HashSet<OWLClassExpression>();
 		for(OWLClassExpression c : sc)
 			out.add(df.getOWLObjectComplementOf(c));
+		if(verbose) System.out.println("\tNegation witnesses: " + out.size());
 		return out;
 	}
 	
@@ -175,6 +174,7 @@ public class ContentCVSDiff extends SubconceptDiff {
 			for(OWLObjectProperty r : roles)
 				out.add(df.getOWLObjectSomeValuesFrom(r, c));
 		}
+		if(verbose) System.out.println("\tExistential witnesses: " + out.size());
 		return out;
 	}
 	
@@ -191,6 +191,7 @@ public class ContentCVSDiff extends SubconceptDiff {
 			for(OWLObjectProperty r : roles)
 				out.add(df.getOWLObjectAllValuesFrom(r, c));
 		}
+		if(verbose) System.out.println("\tUniversal witnesses: " + out.size());
 		return out;
 	}
 }
