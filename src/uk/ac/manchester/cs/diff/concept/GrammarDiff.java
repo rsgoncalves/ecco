@@ -43,7 +43,7 @@ import uk.ac.manchester.cs.diff.utils.SilentChangeBroadcastStrategy;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class GrammarDiffv1 extends SubconceptDiff {
+public class GrammarDiff extends SubconceptDiff {
 	private OWLOntologyManager man;
 
 	/**
@@ -53,7 +53,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiffv1(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
+	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
 		super(ont1, ont2, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
 		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
@@ -68,7 +68,7 @@ public class GrammarDiffv1 extends SubconceptDiff {
 	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiffv1(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
+	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
 		super(ont1, ont2, sig, outputDir, verbose);
 		man = OWLManager.createOWLOntologyManager();
 		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());

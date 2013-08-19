@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import uk.ac.manchester.cs.diff.concept.GrammarDiffv1;
+import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 
 /**
@@ -42,7 +42,6 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
  */
 public class ConceptDiffRunner {
 
-	
 	/**
 	 * Serialize signature sample as a text file
 	 * @param sampleSet	Set of entities in the sample
@@ -104,23 +103,11 @@ public class ConceptDiffRunner {
 		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
 		
 		// Remove abox for NCIt
-		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
-		
-//		Set<OWLEntity> sampleSet = new HashSet<OWLEntity>();
-//		if(args.length > 3)
-//			sampleSet.addAll(new Signature().getSignatureFromFile(new File(args[3])));
-//		else {
-//			// Get random signature sample
-//			SignatureSampler sampler = new SignatureSampler(ont1, ont2);
-//			sampleSet.addAll(sampler.getSample(658));
-//			serializeSample(sampleSet, outputDir);
-//		}
-		
-//		ont1 = new NCItTopModExtractor(ont1).findModule("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Cancer-Related_Condition");
-//		ont2 = new NCItTopModExtractor(ont2).findModule("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Cancer-Related_Condition");
+		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); 
+		man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
 		// get diff
-		GrammarDiffv1 diff = new GrammarDiffv1(ont1, ont2, outputDir, true);
+		GrammarDiff diff = new GrammarDiff(ont1, ont2, outputDir, true);
 		ConceptChangeSet cs = diff.getDiff();
 		
 		if(cs != null) {
