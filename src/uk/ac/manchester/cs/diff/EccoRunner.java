@@ -54,6 +54,10 @@ import uk.ac.manchester.cs.diff.axiom.AxiomDiff;
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
 import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
 import uk.ac.manchester.cs.diff.axiom.StructuralDiff;
+import uk.ac.manchester.cs.diff.concept.ConceptDiff;
+import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
+import uk.ac.manchester.cs.diff.concept.GrammarDiff;
+import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 import uk.ac.manchester.cs.diff.output.XMLReport;
 
 /**
@@ -63,8 +67,8 @@ import uk.ac.manchester.cs.diff.output.XMLReport;
  * University of Manchester <br/>
  */
 public class EccoRunner {
-	private static final String versionInfo = "2.0";
-	private static final String releaseDate = "23-June-2013";
+	private static final String versionInfo = "2.1";
+	private static final String releaseDate = "19-August-2013";
 	private static final String PROGRAM_TITLE = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
@@ -111,24 +115,37 @@ public class EccoRunner {
 	 * @throws TransformerException
 	 * @throws UnsupportedEncodingException
 	 */
-	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, boolean structDiff, boolean logDiff, boolean serializeOutput, String xsltPath) 
+	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, boolean structDiff, boolean logDiff, String cdiff, String xsltPath) 
 			throws TransformerException, UnsupportedEncodingException {
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 	
 		System.out.println("\nComputing diff...");
 		long start = System.currentTimeMillis();
 		
-		AxiomDiff diff = null;
-		if(logDiff)
-			diff = new LogicalDiff(ont1, ont2, verbose);
+		AxiomDiff axiom_diff = null;
+		if(logDiff) 
+			axiom_diff = new LogicalDiff(ont1, ont2, verbose);
 		else if(structDiff) 
-			diff = new StructuralDiff(ont1, ont2, verbose);
-		else
-			diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
+			axiom_diff = new StructuralDiff(ont1, ont2, verbose);
+		else 
+			axiom_diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
 		
-		XMLReport report = diff.getXMLReport();
-		if(serializeOutput) 
-			processOutput(report, diff.getCSVChangeReport(), xsltPath);
+		XMLReport report = axiom_diff.getXMLReport();
+		processOutput(report, axiom_diff.getCSVChangeReport(), xsltPath);
+		
+		if(!cdiff.equals("")) {
+			ConceptDiff concept_diff = null;
+			if(cdiff.equals("at"))
+				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+			else if(cdiff.equals("sub"))
+				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+			else if(cdiff.equals("gr"))
+				concept_diff = new GrammarDiff(ont1, ont2, outputDir, verbose);
+			else if(cdiff.equals("cvs"))
+				concept_diff = new ContentCVSDiff(ont1, ont2, outputDir, verbose);
+			
+			throw new RuntimeException("Not fully implemented yet");
+		}
 		
 		long end = System.currentTimeMillis();
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " seconds)");
@@ -363,10 +380,11 @@ public class EccoRunner {
 		System.out.println("	[ONTOLOGY]	An input ontology file path or URL");
 		System.out.println();
 		System.out.println("	[OPTIONS]");
-		System.out.println("	-o		output directory for the XML change set and CSV log");
+		System.out.println("	-o		output directory; \"ont1\" and \"ont2\" can be used as shortcuts");
 		System.out.println("	-t		transform resulting XML report into HTML");
 		System.out.println("	-s		compute structural diff only");
 		System.out.println("	-l		compute logical diff only");
+		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
 		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");
 		System.out.println("	-n		normalize entity URIs, i.e. if two ontologies have the same entity names");
 		System.out.println("			in a different namespace, this trigger establishes a common namespace");
@@ -390,8 +408,9 @@ public class EccoRunner {
 	public static void main(String[] args) throws OWLOntologyCreationException, ParserConfigurationException, IOException, TransformerException {
 		boolean hasOnt1 = false, hasOnt2 = false, processImports = true, normalizeURIs = false, ignoreAbox = false, 
 				structDiff = false, logDiff = false, verbose = false, transform = false, localOnt1 = true, localOnt2 = true;
+		
 		System.out.println(PROGRAM_TITLE);
-		String outputDir = "", xsltPath = null, f1 = null, f2 = null;
+		String outputDir = "", xsltPath = "out" + sep + "xslt_client.xsl", cdiff = null, f1 = null, f2 = null;
 		int nrJusts = 10;
 		
 		for(int i = 0; i < args.length; i++) {
@@ -425,6 +444,10 @@ public class EccoRunner {
 				structDiff = true;
 			else if(arg.equalsIgnoreCase("-l"))		// Logical diff only
 				logDiff = true;
+			else if(arg.equalsIgnoreCase("-c"))	{	// Compute concept diff
+				if(++i == args.length) throw new RuntimeException("\n-c must be followed by one of [ at | sub | gr | cvs ].\n");
+				arg = args[i].trim(); cdiff = arg;
+			}
 			else if(arg.equalsIgnoreCase("-n"))		// Normalize entity namespaces
 				normalizeURIs = true;
 			else if(arg.equalsIgnoreCase("-t"))		// Transform XML into HTML
@@ -464,19 +487,16 @@ public class EccoRunner {
 			else if(outputDir.equals("ont2"))
 				runner.setOutputDirectory(outputDir, f2, localOnt2);
 			else if(!outputDir.equals(""))
-				runner.setOutputDirectory(outputDir, true);
+				runner.setOutputDirectory(outputDir, verbose);
 			else {
-				runner.setOutputDirectory("out" + sep, false);
+				runner.setOutputDirectory("out" + sep, verbose);
 				System.out.println("Using default output directory: [ecco_folder]" + sep + "out" + sep + "\n");
 			}
 
 			OWLOntology ont1 = runner.loadOntology(1, f1, localOnt1);
 			OWLOntology ont2 = runner.loadOntology(2, f2, localOnt2);
-
-			if(xsltPath == null)
-				xsltPath = "out" + sep + "xslt_client.xsl";
 			
-			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, structDiff, logDiff, true, xsltPath);
+			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, structDiff, logDiff, cdiff, xsltPath);
 		}
 		else if(f1 == null) {
 			System.out.println("\n! Invalid or missing -ont1 input\n");

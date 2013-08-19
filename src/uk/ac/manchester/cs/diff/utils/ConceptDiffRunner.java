@@ -113,6 +113,7 @@ public class ConceptDiffRunner {
 		if(cs != null) {
 			String report = diff.getCSVChangeReport();
 			serializeString(report, outputDir, "diffLog.csv");
+			diff.serializeXMLReport();
 		}
 	}
 }

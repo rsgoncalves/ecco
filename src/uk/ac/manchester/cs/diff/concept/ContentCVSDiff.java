@@ -81,7 +81,7 @@ public class ContentCVSDiff extends SubconceptDiff {
 	 * @throws InterruptedException
 	 * @throws OWLOntologyCreationException 
 	 */
-	public ConceptChangeSet getDiff() throws InterruptedException, OWLOntologyCreationException {
+	public ConceptChangeSet getDiff() {
 		long start = System.currentTimeMillis();
 		if(verbose) System.out.println("Input signature: sigma contains " + sigma.size() + " terms");
 
@@ -103,7 +103,7 @@ public class ContentCVSDiff extends SubconceptDiff {
 		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
 		changeSet.setPartitioningTime((end-mid)/1000.0);
 		
-		if(verbose) printDiff(changeSet);
+		if(verbose) printDiff();
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");	
 		return changeSet;
 	}

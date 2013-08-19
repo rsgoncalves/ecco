@@ -16,10 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.axiom;
+package uk.ac.manchester.cs.diff.concept;
 
-import uk.ac.manchester.cs.diff.axiom.changeset.ChangeSet;
-import uk.ac.manchester.cs.diff.output.XMLReport;
+import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -27,27 +27,20 @@ import uk.ac.manchester.cs.diff.output.XMLReport;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public interface AxiomDiff {	
+public interface ConceptDiff {	
 	
 	/**
-	 * Compute the diff and return a change set containing all differences
-	 * @return Change set with the differences
+	 * Compute the concept diff and return a change set containing all differences
+	 * @return Change set with concept differences
 	 */
-	public ChangeSet getDiff();
-	
-	
-	/**
-	 * Check if the given ontologies are equivalent w.r.t. the (instantiated) diff's equivalence notion
-	 * @return true if ontologies are equivalent, false otherwise
-	 */
-	public boolean isEquivalent();
+	public ConceptChangeSet getDiff();
 	
 	
 	/**
 	 * Get an XML file which represents the change set 
 	 * @return XML file containing the change set
 	 */
-	public XMLReport getXMLReport();
+	public XMLReportConceptDiff getXMLReport();
 	
 	
 	/**

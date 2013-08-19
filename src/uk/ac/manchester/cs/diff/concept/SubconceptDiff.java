@@ -19,7 +19,6 @@
 package uk.ac.manchester.cs.diff.concept;
 
 import java.io.File;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,7 +54,6 @@ import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 import org.w3c.dom.Document;
 
 import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
@@ -69,7 +67,6 @@ import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
 import uk.ac.manchester.cs.diff.output.CSVReportConceptDiff;
 import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
-import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -77,7 +74,7 @@ import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjec
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class SubconceptDiff {
+public class SubconceptDiff implements ConceptDiff {
 	protected OWLOntology ont1, ont2;
 	protected OWLReasoner ont1reasoner, ont2reasoner;
 	protected OWLDataFactory df;
@@ -85,7 +82,7 @@ public class SubconceptDiff {
 	protected Set<OWLAxiom> extraAxioms;
 	protected Set<OWLEntity> sigma;
 	protected String outputDir;
-	protected boolean verbose;
+	protected boolean verbose, atomicOnly;
 	protected ConceptChangeSet changeSet;
 	
 	/**
@@ -144,7 +141,7 @@ public class SubconceptDiff {
 	 * @return Concept-based change set
 	 * @throws InterruptedException
 	 */
-	public ConceptChangeSet getDiff(boolean atomicOnly) throws InterruptedException {
+	public ConceptChangeSet getDiff() {
 		long start = System.currentTimeMillis();
 		if(verbose) System.out.println("Input signature: sigma contains " + sigma.size() + " concept names");
 		
@@ -167,7 +164,7 @@ public class SubconceptDiff {
 		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
 		changeSet.setPartitioningTime((end-mid)/1000.0);
 		
-		if(verbose) printDiff(changeSet);
+		if(verbose) printDiff();
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");
 		return changeSet;
 	}
@@ -179,7 +176,7 @@ public class SubconceptDiff {
 	 * @param ont2	Ontology 2
 	 * @throws InterruptedException
 	 */
-	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) throws InterruptedException {
+	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) {
 		long start = System.currentTimeMillis();
 		if(verbose) System.out.print("Classifying ontologies... ");
 		
@@ -190,7 +187,11 @@ public class SubconceptDiff {
 		
 		exec.execute(ont1worker); exec.execute(ont2worker);
 		exec.shutdown();
-		exec.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+		try {
+			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if(verbose) System.out.println("done (" + (System.currentTimeMillis()-start)/1000.0 + " secs)");
 		
 		ont1reasoner = ont1worker.getReasoner(); ont2reasoner = ont2worker.getReasoner();
@@ -496,85 +497,6 @@ public class SubconceptDiff {
 		}
 	}
 
-
-	/**
-	 * Print diff results
-	 * @param changeSet	Concept-based change set
-	 */
-	public void printDiff(ConceptChangeSet changeSet) {
-		System.out.println("\ndiff results:");
-		System.out.println("  [ont1]" +
-				"\tSpecialised: " + changeSet.getLHSSpecialisedConcepts().size() + 
-				"\tGeneralised: " + changeSet.getLHSGeneralisedConcepts().size() +
-				"\tTotal affected: " + changeSet.getLHSAffectedConcepts().size());
-		System.out.println("  [ont2]" +
-				"\tSpecialised: " + changeSet.getRHSSpecialisedConcepts().size() + 
-				"\tGeneralised: " + changeSet.getRHSGeneralisedConcepts().size() +
-				"\tTotal affected: " + changeSet.getRHSAffectedConcepts().size());
-		System.out.println("  [total]" +
-				"\tSpecialised: " + changeSet.getAllSpecialisedConcepts().size() + 
-				"\tGeneralised: " + changeSet.getAllGeneralisedConcepts().size() +
-				"\tTotal affected: " + changeSet.getAllAffectedConcepts().size());
-		
-		System.out.println("\n  Affected concepts categorisation:");
-		System.out.println("    Direct Generalised: " + changeSet.getAllDirectlyGeneralised().size());
-		System.out.println("    Direct Specialised: " + changeSet.getAllDirectlySpecialised().size());
-		System.out.println("    Purely directly generalised: " + changeSet.getAllPurelyDirectlyGeneralised().size());
-		System.out.println("    Purely directly specialised: " + changeSet.getAllPurelyDirectlySpecialised().size());
-		System.out.println("    Purely indirectly generalised: " + changeSet.getAllPurelyIndirectlyGeneralised().size());
-		System.out.println("    Purely indirectly specialised: " + changeSet.getAllPurelyIndirectlySpecialised().size());
-		System.out.println("    Mixed generalised: " + changeSet.getAllMixedGeneralised().size());
-		System.out.println("    Mixed specialised: " + changeSet.getAllMixedSpecialised().size());
-		
-		serializeXMLReport(changeSet);
-	}
-	
-	
-	/**
-	 * Get the XML change set and serialise it
-	 * @param changeSet	Concept diff change set
-	 */
-	private void serializeXMLReport(ConceptChangeSet changeSet) {
-		XMLReportConceptDiff report = getXMLReport(changeSet);
-		Document doc = report.getReport();
-		
-		Transformer transformer = null;
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
-			e.printStackTrace();
-		}
-		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
-		Result output = new StreamResult(new File(outputDir + "diffChangeSet.xml"));
-		Source input = new DOMSource(doc);
-
-		try {
-			transformer.transform(input, output);
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	/**
-	 * Get the XML report for concept diff
-	 * @param changeSet	Concept change set
-	 * @return Concept diff report object
-	 */
-	public XMLReportConceptDiff getXMLReport(ConceptChangeSet changeSet) {
-		return new XMLReportConceptDiff(changeSet);
-	}
-	
-	
-	/**
-	 * Get a CSV change report
-	 * @return Change report as a CSV document
-	 */
-	public String getCSVChangeReport() {
-		return new CSVReportConceptDiff().getReport(changeSet);
-	}
-
 	
 	/**
 	 * Collect sub-concepts in both ontologies
@@ -721,20 +643,106 @@ public class SubconceptDiff {
 	
 	
 	/**
-	 * Get Manchester rendering of a given OWL object
-	 * @param obj	OWL object
-	 * @return String representation of the given object 
+	 * Get the XML change set and serialise it
+	 * @param changeSet	Concept diff change set
 	 */
-	SimpleShortFormProvider sf = new SimpleShortFormProvider();
-	protected String getManchesterRendering(OWLObject obj) {
-		StringWriter wr = new StringWriter();
-		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, sf);
-		obj.accept(render);
+	public void serializeXMLReport() {
+		XMLReportConceptDiff report = getXMLReport();
+		Document doc = report.getReport();
+		
+		Transformer transformer = null;
+		try {
+			transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
+			e.printStackTrace();
+		}
+		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
+		Result output = new StreamResult(new File(outputDir + "diffChangeSet.xml"));
+		Source input = new DOMSource(doc);
 
-		String str = wr.getBuffer().toString();
-		str = str.replaceAll("<", "");
-		str = str.replaceAll(">", "");
-		str = str.replaceAll("\n", " ");
-		return str;
+		try {
+			transformer.transform(input, output);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	
+	/**
+	 * Trigger the use of atomic concept diff
+	 * @param atomicOnly	true if only atomic concepts should be taken into account, false otherwise
+	 */
+	public void setAtomicConceptDiff(boolean atomicOnly) {
+		this.atomicOnly = atomicOnly;
+	}
+	
+	
+	/**
+	 * Get the XML report for concept diff
+	 * @param changeSet	Concept change set
+	 * @return Concept diff report object
+	 */
+	public XMLReportConceptDiff getXMLReport() {
+		return new XMLReportConceptDiff(changeSet);
+	}
+	
+
+	/**
+	 * Get a CSV change report
+	 * @return Change report as a CSV document
+	 */
+	public String getCSVChangeReport() {
+		return new CSVReportConceptDiff().getReport(changeSet);
+	}
+	
+	
+	/**
+	 * Print diff results
+	 * @param changeSet	Concept-based change set
+	 */
+	public void printDiff() {
+		System.out.println("\ndiff results:");
+		System.out.println("  [ont1]" +
+				"\tSpecialised: " + changeSet.getLHSSpecialisedConcepts().size() + 
+				"\tGeneralised: " + changeSet.getLHSGeneralisedConcepts().size() +
+				"\tTotal affected: " + changeSet.getLHSAffectedConcepts().size());
+		System.out.println("  [ont2]" +
+				"\tSpecialised: " + changeSet.getRHSSpecialisedConcepts().size() + 
+				"\tGeneralised: " + changeSet.getRHSGeneralisedConcepts().size() +
+				"\tTotal affected: " + changeSet.getRHSAffectedConcepts().size());
+		System.out.println("  [total]" +
+				"\tSpecialised: " + changeSet.getAllSpecialisedConcepts().size() + 
+				"\tGeneralised: " + changeSet.getAllGeneralisedConcepts().size() +
+				"\tTotal affected: " + changeSet.getAllAffectedConcepts().size());
+		
+		System.out.println("\n  Affected concepts categorisation:");
+		System.out.println("    Direct Generalised: " + changeSet.getAllDirectlyGeneralised().size());
+		System.out.println("    Direct Specialised: " + changeSet.getAllDirectlySpecialised().size());
+		System.out.println("    Purely directly generalised: " + changeSet.getAllPurelyDirectlyGeneralised().size());
+		System.out.println("    Purely directly specialised: " + changeSet.getAllPurelyDirectlySpecialised().size());
+		System.out.println("    Purely indirectly generalised: " + changeSet.getAllPurelyIndirectlyGeneralised().size());
+		System.out.println("    Purely indirectly specialised: " + changeSet.getAllPurelyIndirectlySpecialised().size());
+		System.out.println("    Mixed generalised: " + changeSet.getAllMixedGeneralised().size());
+		System.out.println("    Mixed specialised: " + changeSet.getAllMixedSpecialised().size());
+	}
+	
+	
+//	/**
+//	 * Get Manchester rendering of a given OWL object
+//	 * @param obj	OWL object
+//	 * @return String representation of the given object 
+//	 */
+//	SimpleShortFormProvider sf = new SimpleShortFormProvider();
+//	protected String getManchesterRendering(OWLObject obj) {
+//		StringWriter wr = new StringWriter();
+//		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, sf);
+//		obj.accept(render);
+//
+//		String str = wr.getBuffer().toString();
+//		str = str.replaceAll("<", "");
+//		str = str.replaceAll(">", "");
+//		str = str.replaceAll("\n", " ");
+//		return str;
+//	}
 }
