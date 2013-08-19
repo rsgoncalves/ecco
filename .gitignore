@@ -2,6 +2,7 @@
 src/uk/ac/manchester/cs/diff/test/
 temp/*
 test/*
+NCItTopModExtractor.java
 
 # Test files #
 *.csv
