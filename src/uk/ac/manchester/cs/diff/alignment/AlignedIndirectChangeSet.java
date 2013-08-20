@@ -39,7 +39,7 @@ import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class AlignedChangeSet {
+public class AlignedIndirectChangeSet {
 	private OWLOntology ont1, ont2;
 	private ConceptChangeSet conceptChangeSet;
 	private Set<OWLAxiom> eff_adds, eff_rems;
@@ -54,7 +54,7 @@ public class AlignedChangeSet {
 	 * @param conceptChangeSet	Concept change set
 	 * @param nrJusts	Maximum number of justifications computed per change
 	 */
-	public AlignedChangeSet(OWLOntology ont1, OWLOntology ont2, CategorisedChangeSet axiomChangeSet, 
+	public AlignedIndirectChangeSet(OWLOntology ont1, OWLOntology ont2, CategorisedChangeSet axiomChangeSet, 
 			ConceptChangeSet conceptChangeSet, int nrJusts) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
@@ -67,13 +67,14 @@ public class AlignedChangeSet {
 	
 	
 	/**
-	 * Initialise data structures
+	 * Initialise data structures and execute change alignment
 	 */
 	private void init() {
 		ont1map_spec = new HashMap<OWLAxiom,Set<ConceptChange>>();
 		ont1map_gen = new HashMap<OWLAxiom,Set<ConceptChange>>();
 		ont2map_spec = new HashMap<OWLAxiom,Set<ConceptChange>>();
 		ont2map_gen = new HashMap<OWLAxiom,Set<ConceptChange>>();
+		alignChanges();
 	}
 		
 	
@@ -83,10 +84,10 @@ public class AlignedChangeSet {
 	 */
 	public void alignChanges() {
 		try {
-			align(ont1map_spec, ont1, eff_rems, conceptChangeSet.getLHSDirectlySpecialised(), true);
-			align(ont1map_gen, ont1, eff_rems, conceptChangeSet.getLHSDirectlyGeneralised(), false);
-			align(ont2map_spec, ont2, eff_adds, conceptChangeSet.getRHSDirectlySpecialised(), true);
-			align(ont2map_gen, ont2, eff_adds, conceptChangeSet.getRHSDirectlyGeneralised(), false);
+			align(ont1map_spec, ont1, eff_rems, conceptChangeSet.getLHSIndirectlySpecialised(), true);
+			align(ont1map_gen, ont1, eff_rems, conceptChangeSet.getLHSIndirectlyGeneralised(), false);
+			align(ont2map_spec, ont2, eff_adds, conceptChangeSet.getRHSIndirectlySpecialised(), true);
+			align(ont2map_gen, ont2, eff_adds, conceptChangeSet.getRHSIndirectlyGeneralised(), false);
 		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
 		}
@@ -108,8 +109,8 @@ public class AlignedChangeSet {
 		
 		for(ConceptChange c : changes) {
 			Set<OWLAxiom> wits = null;
-			if(spec) wits = c.getDirectSpecialisationWitnesses();
-			else wits = c.getDirectGeneralisationWitnesses();
+			if(spec) wits = c.getIndirectSpecialisationWitnesses();
+			else wits = c.getIndirectGeneralisationWitnesses();
 			
 			for(OWLAxiom ax : wits) {
 				Set<Explanation<OWLAxiom>> exps = justs.getJustifications(ax);

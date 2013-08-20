@@ -157,8 +157,8 @@ public class SubconceptDiff implements ConceptDiff {
 		if(!atomicOnly) {
 			ont1.getOWLOntologyManager().removeAxioms(ont1, extraAxioms);
 			ont2.getOWLOntologyManager().removeAxioms(ont2, extraAxioms);
+			classifyOntologies(ont1, ont2);
 		}
-		classifyOntologies(ont1, ont2);
 		
 		changeSet = splitDirectIndirectChanges(affected, ont1reasoner, ont2reasoner);
 		long end = System.currentTimeMillis();

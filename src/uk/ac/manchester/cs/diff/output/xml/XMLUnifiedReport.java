@@ -27,7 +27,8 @@ import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.ac.manchester.cs.diff.alignment.AlignedChangeSet;
+import uk.ac.manchester.cs.diff.alignment.AlignedDirectChangeSet;
+import uk.ac.manchester.cs.diff.alignment.AlignedIndirectChangeSet;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedChange;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedEffectualChange;
 import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
@@ -40,20 +41,39 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
  * University of Manchester <br/>
  */
 public class XMLUnifiedReport extends XMLAxiomDiffReport {
-	private Map<OWLAxiom,Set<ConceptChange>> ont1map_spec, ont1map_gen, ont2map_spec, ont2map_gen;
+	private Map<OWLAxiom,Set<ConceptChange>> ont1DirSpec, ont1DirGen, ont2DirSpec, ont2DirGen;
+	private Map<OWLAxiom,Set<ConceptChange>> ont1IndirSpec, ont1IndirGen, ont2IndirSpec, ont2IndirGen;
 	
 	/**
 	 * Constructor
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param changeSet	Change set
+	 * @param directChanges	Aligned direct change set
+	 * @param indirectChanges	Aligned indirect change set
 	 */
-	public XMLUnifiedReport(OWLOntology ont1, OWLOntology ont2, AxiomChangeSet changeSet, AlignedChangeSet alignedChangeSet) {
+	public XMLUnifiedReport(OWLOntology ont1, OWLOntology ont2, AxiomChangeSet changeSet, 
+			AlignedDirectChangeSet directChanges, AlignedIndirectChangeSet indirectChanges) {
 		super(ont1, ont2, changeSet);
-		ont1map_spec = alignedChangeSet.getOnt1SpecialisationsMap();
-		ont1map_gen = alignedChangeSet.getOnt1GeneralisationsMap();
-		ont2map_spec = alignedChangeSet.getOnt2SpecialisationsMap();
-		ont2map_gen = alignedChangeSet.getOnt2GeneralisationsMap();
+		assignMaps(directChanges, indirectChanges);
+	}
+	
+	
+	/**
+	 * Get the direct and indirect change maps
+	 * @param directChanges	Aligned direct change set
+	 * @param indirectChanges	Aligned indirect change set
+	 */
+	private void assignMaps(AlignedDirectChangeSet directChanges, AlignedIndirectChangeSet indirectChanges) {
+		ont1DirSpec = directChanges.getOnt1SpecialisationsMap();
+		ont1DirGen = directChanges.getOnt1GeneralisationsMap();
+		ont2DirSpec = directChanges.getOnt2SpecialisationsMap();
+		ont2DirGen = directChanges.getOnt2GeneralisationsMap();
+		
+		ont1IndirSpec = indirectChanges.getOnt1SpecialisationsMap();
+		ont1IndirGen = indirectChanges.getOnt1GeneralisationsMap();
+		ont2IndirSpec = indirectChanges.getOnt2SpecialisationsMap();
+		ont2IndirGen = indirectChanges.getOnt2GeneralisationsMap();
 	}
 	
 	
@@ -93,25 +113,91 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param sf	Short form provider
 	 */
 	private void checkAndAddEffect(OWLAxiom axiom, Document d, Element parent, ShortFormProvider sf) {
-		boolean append = false;
 		Element effEle = d.createElement("ConceptChanges");
-		if(ont1map_spec.containsKey(axiom)) {
-			append = true;
-			addConceptChanges(ont1map_spec.get(axiom), "Specialisation", effEle, d, sf);
+		
+		Element direct = d.createElement("DirectChanges");
+		Element indirect = d.createElement("IndirectChanges");
+		
+		int nrDir = addDirectChanges(axiom, direct, d, sf);
+		direct.setAttribute("size", "" + nrDir);
+		
+		int nrIndir = addIndirectChanges(axiom, indirect, d, sf);
+		indirect.setAttribute("size", "" + nrIndir);
+		
+		int total = nrDir + nrIndir;
+		effEle.setAttribute("size", "" + total);
+		effEle.appendChild(direct);
+		effEle.appendChild(indirect);
+		
+		parent.appendChild(effEle);
+	}
+	
+	
+	/**
+	 * Add direct concept changes caused by the given axiom, and get the total number of changes
+	 * @param axiom	Axiom
+	 * @param parent	Parent element in the document
+	 * @param d	XML document
+	 * @param sf	Short form provider
+	 * @return Number of direct concept changes caused by the given axiom
+	 */
+	private int addDirectChanges(OWLAxiom axiom, Element parent, Document d, ShortFormProvider sf) {
+		int nrChanges = 0;
+		if(ont1DirSpec.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont1DirSpec.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Specialisation", true, parent, d, sf);
 		}
-		if(ont1map_gen.containsKey(axiom)) {
-			append = true;
-			addConceptChanges(ont1map_gen.get(axiom), "Generalisation", effEle, d, sf);
+		if(ont1DirGen.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont1DirGen.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Generalisation", true, parent, d, sf);
 		}
-		if(ont2map_spec.containsKey(axiom)) {
-			append = true;
-			addConceptChanges(ont2map_spec.get(axiom), "Specialisation", effEle, d, sf);
+		if(ont2DirSpec.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont2DirSpec.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Specialisation", true, parent, d, sf);
 		}
-		if(ont2map_gen.containsKey(axiom)) {
-			append = true;
-			addConceptChanges(ont2map_gen.get(axiom), "Generalisation", effEle, d, sf);
+		if(ont2DirGen.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont2DirGen.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Generalisation", true, parent, d, sf);
 		}
-		if(append) parent.appendChild(effEle);
+		return nrChanges;
+	}
+	
+	
+	/**
+	 * Add indirect concept changes caused by the given axiom, and get the total number of changes
+	 * @param axiom	Axiom
+	 * @param parent	Parent element in the document
+	 * @param d	XML document
+	 * @param sf	Short form provider
+	 * @return Number of indirect concept changes caused by the given axiom
+	 */
+	private int addIndirectChanges(OWLAxiom axiom, Element parent, Document d, ShortFormProvider sf) {
+		int nrChanges = 0;
+		if(ont1IndirSpec.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont1IndirSpec.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Specialisation", false, parent, d, sf);
+		}
+		if(ont1IndirGen.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont1IndirGen.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Generalisation", false, parent, d, sf);
+		}
+		if(ont2IndirSpec.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont2IndirSpec.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Specialisation", false, parent, d, sf);
+		}
+		if(ont2IndirGen.containsKey(axiom)) {
+			Set<ConceptChange> changes = ont2IndirGen.get(axiom);
+			nrChanges += changes.size();
+			addConceptChanges(changes, "Generalisation", false, parent, d, sf);
+		}
+		return nrChanges;
 	}
 	
 	
@@ -122,22 +208,27 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param d	XML document
 	 * @param sf	Short form provider
 	 */
-	private void addConceptChanges(Set<ConceptChange> concepts, String type, Element parent, Document d, ShortFormProvider sf) {
+	private void addConceptChanges(Set<ConceptChange> concepts, String type, boolean direct, Element parent, Document d, ShortFormProvider sf) {
 		for(ConceptChange c : concepts) {
 			Element change = d.createElement(type);
-			
 			Element concept = d.createElement("Concept");
 			concept.setTextContent(getManchesterRendering(c.getConcept(), sf));
 			change.appendChild(concept);
 			
 			Set<OWLAxiom> witnesses = null;
-			if(type.equalsIgnoreCase("Specialisation"))
-				witnesses = c.getDirectSpecialisationWitnesses();
-			else if(type.equals("Generalisation"))
-				witnesses = c.getDirectGeneralisationWitnesses();
-			
+			if(type.equalsIgnoreCase("Specialisation")) {
+				if(direct)
+					witnesses = c.getDirectSpecialisationWitnesses();
+				else
+					witnesses = c.getIndirectSpecialisationWitnesses();
+			}
+			else if(type.equals("Generalisation")) {
+				if(direct)
+					witnesses = c.getDirectGeneralisationWitnesses();
+				else
+					witnesses = c.getIndirectGeneralisationWitnesses();
+			}
 			addWitnesses(witnesses, change, d, sf);
-			
 			parent.appendChild(change);
 		}
 	}

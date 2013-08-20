@@ -318,6 +318,30 @@ public class ConceptChangeSet {
 	
 	
 	/**
+	 * Get the indirectly generalised concepts in ontology 1
+	 * @return Set of indirectly generalised concepts in ontology 1 
+	 */
+	public Set<LHSConceptChange> getLHSIndirectlyGeneralised() {
+		Set<LHSConceptChange> output = new HashSet<LHSConceptChange>();
+		output.addAll(getLHSPurelyIndirectlyGeneralised());
+		output.addAll(getLHSMixedGeneralised());
+		return output;
+	}
+	
+	
+	/**
+	 * Get the indirectly generalised concepts in ontology 2
+	 * @return Set of indirectly generalised concepts in ontology 2 
+	 */
+	public Set<RHSConceptChange> getRHSIndirectlyGeneralised() {
+		Set<RHSConceptChange> output = new HashSet<RHSConceptChange>();
+		output.addAll(getRHSPurelyIndirectlyGeneralised());
+		output.addAll(getRHSMixedGeneralised());
+		return output;
+	}
+	
+	
+	/**
 	 * Get all purely indirectly generalised concepts (in ontology 1 and 2)
 	 * @return Set of all purely indirectly generalised concepts in both ontologies
 	 */
@@ -463,6 +487,30 @@ public class ConceptChangeSet {
 		Set<ConceptChange> out = new HashSet<ConceptChange>();
 		out.addAll(puIndSpec); out.addAll(mixSpec);
 		return out;
+	}
+
+	
+	/**
+	 * Get the directly specialised concepts in ontology 1
+	 * @return Set of directly specialised concepts in ontology 1 
+	 */
+	public Set<LHSConceptChange> getLHSIndirectlySpecialised() {
+		Set<LHSConceptChange> output = new HashSet<LHSConceptChange>();
+		output.addAll(getLHSPurelyIndirectlySpecialised());
+		output.addAll(getLHSMixedSpecialised());
+		return output;
+	}
+	
+	
+	/**
+	 * Get the indirectly specialised concepts in ontology 2
+	 * @return Set of indirectly specialised concepts in ontology 2 
+	 */
+	public Set<RHSConceptChange> getRHSIndirectlySpecialised() {
+		Set<RHSConceptChange> output = new HashSet<RHSConceptChange>();
+		output.addAll(getRHSPurelyIndirectlySpecialised());
+		output.addAll(getRHSMixedSpecialised());
+		return output;
 	}
 	
 	

@@ -50,7 +50,8 @@ import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 import org.semanticweb.owlapi.util.VersionInfo;
 import org.w3c.dom.Document;
 
-import uk.ac.manchester.cs.diff.alignment.AlignedChangeSet;
+import uk.ac.manchester.cs.diff.alignment.AlignedDirectChangeSet;
+import uk.ac.manchester.cs.diff.alignment.AlignedIndirectChangeSet;
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.concept.ConceptDiff;
@@ -141,13 +142,13 @@ public class EccoRunner {
 			
 			ConceptChangeSet conceptChanges = concept_diff.getDiff();
 			
-			AlignedChangeSet alignedChangeSet = new AlignedChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
-			alignedChangeSet.alignChanges();
+			AlignedDirectChangeSet dirChanges = new AlignedDirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
+			AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
 			
-			XMLUnifiedReport report = new XMLUnifiedReport(ont1, ont2, axiomChanges, alignedChangeSet);
+			XMLUnifiedReport report = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
 			saveXMLDocuments(report, xsltPath);
 			
-			// TODO csv report
+			// TODO csv report incl. concept changes
 		} 
 		else {
 			XMLAxiomDiffReport report = axiom_diff.getXMLReport();
