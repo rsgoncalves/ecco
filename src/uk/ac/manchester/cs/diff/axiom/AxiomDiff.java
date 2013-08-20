@@ -18,8 +18,8 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.axiom;
 
-import uk.ac.manchester.cs.diff.axiom.changeset.ChangeSet;
-import uk.ac.manchester.cs.diff.output.XMLReport;
+import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
+import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -33,7 +33,7 @@ public interface AxiomDiff {
 	 * Compute the diff and return a change set containing all differences
 	 * @return Change set with the differences
 	 */
-	public ChangeSet getDiff();
+	public AxiomChangeSet getDiff();
 	
 	
 	/**
@@ -47,7 +47,7 @@ public interface AxiomDiff {
 	 * Get an XML file which represents the change set 
 	 * @return XML file containing the change set
 	 */
-	public XMLReport getXMLReport();
+	public XMLAxiomDiffReport getXMLReport();
 	
 	
 	/**

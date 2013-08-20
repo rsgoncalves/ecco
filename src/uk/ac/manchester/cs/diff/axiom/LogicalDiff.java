@@ -30,8 +30,8 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
-import uk.ac.manchester.cs.diff.output.CSVReport;
-import uk.ac.manchester.cs.diff.output.XMLReport;
+import uk.ac.manchester.cs.diff.output.csv.CSVAxiomDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 
 /**
@@ -102,7 +102,7 @@ public class LogicalDiff implements AxiomDiff {
 		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1).createReasoner();
 		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2).createReasoner();
 		
-		if(verbose) System.out.print("Computing logical diff... ");
+		if(verbose) System.out.print("Verifying axiom effectuality... ");
 		long start = bean.getCurrentThreadCpuTime();
 		
 		Set<OWLAxiom> ineffectualAdditions = getIneffectualChanges(structChangeSet.getAddedAxioms(), ont1reasoner);
@@ -160,9 +160,9 @@ public class LogicalDiff implements AxiomDiff {
 	 * Get an XML change report for the change set computed by this diff
 	 * @return XML change report object
 	 */
-	public XMLReport getXMLReport() {
+	public XMLAxiomDiffReport getXMLReport() {
 		if(logicalChangeSet == null) logicalChangeSet = getDiff();
-		return new XMLReport(ont1, ont2, logicalChangeSet);
+		return new XMLAxiomDiffReport(ont1, ont2, logicalChangeSet);
 	}
 	
 	
@@ -172,7 +172,7 @@ public class LogicalDiff implements AxiomDiff {
 	 */
 	public String getCSVChangeReport() {
 		if(logicalChangeSet == null) logicalChangeSet = getDiff();
-		CSVReport report = new CSVReport();
+		CSVAxiomDiffReport report = new CSVAxiomDiffReport();
 		report.getReport(structChangeSet);
 		return report.getReport(logicalChangeSet);
 	}

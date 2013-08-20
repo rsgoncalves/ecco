@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.output;
+package uk.ac.manchester.cs.diff.output.csv;
 
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 
@@ -26,13 +26,13 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class CSVReportConceptDiff {
+public class CSVConceptDiffReport {
 	private String header, row;
 	
 	/**
 	 * Constructor
 	 */
-	public CSVReportConceptDiff() {
+	public CSVConceptDiffReport() {
 		header = "\n"; row = "";
 	}
 	

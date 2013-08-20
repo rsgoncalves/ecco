@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import uk.ac.manchester.cs.diff.concept.GrammarDiff;
+import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 
 /**
@@ -71,6 +71,7 @@ public class ConceptDiffRunner {
 	 */
 	public static void serializeString(String s, String outputDir, String filename) {
 		try {
+			new File(outputDir).mkdirs(); 
 			FileWriter fw = new FileWriter(new File(outputDir + filename), true);
 			fw.append(s);
 			fw.close();
@@ -107,7 +108,7 @@ public class ConceptDiffRunner {
 		man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
 		// get diff
-		GrammarDiff diff = new GrammarDiff(ont1, ont2, outputDir, true);
+		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, outputDir, true);
 		ConceptChangeSet cs = diff.getDiff();
 		
 		if(cs != null) {

@@ -74,8 +74,7 @@ public class CategorisedIneffectualRemoval extends CategorisedChange {
 		REWRITE ("RemovedRewrite"),
 		PREWRITE ("RemovedPartialRewrite"),
 		REDUNDANCY ("RemovedRedundancy"),
-		NOVELPROSPREDUNDANCY ("RemovedNovelProspectiveRedundancy"),
-		PSEUDONOVELPROSPREDUNDANCY ("RemovedPseudoNovelProspectiveRedundancy"),
+		NEWPROSPREDUNDANCY ("RemovedNewProspectiveRedundancy"),
 		RESHUFFLEREDUNDANCY ("RemovedReshuffleProspectiveRedundancy");
 		
 		String name;

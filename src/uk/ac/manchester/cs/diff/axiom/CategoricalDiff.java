@@ -57,8 +57,8 @@ import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
 import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
-import uk.ac.manchester.cs.diff.output.CSVReport;
-import uk.ac.manchester.cs.diff.output.XMLReport;
+import uk.ac.manchester.cs.diff.output.csv.CSVAxiomDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.utils.ProgressMonitor;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasoner;
@@ -132,11 +132,11 @@ public class CategoricalDiff implements AxiomDiff {
 		if(categorisedChangeSet != null) return categorisedChangeSet;
 		
 		long start = System.currentTimeMillis();
-		ont1reasoner = new ReasonerLoader(ont1, verbose).createReasoner();
-		ont2reasoner = new ReasonerLoader(ont2, verbose).createReasoner();
+		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner();
+		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner();
 		
 		if(logicalChangeSet == null) {
-			LogicalDiff lDiff = new LogicalDiff(ont1, ont2, verbose); // TODO changed to sequential
+			LogicalDiffConcurrent lDiff = new LogicalDiffConcurrent(ont1, ont2, verbose);
 			logicalChangeSet = lDiff.getDiff(ont1reasoner, ont2reasoner);
 			structuralChangeSet = lDiff.getStructuralChangeSet();
 			sharedAxioms = structuralChangeSet.getShared();
@@ -602,7 +602,7 @@ public class CategoricalDiff implements AxiomDiff {
 				updateJustificationMap(desc, justMap, explanation, "reshuffle");
 			// Prospective new redundancy 
 			if(prospRedundantNovelAx && !rewrittenAx && !redundancyAx) {
-				updateJustificationMap(desc, justMap, explanation, "novel");
+				updateJustificationMap(desc, justMap, explanation, "new");
 				 
 //				long start = System.currentTimeMillis();
 //				Set<Set<OWLAxiom>> lacJusts = just.getLaconicJustifications(entailment, Collections.singleton(explanation));
@@ -660,8 +660,7 @@ public class CategoricalDiff implements AxiomDiff {
 		case "rewrite": category = IneffectualAdditionCategory.REWRITE; break;
 		case "prewrite": category = IneffectualAdditionCategory.PREWRITE; break;
 		case "reshuffle": category = IneffectualAdditionCategory.RESHUFFLEREDUNDANCY; break;
-		case "novel": category = IneffectualAdditionCategory.NOVELPROSPREDUNDANCY; break;
-//		case "pseudo": category = IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY; break;
+		case "new": category = IneffectualAdditionCategory.NEWPROSPREDUNDANCY; break;
 		}
 		if(justMap.containsKey(exp)) {
 			Set<IneffectualAdditionCategory> catSet = (Set<IneffectualAdditionCategory>) justMap.get(exp);
@@ -687,8 +686,7 @@ public class CategoricalDiff implements AxiomDiff {
 		case "rewrite": category = IneffectualRemovalCategory.REWRITE; break;
 		case "prewrite": category = IneffectualRemovalCategory.PREWRITE; break;
 		case "reshuffle": category = IneffectualRemovalCategory.RESHUFFLEREDUNDANCY; break;
-		case "novel": category = IneffectualRemovalCategory.NOVELPROSPREDUNDANCY; break;
-		case "pseudo": category = IneffectualRemovalCategory.PSEUDONOVELPROSPREDUNDANCY; break;
+		case "new": category = IneffectualRemovalCategory.NEWPROSPREDUNDANCY; break;
 		}
 		if(justMap.containsKey(exp)) {
 			Set<IneffectualRemovalCategory> set = (Set<IneffectualRemovalCategory>) justMap.get(exp);
@@ -803,8 +801,8 @@ public class CategoricalDiff implements AxiomDiff {
 	 * Print diff results
 	 */
 	public void printDiff() {
-		System.out.println("\n   Total diff time: " + diffTime + " seconds");
-		System.out.println("   Categorised changes:" + 
+		System.out.println("\nfinished axiom diff (" + diffTime + " seconds)");
+		System.out.println("   Categorised axiom changes:" + 
 				"\n\tEffectual Additions: " + categorisedChangeSet.getEffectualAdditions().size() +
 				"\n\t   Strengthenings: " + categorisedChangeSet.getStrengthenings().size() +
 				"\n\t   Strengthenings w/ New Terms: " + categorisedChangeSet.getStrengtheningsWithNewTerms().size() +
@@ -831,8 +829,6 @@ public class CategoricalDiff implements AxiomDiff {
 				"\n\t   Prospective Redundancies: " + categorisedChangeSet.getAddedProspectiveRedundancies().size() +
 				"\n\t     Reshuffle Redundancies: " + categorisedChangeSet.getAddedReshuffleRedundancies().size() +
 				"\n\t     New Redundancies: " + categorisedChangeSet.getAddedProspectiveNewRedundancies().size() +
-//				"\n\t       Novel Redundancies: " + categorisedChangeSet.getAddedNovelRedundancies().size() +
-//				"\n\t       Pseudo-Novel Redundancies: " + categorisedChangeSet.getAddedPseudoNovelRedundancies().size() +
 				
 				"\n\tIneffectual Removals: " + categorisedChangeSet.getIneffectualRemovals().size() +
 				"\n\t   Rewrites: " + (categorisedChangeSet.getRemovedRewrites().size()+categorisedChangeSet.getRemovedPartialRewrites().size()) +
@@ -841,9 +837,7 @@ public class CategoricalDiff implements AxiomDiff {
 				"\n\t   Redundancies: " + categorisedChangeSet.getRemovedRedundancies().size() +
 				"\n\t   Prospective Redundancies: " + categorisedChangeSet.getRemovedProspectiveRedundancies().size() +
 				"\n\t     Reshuffle Redundancies: " + categorisedChangeSet.getRemovedReshuffleRedundancies().size() +
-				"\n\t     New Redundancies: " + categorisedChangeSet.getRemovedProspectiveNewRedundancies().size());
-//				"\n\t       Novel Redundancies: " + categorisedChangeSet.getRemovedNovelRedundancies().size() +
-//				"\n\t       Pseudo-Novel Redundancies: " + categorisedChangeSet.getRemovedPseudoNovelRedundancies().size());
+				"\n\t     New Redundancies: " + categorisedChangeSet.getRemovedProspectiveNewRedundancies().size() + "\n");
 	}
 	
 	
@@ -851,9 +845,9 @@ public class CategoricalDiff implements AxiomDiff {
 	 * Get an XML change report for the change set computed by this diff
 	 * @return XML change report object 
 	 */
-	public XMLReport getXMLReport() {
+	public XMLAxiomDiffReport getXMLReport() {
 		if(categorisedChangeSet == null) categorisedChangeSet = getDiff();
-		return new XMLReport(ont1, ont2, categorisedChangeSet);
+		return new XMLAxiomDiffReport(ont1, ont2, categorisedChangeSet);
 	}
 
 	
@@ -863,7 +857,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	public String getCSVChangeReport() {
 		if(categorisedChangeSet == null)  categorisedChangeSet = getDiff();
-		CSVReport report = new CSVReport();
+		CSVAxiomDiffReport report = new CSVAxiomDiffReport();
 		report.getReport(structuralChangeSet);
 		report.getReport(logicalChangeSet);
 		return report.getReport(categorisedChangeSet);

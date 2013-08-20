@@ -29,8 +29,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
-import uk.ac.manchester.cs.diff.output.CSVReport;
-import uk.ac.manchester.cs.diff.output.XMLReport;
+import uk.ac.manchester.cs.diff.output.csv.CSVAxiomDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -86,7 +86,7 @@ public class StructuralDiff implements AxiomDiff {
 	public StructuralChangeSet getDiff() {
 		if(changeSet != null) return changeSet;
 		
-		if(verbose) System.out.print("Computing structural diff... ");
+		if(verbose) System.out.print("\nComputing structural changes... ");
 		Set<OWLLogicalAxiom> o1axs = ont1.getLogicalAxioms();
 		Set<OWLLogicalAxiom> o2axs = ont2.getLogicalAxioms();
 		
@@ -157,9 +157,9 @@ public class StructuralDiff implements AxiomDiff {
 	 * Get an XML change report for the change set computed by this diff
 	 * @return XML change report object 
 	 */
-	public XMLReport getXMLReport() {
+	public XMLAxiomDiffReport getXMLReport() {
 		if(changeSet == null) changeSet = getDiff();
-		return new XMLReport(ont1, ont2, changeSet);
+		return new XMLAxiomDiffReport(ont1, ont2, changeSet);
 	}
 	
 	
@@ -169,7 +169,7 @@ public class StructuralDiff implements AxiomDiff {
 	 */
 	public String getCSVChangeReport() {
 		if(changeSet == null) changeSet = getDiff();
-		return new CSVReport().getReport(changeSet);
+		return new CSVAxiomDiffReport().getReport(changeSet);
 	}
 	
 	

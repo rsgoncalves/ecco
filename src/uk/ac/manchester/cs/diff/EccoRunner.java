@@ -50,15 +50,17 @@ import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 import org.semanticweb.owlapi.util.VersionInfo;
 import org.w3c.dom.Document;
 
-import uk.ac.manchester.cs.diff.axiom.AxiomDiff;
+import uk.ac.manchester.cs.diff.alignment.AlignedChangeSet;
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
-import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
-import uk.ac.manchester.cs.diff.axiom.StructuralDiff;
+import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.concept.ConceptDiff;
 import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
 import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
-import uk.ac.manchester.cs.diff.output.XMLReport;
+import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -115,28 +117,21 @@ public class EccoRunner {
 	 * @throws TransformerException
 	 * @throws UnsupportedEncodingException
 	 */
-	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, boolean structDiff, boolean logDiff, String cdiff, String xsltPath) 
+	public void computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath) 
 			throws TransformerException, UnsupportedEncodingException {
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 	
-		System.out.println("\nComputing diff...");
 		long start = System.currentTimeMillis();
 		
-		AxiomDiff axiom_diff = null;
-		if(logDiff) 
-			axiom_diff = new LogicalDiff(ont1, ont2, verbose);
-		else if(structDiff) 
-			axiom_diff = new StructuralDiff(ont1, ont2, verbose);
-		else 
-			axiom_diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
+		CategoricalDiff axiom_diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
+		CategorisedChangeSet axiomChanges = axiom_diff.getDiff();
 		
-		XMLReport report = axiom_diff.getXMLReport();
-		processOutput(report, axiom_diff.getCSVChangeReport(), xsltPath);
-		
-		if(!cdiff.equals("")) {
+		if(cdiff != null) {
 			ConceptDiff concept_diff = null;
-			if(cdiff.equals("at"))
+			if(cdiff.equals("at")) {
 				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+				((SubconceptDiff)concept_diff).setAtomicConceptDiff(true);
+			}
 			else if(cdiff.equals("sub"))
 				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
 			else if(cdiff.equals("gr"))
@@ -144,12 +139,24 @@ public class EccoRunner {
 			else if(cdiff.equals("cvs"))
 				concept_diff = new ContentCVSDiff(ont1, ont2, outputDir, verbose);
 			
-			throw new RuntimeException("Not fully implemented yet");
+			ConceptChangeSet conceptChanges = concept_diff.getDiff();
+			
+			AlignedChangeSet alignedChangeSet = new AlignedChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
+			alignedChangeSet.alignChanges();
+			
+			XMLUnifiedReport report = new XMLUnifiedReport(ont1, ont2, axiomChanges, alignedChangeSet);
+			saveXMLDocuments(report, xsltPath);
+			
+			// TODO csv report
+		} 
+		else {
+			XMLAxiomDiffReport report = axiom_diff.getXMLReport();
+			saveXMLDocuments(report, xsltPath);
+			saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
 		}
 		
 		long end = System.currentTimeMillis();
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " seconds)");
-		return report;
 	}
 	
 	
@@ -160,13 +167,11 @@ public class EccoRunner {
 	 * @throws UnsupportedEncodingException
 	 * @throws TransformerException
 	 */
-	public void processOutput(XMLReport report, String csvFile, String xsltPath) 
-			throws UnsupportedEncodingException, TransformerException {
+	public void saveXMLDocuments(XMLReport report, String xsltPath) throws UnsupportedEncodingException, TransformerException {
 		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
-		saveDocumentToFile(report, report.getXMLDocumentReport(), outputDir, "_names_" + timeStamp , xsltPath);	// Entity name based document
-		saveDocumentToFile(report, report.getXMLDocumentReportUsingLabels(), outputDir, "_labels_" + timeStamp, xsltPath);	// Label based document
-		saveDocumentToFile(report, report.getXMLDocumentReportUsingGenSyms(), outputDir, "_gensyms_" + timeStamp, xsltPath);	// Gensym based document
-		saveStringToFile(outputDir, "eccoLog.csv", csvFile, sep);
+		saveDocumentToFile(report, report.getXMLDocumentUsingTermNames(), outputDir, "_names_" + timeStamp , xsltPath);	// term name based document
+		saveDocumentToFile(report, report.getXMLDocumentUsingLabels(), outputDir, "_labels_" + timeStamp, xsltPath);	// label based document
+		saveDocumentToFile(report, report.getXMLDocumentUsingGenSyms(), outputDir, "_gensyms_" + timeStamp, xsltPath);	// gensym based document
 	}
 	
 	
@@ -382,9 +387,7 @@ public class EccoRunner {
 		System.out.println("	[OPTIONS]");
 		System.out.println("	-o		output directory; \"ont1\" and \"ont2\" can be used as shortcuts");
 		System.out.println("	-t		transform resulting XML report into HTML");
-		System.out.println("	-s		compute structural diff only");
-		System.out.println("	-l		compute logical diff only");
-		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
+//		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
 		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");
 		System.out.println("	-n		normalize entity URIs, i.e. if two ontologies have the same entity names");
 		System.out.println("			in a different namespace, this trigger establishes a common namespace");
@@ -407,7 +410,7 @@ public class EccoRunner {
 	 */
 	public static void main(String[] args) throws OWLOntologyCreationException, ParserConfigurationException, IOException, TransformerException {
 		boolean hasOnt1 = false, hasOnt2 = false, processImports = true, normalizeURIs = false, ignoreAbox = false, 
-				structDiff = false, logDiff = false, verbose = false, transform = false, localOnt1 = true, localOnt2 = true;
+				verbose = false, transform = false, localOnt1 = true, localOnt2 = true;
 		
 		System.out.println(PROGRAM_TITLE);
 		String outputDir = "", xsltPath = "out" + sep + "xslt_client.xsl", cdiff = null, f1 = null, f2 = null;
@@ -440,10 +443,6 @@ public class EccoRunner {
 				if(++i == args.length) throw new RuntimeException("\n-x must be followed by a file path.\n");
 				arg = args[i].trim(); xsltPath = arg;
 			}
-			else if(arg.equalsIgnoreCase("-s"))		// Structural diff only
-				structDiff = true;
-			else if(arg.equalsIgnoreCase("-l"))		// Logical diff only
-				logDiff = true;
 			else if(arg.equalsIgnoreCase("-c"))	{	// Compute concept diff
 				if(++i == args.length) throw new RuntimeException("\n-c must be followed by one of [ at | sub | gr | cvs ].\n");
 				arg = args[i].trim(); cdiff = arg;
@@ -476,10 +475,6 @@ public class EccoRunner {
 		}
 		System.out.println("");
 		if(f1 != null && f2 != null) {
-			if(!normalizeURIs) 
-				System.out.println("* For accurate results ensure that the namespace fragment of shared terms\n" +
-					"across ontologies is the same. If not, execute again with the -n flag *\n");
-			
 			EccoRunner runner = new EccoRunner(processImports, ignoreAbox, transform, normalizeURIs, nrJusts, verbose);
 			
 			if(outputDir.equals("ont1"))
@@ -496,7 +491,7 @@ public class EccoRunner {
 			OWLOntology ont1 = runner.loadOntology(1, f1, localOnt1);
 			OWLOntology ont2 = runner.loadOntology(2, f2, localOnt2);
 			
-			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, structDiff, logDiff, cdiff, xsltPath);
+			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, cdiff, xsltPath);
 		}
 		else if(f1 == null) {
 			System.out.println("\n! Invalid or missing -ont1 input\n");

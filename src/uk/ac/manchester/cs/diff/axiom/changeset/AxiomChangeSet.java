@@ -29,7 +29,7 @@ import uk.ac.manchester.cs.diff.axiom.change.StructuralChange;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public interface ChangeSet {
+public interface AxiomChangeSet {
 	/**
 	 * Get the set of additions
 	 * @return Set of additions

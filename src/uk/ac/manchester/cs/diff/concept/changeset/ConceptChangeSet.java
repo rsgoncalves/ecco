@@ -42,7 +42,7 @@ public class ConceptChangeSet {
 	private Set<RHSConceptChange> rhsPuDirSpec, rhsPuDirGen, rhsPuIndSpec, rhsPuIndGen, rhsMixGen, rhsMixSpec;
 	private Set<LHSConceptChange> lhsPuDirSpec, lhsPuDirGen, lhsPuIndSpec, lhsPuIndGen, lhsMixGen, lhsMixSpec;
 	private Set<OWLClass> lhsSpec, rhsSpec, allSpec, lhsGen, rhsGen, allGen, lhsAffected, rhsAffected, allAffected;
-	private double diffTime, partitionTime;
+	private double entDiffTime, partitionTime, totalTime;
 	
 	/**
 	 * Constructor
@@ -788,7 +788,16 @@ public class ConceptChangeSet {
 	 * @param d	Time in seconds
 	 */
 	public void setEntailmentDiffTime(double d) {
-		diffTime = d;
+		entDiffTime = d;
+	}
+	
+	
+	/**
+	 * Set the total diff time
+	 * @param d	Time in seconds
+	 */
+	public void setTotalTime(double d) {
+		totalTime = d;
 	}
 	
 	
@@ -806,6 +815,15 @@ public class ConceptChangeSet {
 	 * @return Diff time in seconds
 	 */
 	public double getEntailmentDiffTime() {
-		return diffTime;
+		return entDiffTime;
+	}
+	
+	
+	/**
+	 * Get the total diff time
+	 * @return Diff time in seconds
+	 */
+	public double getTotalDiffTime() {
+		return totalTime;
 	}
 }

@@ -75,8 +75,7 @@ public class CategorisedIneffectualAddition extends CategorisedChange {
 		PREWRITE ("AddedPartialRewrite"),
 		REDUNDANCY ("AddedRedundancy"),
 		RESHUFFLEREDUNDANCY ("AddedReshuffleProspectiveRedundancy"),
-		NOVELPROSPREDUNDANCY ("AddedNovelProspectiveRedundancy");
-//		PSEUDONOVELPROSPREDUNDANCY ("AddedPseudoNovelProspectiveRedundancy"),
+		NEWPROSPREDUNDANCY ("AddedNewProspectiveRedundancy");
 		
 		String name;
 		IneffectualAdditionCategory(String name) {

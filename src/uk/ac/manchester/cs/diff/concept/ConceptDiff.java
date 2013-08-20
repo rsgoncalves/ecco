@@ -19,7 +19,7 @@
 package uk.ac.manchester.cs.diff.concept;
 
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
-import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
+import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -40,7 +40,7 @@ public interface ConceptDiff {
 	 * Get an XML file which represents the change set 
 	 * @return XML file containing the change set
 	 */
-	public XMLReportConceptDiff getXMLReport();
+	public XMLConceptDiffReport getXMLReport();
 	
 	
 	/**

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.output;
+package uk.ac.manchester.cs.diff.output.xml;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -60,9 +60,11 @@ import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualAddition.Inef
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval.IneffectualRemovalCategory;
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
-import uk.ac.manchester.cs.diff.axiom.changeset.ChangeSet;
+import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
+import uk.ac.manchester.cs.diff.output.GenSymShortFormProvider;
+import uk.ac.manchester.cs.diff.output.LabelShortFormProvider;
 import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
 
 /**
@@ -71,21 +73,21 @@ import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjec
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class XMLReport {
-	private final String uuid = UUID.randomUUID().toString();
-	private SimpleShortFormProvider sf;
-	private GenSymShortFormProvider gp;
-	private LabelShortFormProvider lp;
-	private Document doc, genSymDoc, labelDoc;
-	private HashMap<OWLEntity, String> genSymMap, labelMap;
-	private HashMap<OWLAxiom,Integer> axiomIds;
-	private OWLOntology ont1, ont2;
-	private OWLDataFactory df;
-	private DocumentBuilderFactory dbfac;
-	private DocumentBuilder docBuilder;
-	private ChangeSet changeSet;
-	private int changeNr = 1;
-	private Set<OWLAxiom> sharedAxioms;
+public class XMLAxiomDiffReport implements XMLReport {
+	protected final String uuid = UUID.randomUUID().toString();
+	protected SimpleShortFormProvider sf;
+	protected GenSymShortFormProvider gp;
+	protected LabelShortFormProvider lp;
+	protected Document doc, genSymDoc, labelDoc;
+	protected HashMap<OWLEntity, String> genSymMap, labelMap;
+	protected HashMap<OWLAxiom,Integer> axiomIds;
+	protected OWLOntology ont1, ont2;
+	protected OWLDataFactory df;
+	protected DocumentBuilderFactory dbfac;
+	protected DocumentBuilder docBuilder;
+	protected AxiomChangeSet changeSet;
+	protected int changeNr = 1;
+	protected Set<OWLAxiom> sharedAxioms;
 	
 	/**
 	 * Constructor
@@ -93,7 +95,7 @@ public class XMLReport {
 	 * @param ont2	Ontology 2
 	 * @param changeSet	Change set
 	 */
-	public XMLReport(OWLOntology ont1, OWLOntology ont2, ChangeSet changeSet) {
+	public XMLAxiomDiffReport(OWLOntology ont1, OWLOntology ont2, AxiomChangeSet changeSet) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.dbfac = DocumentBuilderFactory.newInstance();
@@ -126,7 +128,7 @@ public class XMLReport {
 	 * Get the entity name based XML change report
 	 * @return XML change report document
 	 */
-	public Document getXMLDocumentReport() {
+	public Document getXMLDocumentUsingTermNames() {
 		doc = docBuilder.newDocument();
 		prepDocument(doc, "");
 		
@@ -145,7 +147,7 @@ public class XMLReport {
 	 * Get the rdfs:label based XML change report
 	 * @return XML change report document
 	 */
-	public Document getXMLDocumentReportUsingLabels() {	
+	public Document getXMLDocumentUsingLabels() {	
 		labelDoc = docBuilder.newDocument();
 		prepDocument(labelDoc, "-lbl");
 		if(changeSet instanceof StructuralChangeSet)
@@ -163,7 +165,7 @@ public class XMLReport {
 	 * Get the auto generated symbols based XML change report
 	 * @return XML change report document
 	 */
-	public Document getXMLDocumentReportUsingGenSyms() {
+	public Document getXMLDocumentUsingGenSyms() {
 		genSymDoc = docBuilder.newDocument();
 		prepDocument(genSymDoc, "-gs");
 		
@@ -258,13 +260,9 @@ public class XMLReport {
 		addIneffectualAdditions(
 				"AddedReshuffleProspectiveRedundancy", "aavred", changeSet.getAddedReshuffleRedundancies(), doc, "apred", true, 
 				IneffectualAdditionCategory.RESHUFFLEREDUNDANCY, sf);
-//		addElement("AddedNewProspectiveRedundancy", "anpred", changeSet.getAddedProspectiveNewRedundancies().size(), doc, "apred", true);
 		addIneffectualAdditions(
 				"AddedNewProspectiveRedundancy", "anpred", changeSet.getAddedProspectiveNewRedundancies(), doc, "apred", true, 
-				IneffectualAdditionCategory.NOVELPROSPREDUNDANCY, sf);
-//		addIneffectualAdditions(
-//				"AddedPseudoNovelProspectiveRedundancy", "apseudopred", changeSet.getAddedPseudoNovelRedundancies(), doc, "anpred", true, 
-//				IneffectualAdditionCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
+				IneffectualAdditionCategory.NEWPROSPREDUNDANCY, sf);
 		
 		addElement("Effectual", "effrems", changeSet.getEffectualRemovals().size(), doc, "rems", true);
 		addEffectualCategoryElementAndChildren(
@@ -295,12 +293,9 @@ public class XMLReport {
 		addIneffectualRemovals(
 				"RemovedReshuffleProspectiveRedundancy", "ravred", changeSet.getRemovedReshuffleRedundancies(), doc, "rpred", true, 
 				IneffectualRemovalCategory.RESHUFFLEREDUNDANCY, sf);
-//		addElement("RemovedNewProspectiveRedundancy", "rnpred", changeSet.getRemovedProspectiveNewRedundancies().size(), doc, "rpred", true);
 		addIneffectualRemovals(
 				"RemovedNewProspectiveRedundancy", "rnpred", changeSet.getRemovedProspectiveNewRedundancies(), doc, "rpred", true, 
-				IneffectualRemovalCategory.NOVELPROSPREDUNDANCY, sf);
-//		addIneffectualRemovals("RemovedPseudoNovelProspectiveRedundancy", "rpseudopred", changeSet.getRemovedPseudoNovelRedundancies(), doc, "rnpred", true, 
-//				IneffectualRemovalCategory.PSEUDONOVELPROSPREDUNDANCY, sf);
+				IneffectualRemovalCategory.NEWPROSPREDUNDANCY, sf);
 		
 		return doc;
 	}
@@ -422,7 +417,7 @@ public class XMLReport {
 	 * @param parent	Parent element of the change element
 	 * @param sf	Short form provider
 	 */
-	private void addAxiomChange(String id, OWLAxiom axiom, Document d, String parent, ShortFormProvider sf) {
+	public void addAxiomChange(String id, OWLAxiom axiom, Document d, String parent, ShortFormProvider sf) {
 		Element ele = d.createElement("Change");
 		ele.setAttribute("id", id);
 		ele.setIdAttribute("id", true);
@@ -448,7 +443,7 @@ public class XMLReport {
 	 * @param parent	Parent element of the change element
 	 * @param sf	Short form provider
 	 */
-	private void addAxiomChange(String id, CategorisedChange change, Document d, String parent, ShortFormProvider sf) {
+	public void addAxiomChange(String id, CategorisedChange change, Document d, String parent, ShortFormProvider sf) {
 		Element ele = d.createElement("Change");
 		ele.setAttribute("id", id);
 		ele.setIdAttribute("id", true);
@@ -472,7 +467,7 @@ public class XMLReport {
 	 * @param ele	Parent element
 	 * @param sf	Short form provider
 	 */
-	private void appendEffectualChange(CategorisedEffectualChange c, Document d, Element ele, ShortFormProvider sf) {
+	protected void appendEffectualChange(CategorisedEffectualChange c, Document d, Element ele, ShortFormProvider sf) {
 		Set<OWLAxiom> aligns = c.getAxiomAlignment();
 		if(!aligns.isEmpty()) {
 			Element src = d.createElement("Source");
@@ -635,7 +630,7 @@ public class XMLReport {
 	 * @param sf	Short form provider
 	 * @return A string with the object's conversion to Manchester syntax 
 	 */
-	private String getManchesterRendering(OWLObject obj, ShortFormProvider sf) {
+	protected String getManchesterRendering(OWLObject obj, ShortFormProvider sf) {
 		StringWriter wr = new StringWriter();
 		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, sf);
 		obj.accept(render);

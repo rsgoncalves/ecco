@@ -48,7 +48,7 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.concept.changeset.DiffResult;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
-import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
+import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -188,7 +188,7 @@ public class SubconceptDiffAlternative {
 	 * @param changeSet	Concept diff change set
 	 */
 	private void serializeXMLReport(ConceptChangeSet changeSet) {
-		XMLReportConceptDiff report = getXMLReport(changeSet);
+		XMLConceptDiffReport report = getXMLReport(changeSet);
 		Document doc = report.getReport();
 		
 		Transformer transformer = null;
@@ -215,7 +215,7 @@ public class SubconceptDiffAlternative {
 	 * @param changeSet	Concept change set
 	 * @return Concept diff report object
 	 */
-	public XMLReportConceptDiff getXMLReport(ConceptChangeSet changeSet) {
-		return new XMLReportConceptDiff(changeSet);
+	public XMLConceptDiffReport getXMLReport(ConceptChangeSet changeSet) {
+		return new XMLConceptDiffReport(changeSet);
 	}
 }

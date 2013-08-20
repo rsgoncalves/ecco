@@ -64,8 +64,8 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
 import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
-import uk.ac.manchester.cs.diff.output.CSVReportConceptDiff;
-import uk.ac.manchester.cs.diff.output.XMLReportConceptDiff;
+import uk.ac.manchester.cs.diff.output.csv.CSVConceptDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 
 /**
@@ -82,7 +82,7 @@ public class SubconceptDiff implements ConceptDiff {
 	protected Set<OWLAxiom> extraAxioms;
 	protected Set<OWLEntity> sigma;
 	protected String outputDir;
-	protected boolean verbose, atomicOnly;
+	protected boolean verbose, atomicOnly = false;
 	protected ConceptChangeSet changeSet;
 	
 	/**
@@ -143,7 +143,8 @@ public class SubconceptDiff implements ConceptDiff {
 	 */
 	public ConceptChangeSet getDiff() {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Input signature: sigma contains " + sigma.size() + " concept names");
+		if(verbose) System.out.println("Computing concept diff...");
+		if(verbose) System.out.println("   Input signature: sigma contains " + sigma.size() + " concept names");
 		
 		Map<OWLClass,OWLClassExpression> map = null;
 		if(!atomicOnly) 
@@ -163,9 +164,9 @@ public class SubconceptDiff implements ConceptDiff {
 		long end = System.currentTimeMillis();
 		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
 		changeSet.setPartitioningTime((end-mid)/1000.0);
+		changeSet.setTotalTime((end-start)/1000.0);
 		
 		if(verbose) printDiff();
-		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " secs)");
 		return changeSet;
 	}
 	
@@ -178,7 +179,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 */
 	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.print("Classifying ontologies... ");
+		if(verbose) System.out.print("   Precomputing inferences... ");
 		
 		ExecutorService exec = Executors.newFixedThreadPool(2);
 		
@@ -204,9 +205,8 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Set of affected concept names
 	 */
 	protected Set<OWLClass> computeChangeWitnesses(Map<OWLClass,OWLClassExpression> map) {
-		if(verbose) System.out.print("Computing change witnesses... ");
-		Set<OWLClass> affected = new HashSet<OWLClass>(), 
-				specialised = new HashSet<OWLClass>(), generalised = new HashSet<OWLClass>();
+		if(verbose) System.out.print("   Computing change witnesses... ");
+		Set<OWLClass> affected = new HashSet<OWLClass>();
 		long start = System.currentTimeMillis();
 
 		Set<OWLClass> topSuper1 = ont1reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
@@ -221,21 +221,12 @@ public class SubconceptDiff implements ConceptDiff {
 				WitnessConcepts specWit = getSpecialisationWitnesses(c, map, topSuper1, topSuper2, ont1reasoner, ont2reasoner);
 				WitnessConcepts genWit = getGeneralisationWitnesses(c, map, botSub1, botSub2, ont1reasoner, ont2reasoner);
 
-				if(!specWit.isEmpty()) specialised.add(c);
-				if(!genWit.isEmpty()) generalised.add(c);
+				if(!specWit.isEmpty() || !genWit.isEmpty()) affected.add(c);
 				addChangeToMap(c, specWit.getLHSWitnesses(), ont1_diffL);
 				addChangeToMap(c, genWit.getLHSWitnesses(), ont1_diffR);
 				addChangeToMap(c, specWit.getRHSWitnesses(), ont2_diffL);
 				addChangeToMap(c, genWit.getRHSWitnesses(), ont2_diffR);
 			}
-		}
-		affected.addAll(specialised);
-		affected.addAll(generalised);
-		
-		if(verbose) {
-			System.out.println("\n\tSpecialised concepts: " + specialised.size());
-			System.out.println("\tGeneralised concepts: " + generalised.size());
-			System.out.println("\tTotal affected concepts: " + affected.size());
 		}
 		
 		long end = System.currentTimeMillis();
@@ -252,7 +243,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Concept-based change set
 	 */
 	protected ConceptChangeSet splitDirectIndirectChanges(Set<OWLClass> affected, OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
-		if(verbose) System.out.print("Splitting directly and indirectly affected concepts... ");
+		if(verbose) System.out.print("   Splitting directly and indirectly affected concepts... ");
 		long start = System.currentTimeMillis();
 		
 		Set<RHSConceptChange> rhsConceptChanges = new HashSet<RHSConceptChange>();
@@ -481,7 +472,7 @@ public class SubconceptDiff implements ConceptDiff {
 
 		@Override
 		public void run() {
-			reasoner = new ReasonerLoader(ont, false).createFactReasoner(true);
+			reasoner = new ReasonerLoader(ont, false).createFactReasoner(false);
 			long start = System.currentTimeMillis();
 			reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 			long end = System.currentTimeMillis();
@@ -503,7 +494,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Set of subconcepts
 	 */
 	protected Set<OWLClassExpression> collectSCs() {
-		if(verbose) System.out.print("Extracting subconcepts from given ontologies... ");
+		if(verbose) System.out.print("   Extracting subconcepts from given ontologies... ");
 		Set<OWLClassExpression> scs = new HashSet<OWLClassExpression>(); 
 		getSubConcepts(ont1, scs);
 		getSubConcepts(ont2, scs);
@@ -647,7 +638,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param changeSet	Concept diff change set
 	 */
 	public void serializeXMLReport() {
-		XMLReportConceptDiff report = getXMLReport();
+		XMLConceptDiffReport report = getXMLReport();
 		Document doc = report.getReport();
 		
 		Transformer transformer = null;
@@ -683,8 +674,8 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param changeSet	Concept change set
 	 * @return Concept diff report object
 	 */
-	public XMLReportConceptDiff getXMLReport() {
-		return new XMLReportConceptDiff(changeSet);
+	public XMLConceptDiffReport getXMLReport() {
+		return new XMLConceptDiffReport(changeSet);
 	}
 	
 
@@ -693,7 +684,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Change report as a CSV document
 	 */
 	public String getCSVChangeReport() {
-		return new CSVReportConceptDiff().getReport(changeSet);
+		return new CSVConceptDiffReport().getReport(changeSet);
 	}
 	
 	
@@ -702,47 +693,29 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param changeSet	Concept-based change set
 	 */
 	public void printDiff() {
-		System.out.println("\ndiff results:");
-		System.out.println("  [ont1]" +
+		System.out.println("\nfinished concept diff (" + changeSet.getTotalDiffTime() + " seconds)");
+		System.out.println("   Concept changes:");
+		System.out.println("\t[ont1]" +
 				"\tSpecialised: " + changeSet.getLHSSpecialisedConcepts().size() + 
 				"\tGeneralised: " + changeSet.getLHSGeneralisedConcepts().size() +
 				"\tTotal affected: " + changeSet.getLHSAffectedConcepts().size());
-		System.out.println("  [ont2]" +
+		System.out.println("\t[ont2]" +
 				"\tSpecialised: " + changeSet.getRHSSpecialisedConcepts().size() + 
 				"\tGeneralised: " + changeSet.getRHSGeneralisedConcepts().size() +
 				"\tTotal affected: " + changeSet.getRHSAffectedConcepts().size());
-		System.out.println("  [total]" +
+		System.out.println("\t[total]" +
 				"\tSpecialised: " + changeSet.getAllSpecialisedConcepts().size() + 
 				"\tGeneralised: " + changeSet.getAllGeneralisedConcepts().size() +
 				"\tTotal affected: " + changeSet.getAllAffectedConcepts().size());
 		
-		System.out.println("\n  Affected concepts categorisation:");
-		System.out.println("    Direct Generalised: " + changeSet.getAllDirectlyGeneralised().size());
-		System.out.println("    Direct Specialised: " + changeSet.getAllDirectlySpecialised().size());
-		System.out.println("    Purely directly generalised: " + changeSet.getAllPurelyDirectlyGeneralised().size());
-		System.out.println("    Purely directly specialised: " + changeSet.getAllPurelyDirectlySpecialised().size());
-		System.out.println("    Purely indirectly generalised: " + changeSet.getAllPurelyIndirectlyGeneralised().size());
-		System.out.println("    Purely indirectly specialised: " + changeSet.getAllPurelyIndirectlySpecialised().size());
-		System.out.println("    Mixed generalised: " + changeSet.getAllMixedGeneralised().size());
-		System.out.println("    Mixed specialised: " + changeSet.getAllMixedSpecialised().size());
+		System.out.println("\n\tAffected concepts categorisation:");
+		System.out.println("\t   Directly generalised: " + changeSet.getAllDirectlyGeneralised().size());
+		System.out.println("\t   Directly specialised: " + changeSet.getAllDirectlySpecialised().size());
+		System.out.println("\t   Purely directly generalised: " + changeSet.getAllPurelyDirectlyGeneralised().size());
+		System.out.println("\t   Purely directly specialised: " + changeSet.getAllPurelyDirectlySpecialised().size());
+		System.out.println("\t   Purely indirectly generalised: " + changeSet.getAllPurelyIndirectlyGeneralised().size());
+		System.out.println("\t   Purely indirectly specialised: " + changeSet.getAllPurelyIndirectlySpecialised().size());
+		System.out.println("\t   Mixed generalised: " + changeSet.getAllMixedGeneralised().size());
+		System.out.println("\t   Mixed specialised: " + changeSet.getAllMixedSpecialised().size() + "\n");
 	}
-	
-	
-//	/**
-//	 * Get Manchester rendering of a given OWL object
-//	 * @param obj	OWL object
-//	 * @return String representation of the given object 
-//	 */
-//	SimpleShortFormProvider sf = new SimpleShortFormProvider();
-//	protected String getManchesterRendering(OWLObject obj) {
-//		StringWriter wr = new StringWriter();
-//		ManchesterOWLSyntaxObjectRenderer render = new ManchesterOWLSyntaxObjectRenderer(wr, sf);
-//		obj.accept(render);
-//
-//		String str = wr.getBuffer().toString();
-//		str = str.replaceAll("<", "");
-//		str = str.replaceAll(">", "");
-//		str = str.replaceAll("\n", " ");
-//		return str;
-//	}
 }

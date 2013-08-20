@@ -16,10 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.output;
+package uk.ac.manchester.cs.diff.output.csv;
 
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
-import uk.ac.manchester.cs.diff.axiom.changeset.ChangeSet;
+import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
 
@@ -29,13 +29,13 @@ import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class CSVReport {
+public class CSVAxiomDiffReport {
 	private String header, row;
 	
 	/**
 	 * Constructor
 	 */
-	public CSVReport() {
+	public CSVAxiomDiffReport() {
 		header = "\n"; row = "";
 	}
 	
@@ -45,7 +45,7 @@ public class CSVReport {
 	 * @param changeSet	Change set
 	 * @return Change report as a CSV-formatted string
 	 */
-	public String getReport(ChangeSet changeSet) {
+	public String getReport(AxiomChangeSet changeSet) {
 		String report = null;	
 		if(changeSet instanceof StructuralChangeSet)
 			report = getStructuralChangeSetReport((StructuralChangeSet)changeSet);

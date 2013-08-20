@@ -32,7 +32,7 @@ import uk.ac.manchester.cs.diff.axiom.change.StructuralRemoval;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class StructuralChangeSet implements ChangeSet {
+public class StructuralChangeSet implements AxiomChangeSet {
 	private Set<OWLAxiom> additions, removals, shared;
 	private String ont1name, ont2name;
 	private double diffTime;

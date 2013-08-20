@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.output;
+package uk.ac.manchester.cs.diff.output.xml;
 
 import java.io.StringWriter;
 import java.util.Set;
@@ -49,7 +49,7 @@ import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjec
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class XMLReportConceptDiff {
+public class XMLConceptDiffReport {
 	private final String uuid = UUID.randomUUID().toString();
 	private ConceptChangeSet changeSet;
 	private DocumentBuilderFactory dbfac;
@@ -62,7 +62,7 @@ public class XMLReportConceptDiff {
 	 * Constructor
 	 * @param changeSet	Concept diff change set
 	 */
-	public XMLReportConceptDiff(ConceptChangeSet changeSet) {
+	public XMLConceptDiffReport(ConceptChangeSet changeSet) {
 		this.changeSet = changeSet;
 		sf = new SimpleShortFormProvider();
 		dbfac = DocumentBuilderFactory.newInstance();

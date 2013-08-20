@@ -32,7 +32,7 @@ import uk.ac.manchester.cs.diff.axiom.change.LogicalRemoval;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class LogicalChangeSet implements ChangeSet {
+public class LogicalChangeSet implements AxiomChangeSet {
 	private Set<OWLAxiom> effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals;
 	private double diffTime;
 	
