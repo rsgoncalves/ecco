@@ -387,7 +387,7 @@ public class EccoRunner {
 		System.out.println("	[OPTIONS]");
 		System.out.println("	-o		output directory; \"ont1\" and \"ont2\" can be used as shortcuts");
 		System.out.println("	-t		transform resulting XML report into HTML");
-//		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
+		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
 		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");
 		System.out.println("	-n		normalize entity URIs, i.e. if two ontologies have the same entity names");
 		System.out.println("			in a different namespace, this trigger establishes a common namespace");
