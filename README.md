@@ -13,16 +13,16 @@ intro
 and then verifies whether these changes produce any *effect on entailments*, i.e. whether they are logically effectual or ineffectual. 
 Subsequently these differences are aligned according to their impact (or lack thereof).
 
-Additionally, *ecco* now has an option (`-c`) to detect which concepts had their meaning affected. This is done by checking which atomic concepts have different sub- or super-concepts, where the latter can be:
+Additionally, *ecco* now has an option (`-c`) to detect which concepts had their meaning affected. This is done by checking which (atomic) concepts have different sub- or super-concepts between ontologies, where the latter can be:
 
 * `-c at`		Atomic concepts
 * `-c sub`		Subconcepts asserted in either ontology
 * `-c gr`		Concepts of the form `r some C`, `r only C`, `not C`, `C or C'`, `C and C'`, where `C, C'` are subconcepts asserted in either ontology, and `r` is an atomic role
 * `-c cvs`		Concepts of the form `r some A`, `r only A`, `not A`, where `A` is an atomic concept, and `r` is an atomic role
 
-Note that these are all sound but incomplete approximations of the *minimal change set*, as defined [here](http://www.cs.man.ac.uk/~goncalvj/files/2012_iswc_diff.pdf). The last option: `-c cvs` is based on the entailment grammar employed in [ContentCVS](http://www.cs.ox.ac.uk/isg/tools/ContentCVS).
+Note that these are all sound but incomplete approximations of the *minimal [concept] change set*, as defined [here](http://www.cs.man.ac.uk/~goncalvj/files/2012_iswc_diff.pdf). The last option: `-c cvs` is based on the entailment grammar employed in [ContentCVS](http://www.cs.ox.ac.uk/isg/tools/ContentCVS).
 
-After detecting the set of affected concepts, *ecco* distinguishes between concepts that are directly or indirectly affected, that is, whether some concept `A` changed due to a change in some concept `B`, where both ontologies entail that `A => B`.
+After detecting the set of affected concepts, *ecco* distinguishes between concepts that are directly or indirectly affected, that is, whether some concept `A` changed due to a change in some concept `B`, where both ontologies entail that `A => B`. For the time being, concept changes are only shown in the XML change set output.
 
 <!-- For more details and literature pointers, check [this webpage](http://owl.cs.manchester.ac.uk/research/topics/diff/). It contains links to published papers with the relevant definitions. -->
 
