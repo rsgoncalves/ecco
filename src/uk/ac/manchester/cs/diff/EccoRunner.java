@@ -447,6 +447,7 @@ public class EccoRunner {
 			else if(arg.equalsIgnoreCase("-c"))	{	// Compute concept diff
 				if(++i == args.length) throw new RuntimeException("\n-c must be followed by one of [ at | sub | gr | cvs ].\n");
 				arg = args[i].trim(); cdiff = arg;
+				xsltPath = "out" + sep + "xslt_full_client.xsl";
 			}
 			else if(arg.equalsIgnoreCase("-n"))		// Normalize entity namespaces
 				normalizeURIs = true;

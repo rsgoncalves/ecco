@@ -299,7 +299,7 @@ form.inl {
 }
 
 .hotspot {
-    color:#900; 
+/*    color:#900; */ 
     padding-bottom:1px; 
     cursor:pointer
 }
@@ -332,4 +332,9 @@ form.inl {
     margin-left:5px; 
     background:url(../images/tt_bottom.gif) top right no-repeat; 
     overflow:hidden
+}
+
+pre {
+    font-size: 12px;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
 }
