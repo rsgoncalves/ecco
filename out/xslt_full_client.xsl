@@ -213,7 +213,7 @@ If not, see http://www.gnu.org/licenses/
 											<xsl:text>  </xsl:text>
 											<b>Prospective Redundancy (<xsl:value-of select="$rprospred"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
-												onmouseover="tooltip.show('Axioms in Ontology 1 for which there are potentially more constraining related axioms in Ontology 2');"/> 
+												onmouseover="tooltip.show('Removed axioms that would be redundant in Ontology 2 if not removed. These potentially have more constraining related axioms in Ontology 2');"/> 
 											<ul style="display:none">
 												<xsl:if test="$rreshuf = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Reshuffle (0)</li></xsl:if>
 												<xsl:if test="$rreshuf > 0">
@@ -222,7 +222,7 @@ If not, see http://www.gnu.org/licenses/
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('ravred');"/>
 														<xsl:text>  </xsl:text><a href="#ravred">Reshuffle (<xsl:value-of select="$rreshuf"/>)</a>
 														<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
-															onmouseover="tooltip.show('Axioms in Ontology 1 which have been reshuffled in Ontology 2');"/>
+															onmouseover="tooltip.show('Removed axioms which are entailed by Ontology 2 due to apparent reshuffling of axioms or terms');"/>
 													</li>
 												</xsl:if>
 												<xsl:if test="$rprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New (0)</li></xsl:if>
@@ -232,7 +232,7 @@ If not, see http://www.gnu.org/licenses/
 														<xsl:text>  </xsl:text>
 														<a href="#rst">New (<xsl:value-of select="$rprospnewred"/>)</a><b id="t1"/><xsl:text>  </xsl:text>
 														<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
-															onmouseover="tooltip.show('Axioms in Ontology 1 for which there are more constraining related axioms in Ontology 2');"/>
+															onmouseover="tooltip.show('Removed axioms for which there are more constraining related axioms in Ontology 2');"/>
 													</li>
 												</xsl:if>
 											</ul>
@@ -417,7 +417,7 @@ If not, see http://www.gnu.org/licenses/
 											<xsl:text>  </xsl:text>
 											<b>Retrospective Redundancy (<xsl:value-of select="$addedprospred"/>)</b><xsl:text>  </xsl:text>
 											<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
-												onmouseover="tooltip.show('Axioms in Ontology 2 for which there are more constraining related axioms in Ontology 1');"/> 
+												onmouseover="tooltip.show('Added axioms that would have been redundant in Ontology 1. These potentially have more constraining related axioms in Ontology 1');"/> 
 											<ul style="display:none">
 												<xsl:if test="$aprospresred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;Reshuffle (0)</li></xsl:if>
 												<xsl:if test="$aprospresred > 0">
@@ -425,6 +425,8 @@ If not, see http://www.gnu.org/licenses/
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aavred');"/>
 														<xsl:text>  </xsl:text><a href="#aavred">Reshuffle (<xsl:value-of select="$aprospresred"/>)</a>
+														<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
+															onmouseover="tooltip.show('Added axioms which were entailed by Ontology 1 due to apparent reshuffling of axioms or terms');"/>
 													</li>
 												</xsl:if>
 												<xsl:if test="$aprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New (0)</li></xsl:if>
@@ -433,6 +435,8 @@ If not, see http://www.gnu.org/licenses/
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aweak','apseudopred');"/>
 														<xsl:text>  </xsl:text>
 														<a href="#aweak">New (<xsl:value-of select="$aprospnewred"/>)</a><xsl:text>  </xsl:text>
+														<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
+															onmouseover="tooltip.show('Added axioms for which there are more constraining related axioms in Ontology 1');"/>
 													</li>
 												</xsl:if>
 											</ul>
