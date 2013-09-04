@@ -59,7 +59,6 @@ import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
 import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
-import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
 
@@ -114,13 +113,14 @@ public class EccoRunner {
 	 * @param ont2	Ontology 2
 	 * @param cdiff	Concept diff notion to be used
 	 * @param xsltPath	Path to XSLT file
+	 * @return XML diff report
 	 * @throws TransformerException
 	 * @throws UnsupportedEncodingException
 	 */
-	public void computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath) 
+	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath) 
 			throws TransformerException, UnsupportedEncodingException {
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
-	
+		XMLReport out = null;
 		long start = System.currentTimeMillis();
 		
 		CategoricalDiff axiom_diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
@@ -144,19 +144,20 @@ public class EccoRunner {
 			AlignedDirectChangeSet dirChanges = new AlignedDirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
 			AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
 			
-			XMLUnifiedReport report = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
-			saveXMLDocuments(report, xsltPath);
+			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
+			saveXMLDocuments(out, xsltPath);
 			
 			// TODO csv report incl. concept changes
 		} 
 		else {
-			XMLAxiomDiffReport report = axiom_diff.getXMLReport();
-			saveXMLDocuments(report, xsltPath);
+			out = axiom_diff.getXMLReport();
+			saveXMLDocuments(out, xsltPath);
 			saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
 		}
 		
 		long end = System.currentTimeMillis();
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " seconds)");
+		return out;
 	}
 	
 	
