@@ -119,6 +119,7 @@ public class EccoRunner {
 	 */
 	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath, boolean saveDocs) 
 			throws TransformerException, UnsupportedEncodingException {
+		System.out.println("Computing diff...");
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 		XMLReport out = null;
 		long start = System.currentTimeMillis();
@@ -146,14 +147,17 @@ public class EccoRunner {
 			
 			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
 			
-			if(saveDocs) saveXMLDocuments(out, xsltPath);
-			
-			// TODO csv report incl. concept changes
+			if(saveDocs) {
+				saveXMLDocuments(out, xsltPath);
+				// TODO csv report incl. concept changes
+			}
 		} 
 		else {
 			out = axiom_diff.getXMLReport();
-			if(saveDocs) saveXMLDocuments(out, xsltPath);
-			saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
+			if(saveDocs) {
+				saveXMLDocuments(out, xsltPath);
+				saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
+			}
 		}
 		
 		long end = System.currentTimeMillis();
