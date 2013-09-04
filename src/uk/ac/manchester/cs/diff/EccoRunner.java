@@ -117,7 +117,7 @@ public class EccoRunner {
 	 * @throws TransformerException
 	 * @throws UnsupportedEncodingException
 	 */
-	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath) 
+	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath, boolean saveDocs) 
 			throws TransformerException, UnsupportedEncodingException {
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 		XMLReport out = null;
@@ -145,13 +145,14 @@ public class EccoRunner {
 			AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
 			
 			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
-			saveXMLDocuments(out, xsltPath);
+			
+			if(saveDocs) saveXMLDocuments(out, xsltPath);
 			
 			// TODO csv report incl. concept changes
 		} 
 		else {
 			out = axiom_diff.getXMLReport();
-			saveXMLDocuments(out, xsltPath);
+			if(saveDocs) saveXMLDocuments(out, xsltPath);
 			saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
 		}
 		
@@ -493,7 +494,7 @@ public class EccoRunner {
 			OWLOntology ont1 = runner.loadOntology(1, f1, localOnt1);
 			OWLOntology ont2 = runner.loadOntology(2, f2, localOnt2);
 			
-			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, cdiff, xsltPath);
+			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, cdiff, xsltPath, true);
 		}
 		else if(f1 == null) {
 			System.out.println("\n! Invalid or missing -ont1 input\n");
