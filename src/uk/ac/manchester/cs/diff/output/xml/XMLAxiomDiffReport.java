@@ -410,7 +410,6 @@ public class XMLAxiomDiffReport implements XMLReport {
 
 	/**
 	 * Add a change element, which contains an axiom child element
-	 * @param name	Name of the change element
 	 * @param id	Id of the change element
 	 * @param axiom	Child axiom of this change
 	 * @param d	Document to be added to
@@ -436,9 +435,8 @@ public class XMLAxiomDiffReport implements XMLReport {
 	
 	/**
 	 * Add a change element, which contains an axiom child element
-	 * @param name	Name of the change element
 	 * @param id	Id of the change element
-	 * @param axiom	Child axiom of this change
+	 * @param change	Categorised change object
 	 * @param d	Document to be added to
 	 * @param parent	Parent element of the change element
 	 * @param sf	Short form provider
@@ -462,7 +460,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	
 	/**
 	 * Append an effectual change to the specified document report
-	 * @param change	Change to be added
+	 * @param c	Change to be added
 	 * @param d	Document to be updated
 	 * @param ele	Parent element
 	 * @param sf	Short form provider

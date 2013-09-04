@@ -77,7 +77,6 @@ public class SubconceptDiffAlternative {
 
 	/**
 	 * Distinguish between directly and indirectly affected concepts
-	 * @param affected	Set of affected concept names
 	 * @return Concept-based change set
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 

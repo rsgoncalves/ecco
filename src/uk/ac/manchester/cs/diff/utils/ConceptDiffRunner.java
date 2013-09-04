@@ -83,10 +83,10 @@ public class ConceptDiffRunner {
 	
 	/**
 	 * Tester class
-	 * @param 0: ontology1
-	 * @param 1: ontology2
-	 * @param 2: output directory
-	 * @param 3: signature file
+	 * param 0: ontology1
+	 * param 1: ontology2
+	 * param 2: output directory
+	 * param 3: signature file
 	 * @throws OWLOntologyCreationException 
 	 * @throws InterruptedException 
 	 */

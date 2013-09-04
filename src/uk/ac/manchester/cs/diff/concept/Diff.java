@@ -67,8 +67,9 @@ public class Diff implements Callable<DiffResult>{
 	
 	/**
 	 * Constructor for subconcept diff w.r.t. given signature
-	 * @param ont1	Ontology 1
-	 * @param ont2	Ontology 2
+	 * @param f1	Ontology 1 file
+	 * @param f2	Ontology 2 file
+	 * @param diff	Diff type
 	 * @param verbose	Verbose mode
 	 */
 	public Diff(File f1, File f2, String diff, boolean verbose) {
@@ -86,9 +87,10 @@ public class Diff implements Callable<DiffResult>{
 	
 	/**
 	 * Constructor for subconcept diff w.r.t. given signature
-	 * @param ont1	Ontology 1
-	 * @param ont2	Ontology 2
+	 * @param f1	Ontology 1 file
+	 * @param f2	Ontology 2 file
 	 * @param sig	Set of concept names
+	 * @param diff	Diff type
 	 * @param verbose	Verbose mode
 	 */
 	public Diff(File f1, File f2, Set<OWLClass> sig, String diff, boolean verbose) {
@@ -132,8 +134,7 @@ public class Diff implements Callable<DiffResult>{
 
 	/**
 	 * Get the concept-based change set between the given ontologies 
-	 * @param atomicOnly	true if only atomic subsumptions should be considered, false otherwise
-	 * @return Concept-based change set
+	 * @return Diff result
 	 * @throws InterruptedException
 	 */
 	public DiffResult call() {

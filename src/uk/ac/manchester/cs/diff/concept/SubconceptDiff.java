@@ -137,7 +137,6 @@ public class SubconceptDiff implements ConceptDiff {
 
 	/**
 	 * Get the concept-based change set between the given ontologies 
-	 * @param atomicOnly	true if only atomic subsumptions should be considered, false otherwise
 	 * @return Concept-based change set
 	 * @throws InterruptedException
 	 */
@@ -635,7 +634,6 @@ public class SubconceptDiff implements ConceptDiff {
 	
 	/**
 	 * Get the XML change set and serialise it
-	 * @param changeSet	Concept diff change set
 	 */
 	public void serializeXMLReport() {
 		XMLConceptDiffReport report = getXMLReport();
@@ -671,7 +669,6 @@ public class SubconceptDiff implements ConceptDiff {
 	
 	/**
 	 * Get the XML report for concept diff
-	 * @param changeSet	Concept change set
 	 * @return Concept diff report object
 	 */
 	public XMLConceptDiffReport getXMLReport() {
@@ -690,7 +687,6 @@ public class SubconceptDiff implements ConceptDiff {
 	
 	/**
 	 * Print diff results
-	 * @param changeSet	Concept-based change set
 	 */
 	public void printDiff() {
 		System.out.println("\nfinished concept diff (" + changeSet.getTotalDiffTime() + " seconds)");

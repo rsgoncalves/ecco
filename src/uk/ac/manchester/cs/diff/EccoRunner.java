@@ -112,9 +112,8 @@ public class EccoRunner {
 	 * Compute diff and output resulting files
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @param structDiff	true if only structural diff should be performed, false otherwise
-	 * @param logDiff	true if only logical diff should be performed, false otherwise
-	 * @param serializeOutput	true if XML and CSV files should be output
+	 * @param cdiff	Concept diff notion to be used
+	 * @param xsltPath	Path to XSLT file
 	 * @throws TransformerException
 	 * @throws UnsupportedEncodingException
 	 */
@@ -164,7 +163,7 @@ public class EccoRunner {
 	/**
 	 * Process local output by saving XML change sets, CSV log, and, if applicable, the HTML transformation 
 	 * @param report	XML report instance
-	 * @param csvFile	CSV log
+	 * @param xsltPath	Path to XSLT file
 	 * @throws UnsupportedEncodingException
 	 * @throws TransformerException
 	 */

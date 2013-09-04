@@ -79,9 +79,8 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	
 	/**
 	 * Add a change element, which contains an axiom child element
-	 * @param name	Name of the change element
 	 * @param id	Id of the change element
-	 * @param axiom	Child axiom of this change
+	 * @param change	Categorised change object
 	 * @param d	Document to be added to
 	 * @param parent	Parent element of the change element
 	 * @param sf	Short form provider
