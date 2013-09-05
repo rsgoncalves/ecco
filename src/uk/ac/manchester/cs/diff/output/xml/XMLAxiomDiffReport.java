@@ -699,7 +699,6 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * @throws TransformerException
 	 */
 	private String getXMLAsString(Transformer trans, Document doc) throws TransformerException {
-		trans.setOutputProperty(OutputKeys.METHOD, "text");
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
 		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		trans.setParameter("encoding", "UTF-8");
