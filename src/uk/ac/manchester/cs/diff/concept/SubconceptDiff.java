@@ -100,7 +100,7 @@ public class SubconceptDiff implements ConceptDiff {
 		df = OWLManager.getOWLDataFactory();
 		sigma = new HashSet<OWLEntity>(new Signature().getUnionConceptNames(ont1, ont2));
 		initDataStructures();
-//		equalizeSignatures(ont1, ont2);
+		equalizeSignatures(ont1, ont2);
 	}
 	
 	
@@ -120,7 +120,7 @@ public class SubconceptDiff implements ConceptDiff {
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
 		initDataStructures();
-//		equalizeSignatures(ont1, ont2);
+		equalizeSignatures(ont1, ont2);
 	}
 
 	
