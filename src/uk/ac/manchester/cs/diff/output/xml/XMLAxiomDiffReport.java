@@ -700,7 +700,8 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 */
 	private String getXMLAsString(Transformer trans, Document doc) throws TransformerException {
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
-
+		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		
 		// Create string from XML tree
 		StringWriter sw = new StringWriter();
 		StreamResult result = new StreamResult(sw);
