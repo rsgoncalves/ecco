@@ -18,6 +18,7 @@ If not, see http://www.gnu.org/licenses/
 -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ecco="http://owl.cs.manchester.ac.uk/diff">
 	<xsl:output method="html" encoding="UTF-8"/>
+	<xsl:strip-space elements="*"/>
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -1232,18 +1233,14 @@ If not, see http://www.gnu.org/licenses/
 			<td>
 				<xsl:variable name="myAxiom">
 					<xsl:call-template name="colorMyAxiom">
-						<xsl:with-param name="axiom">
-							<xsl:value-of select="Source/Axiom"/>
-						</xsl:with-param>
+						<xsl:with-param name="axiom"><xsl:value-of select="Source/Axiom"/></xsl:with-param>
 					</xsl:call-template>
 				</xsl:variable>
 				<xsl:copy-of select="$myAxiom"/>. </td>
 			<td>
 				<xsl:variable name="myAxiom">
 					<xsl:call-template name="colorMyAxiom">
-						<xsl:with-param name="axiom">
-							<xsl:value-of select="Axiom"/>
-						</xsl:with-param>
+						<xsl:with-param name="axiom"><xsl:value-of select="Axiom"/></xsl:with-param>
 					</xsl:call-template>
 				</xsl:variable>
 				<xsl:copy-of select="$myAxiom"/>.<br/>
@@ -1329,7 +1326,6 @@ If not, see http://www.gnu.org/licenses/
 					</span>
 				</xsl:if>
 				<xsl:if test="not(string-length(regex-group(3)) = 0)">
-					<br/>
 					<span class="keyword">
 						<xsl:value-of select="regex-group(3)"/>
 					</span>

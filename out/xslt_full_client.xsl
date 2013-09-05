@@ -18,6 +18,7 @@ If not, see http://www.gnu.org/licenses/
 -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ecco="http://owl.cs.manchester.ac.uk/diff">
 	<xsl:output method="html" encoding="UTF-8"/>
+	<xsl:strip-space elements="*"/>
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -1379,8 +1380,7 @@ If not, see http://www.gnu.org/licenses/
 		<xsl:param name="wits"/>
 		<xsl:text>'&lt;pre&gt;</xsl:text>
 			<xsl:for-each select="$wits/Axiom">
-				<xsl:value-of select="."/>
-				<xsl:text>.\n</xsl:text>
+				<xsl:value-of select="normalize-space(.)"/><xsl:text>.\n</xsl:text>
 			</xsl:for-each>
 		<xsl:text>&lt;/pre&gt;'</xsl:text>
 	</xsl:template>
