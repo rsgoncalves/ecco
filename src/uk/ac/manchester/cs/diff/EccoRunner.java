@@ -69,8 +69,8 @@ import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
  * University of Manchester <br/>
  */
 public class EccoRunner {
-	private static final String versionInfo = "2.1";
-	private static final String releaseDate = "19-August-2013";
+	private static final String versionInfo = "2.2";
+	private static final String releaseDate = "6-Sep-2013";
 	private static final String PROGRAM_TITLE = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
