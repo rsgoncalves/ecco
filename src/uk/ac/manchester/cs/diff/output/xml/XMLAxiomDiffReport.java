@@ -786,6 +786,15 @@ public class XMLAxiomDiffReport implements XMLReport {
 	
 	
 	/**
+	 * Get the change set
+	 * @return Change set
+	 */
+	public AxiomChangeSet getChangeSet() {
+		return changeSet;
+	}
+	
+	
+	/**
 	 * Generate GenSyms for entities
 	 */
 	private void generateGenSyms() {

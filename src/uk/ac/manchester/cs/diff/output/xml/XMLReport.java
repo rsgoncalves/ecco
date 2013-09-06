@@ -24,6 +24,7 @@ import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.w3c.dom.Document;
 
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedChange;
+import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -81,5 +82,12 @@ public interface XMLReport {
 	 * @param sf	Short form provider
 	 */
 	public void addAxiomChange(String id, CategorisedChange change, Document d, String parent, ShortFormProvider sf);
+
+	
+	/**
+	 * Get the change set associated with this report
+	 * @return Axiom change set
+	 */
+	public AxiomChangeSet getChangeSet();
 	
 }
