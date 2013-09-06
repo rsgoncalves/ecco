@@ -59,6 +59,7 @@ import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
 import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
 
@@ -69,22 +70,23 @@ import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
  * University of Manchester <br/>
  */
 public class EccoRunner {
-	private static final String versionInfo = "2.2";
-	private static final String releaseDate = "6-Sep-2013";
-	private static final String PROGRAM_TITLE = 
+	private OWLOntologyManager man;
+	private OWLOntologyLoaderConfiguration config;
+	private boolean processImports, ignoreAbox, transform, verbose, normalizeURIs;
+	private String outputDir;
+	private int nrJusts;
+	private static String sep = File.separator,
+			versionInfo = "2.2",
+			releaseDate = "6-Sep-2013",
+			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
+			programTitle = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
 			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
 			"by Rafael Goncalves. Copyright 2011-2013 University of Manchester\n" + 
-			"powered by the OWL API version " + VersionInfo.getVersionInfo().getVersion() + "\n";
+			"powered by the OWL API version " + owlapiVersion + "\n";
 	
-	private boolean processImports, ignoreAbox, transform, verbose, normalizeURIs;
-	private static String sep = File.separator;
-	private OWLOntologyManager man;
-	private OWLOntologyLoaderConfiguration config;
-	private String outputDir;
-	private int nrJusts;
 	
 	/**
 	 * Constructor
@@ -127,7 +129,7 @@ public class EccoRunner {
 		CategoricalDiff axiom_diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
 		CategorisedChangeSet axiomChanges = axiom_diff.getDiff();
 		
-		if(cdiff != null) {
+		if(cdiff != null && axiomChanges != null) {
 			ConceptDiff concept_diff = null;
 			if(cdiff.equals("at")) {
 				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
@@ -153,11 +155,17 @@ public class EccoRunner {
 			}
 		} 
 		else {
-			out = axiom_diff.getXMLReport();
-			if(saveDocs) {
-				saveXMLDocuments(out, xsltPath);
+			if(axiomChanges == null) {
+				out = new XMLAxiomDiffReport(ont1, ont2, axiom_diff.getStructuralChangeSet());
+				transform = false;
+				// TODO: csv for struct diff?
+			}
+			else {
+				out = axiom_diff.getXMLReport();
 				saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
 			}
+			
+			if(saveDocs) saveXMLDocuments(out, xsltPath);
 		}
 		
 		long end = System.currentTimeMillis();
@@ -418,7 +426,7 @@ public class EccoRunner {
 		boolean hasOnt1 = false, hasOnt2 = false, processImports = true, normalizeURIs = false, ignoreAbox = false, 
 				verbose = false, transform = false, localOnt1 = true, localOnt2 = true;
 		
-		System.out.println(PROGRAM_TITLE);
+		System.out.println(programTitle);
 		String outputDir = "", xsltPath = "out" + sep + "xslt_client.xsl", cdiff = null, f1 = null, f2 = null;
 		int nrJusts = 10;
 		

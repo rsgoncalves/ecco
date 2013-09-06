@@ -138,8 +138,10 @@ public class CategoricalDiff implements AxiomDiff {
 		if(logicalChangeSet == null) {
 			LogicalDiffConcurrent lDiff = new LogicalDiffConcurrent(ont1, ont2, verbose);
 			logicalChangeSet = lDiff.getDiff(ont1reasoner, ont2reasoner);
+			
 			structuralChangeSet = lDiff.getStructuralChangeSet();
 			sharedAxioms = structuralChangeSet.getShared();
+			if(logicalChangeSet == null) return null;
 		}
 		
 		Set<OWLAxiom> ea = logicalChangeSet.getEffectualAdditionAxioms();
@@ -777,6 +779,15 @@ public class CategoricalDiff implements AxiomDiff {
 		try { ont = man.createOntology(Collections.singleton(axiom)); } 
 		catch (OWLOntologyCreationException e) { e.printStackTrace(); }
 		return ont;
+	}
+	
+	
+	/**
+	 * Get the structural change set between given ontologies
+	 * @return Structural change set
+	 */
+	public StructuralChangeSet getStructuralChangeSet() {
+		return structuralChangeSet;
 	}
 	
 	
