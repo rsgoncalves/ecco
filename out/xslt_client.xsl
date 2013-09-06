@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 If not, see http://www.gnu.org/licenses/
 -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ecco="http://owl.cs.manchester.ac.uk/diff">
-	<xsl:output method="html" encoding="UTF-8"/>
+	<xsl:output method="html" encoding="UTF-8" indent="yes" version="4.01"/>
 	<xsl:strip-space elements="*"/>
 	<xsl:template match="/">
 		<html>
@@ -228,10 +228,10 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$rprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New (0)</li></xsl:if>
 												<xsl:if test="$rprospnewred > 0">
-													<li><xsl:text>  </xsl:text>
+													<li>
+														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffRems" onClick="toggleDiv('rst','rpsnovred');"/>
-														<xsl:text>  </xsl:text>
-														<a href="#rst">New (<xsl:value-of select="$rprospnewred"/>)</a><b id="t1"/><xsl:text>  </xsl:text>
+														<xsl:text>  </xsl:text><a href="#rst">New (<xsl:value-of select="$rprospnewred"/>)</a><b id="t1"/><xsl:text>  </xsl:text>
 														<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 															onmouseover="tooltip.show('Removed axioms for which there are more constraining related axioms in Ontology 2');"/>
 													</li>
@@ -432,10 +432,10 @@ If not, see http://www.gnu.org/licenses/
 												</xsl:if>
 												<xsl:if test="$aprospnewred = 0"><li><img src="images/blank.png" alt=""></img>&#160;&#160;New (0)</li></xsl:if>
 												<xsl:if test="$aprospnewred > 0">
-													<li><xsl:text>  </xsl:text>
+													<li>
+														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
 														<input type="checkbox" name="ineffAdds" onClick="toggleDiv('aweak','apseudopred');"/>
-														<xsl:text>  </xsl:text>
-														<a href="#aweak">New (<xsl:value-of select="$aprospnewred"/>)</a><xsl:text>  </xsl:text>
+														<xsl:text>  </xsl:text><a href="#aweak">New (<xsl:value-of select="$aprospnewred"/>)</a><xsl:text>  </xsl:text>
 														<img src="images/info_bubble.png" alt="" align="right" width="14" height="14" class="hotspot" onmouseout="tooltip.hide();"
 															onmouseover="tooltip.show('Added axioms for which there are more constraining related axioms in Ontology 1');"/>
 													</li>

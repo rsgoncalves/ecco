@@ -76,7 +76,7 @@ public class EccoRunner {
 	private String outputDir;
 	private int nrJusts;
 	private static String sep = File.separator,
-			versionInfo = "2.2",
+			versionInfo = "2.3",
 			releaseDate = "6-Sep-2013",
 			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
 			programTitle = 
@@ -144,8 +144,14 @@ public class EccoRunner {
 			
 			ConceptChangeSet conceptChanges = concept_diff.getDiff();
 			
+			long t2 = System.currentTimeMillis();
+			System.out.print("Aligning term and axiom changes... ");
+			
 			AlignedDirectChangeSet dirChanges = new AlignedDirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
 			AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
+			
+			long t3 = System.currentTimeMillis();
+			System.out.println("done (" + (t3-t2)/1000.0 + " secs)");
 			
 			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
 			

@@ -26,8 +26,10 @@ import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -90,7 +92,7 @@ public class JustificationFinder {
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
 	 */
-	public Set<Set<Explanation<OWLAxiom>>> getJustificationsConcurrently(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
+	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
 		ForkJoinPool fjPool = new ForkJoinPool();
 		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
 	}
@@ -101,10 +103,10 @@ public class JustificationFinder {
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
 	 */
-	public Set<Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
-		Set<Set<Explanation<OWLAxiom>>> regExps = new HashSet<Set<Explanation<OWLAxiom>>>();
+	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustificationsSequentially(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> regExps = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 		for(OWLAxiom ax : entailments)
-			regExps.add(getJustifications(ax));
+			regExps.put(ax,getJustifications(ax));
 		return regExps;
 	}
 	
@@ -127,11 +129,11 @@ public class JustificationFinder {
 	/**
 	 * Justification finder
 	 */
-	public class RegularJustificationFinder extends RecursiveTask<Set<Set<Explanation<OWLAxiom>>>> {
+	public class RegularJustificationFinder extends RecursiveTask<Map<OWLAxiom,Set<Explanation<OWLAxiom>>>> {
 		private static final long serialVersionUID = -953162808746083965L;
 		private Set<OWLAxiom> axioms;
     	private int limit;
-    	private int MAX_AXIOM_SET_SIZE = 10;
+    	private int MAX_AXIOM_SET_SIZE = 5;
     	
     	/**
     	 * Constructor
@@ -147,12 +149,12 @@ public class JustificationFinder {
 		 * Compute the set of entailments for the given set of axioms
 		 * @return Set of sets of justifications
 		 */
-		public Set<Set<Explanation<OWLAxiom>>> computeDirectly() {
-			Set<Set<Explanation<OWLAxiom>>> regExps = new HashSet<Set<Explanation<OWLAxiom>>>();
+		public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> computeDirectly() {
+			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> regExps = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 			for(OWLAxiom ax : axioms) {
 				ExplanationGenerator<OWLAxiom> exGen = regFac.createExplanationGenerator(ont);
 				Set<Explanation<OWLAxiom>> justs = exGen.getExplanations(ax, limit);
-				regExps.add(justs);
+				regExps.put(ax, justs);
 				if(justs.isEmpty())
 					System.err.println("\n\t !! Could not retrieve justifications for axiom:\n\t\t" + CategoricalDiff.getManchesterRendering(ax));
 			}
@@ -160,8 +162,8 @@ public class JustificationFinder {
 		}
 	
 		@Override
-		protected Set<Set<Explanation<OWLAxiom>>> compute() {
-			Set<Set<Explanation<OWLAxiom>>> result = new HashSet<Set<Explanation<OWLAxiom>>>();
+		protected Map<OWLAxiom,Set<Explanation<OWLAxiom>>> compute() {
+			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> result = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 			if(axioms.size() > MAX_AXIOM_SET_SIZE) {
 				int mid = axioms.size()/2;
 				OWLAxiom[] axArr = axioms.toArray(new OWLAxiom[axioms.size()]);
@@ -175,10 +177,10 @@ public class JustificationFinder {
 				RegularJustificationFinder cat1 = new RegularJustificationFinder(firstHalf, limit);
 				cat1.fork();
 				RegularJustificationFinder cat2 = new RegularJustificationFinder(secondHalf, limit);
-				result.addAll(cat2.invoke());
-				result.addAll(cat1.join());
+				result.putAll(cat2.invoke());
+				result.putAll(cat1.join());
 			}
-			else result.addAll(computeDirectly());
+			else result.putAll(computeDirectly());
 			return result;
 		}
     }

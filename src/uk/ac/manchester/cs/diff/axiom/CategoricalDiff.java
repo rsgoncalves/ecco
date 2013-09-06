@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.owl.explanation.api.Explanation;
@@ -497,7 +498,7 @@ public class CategoricalDiff implements AxiomDiff {
 		
 		if(verbose) System.out.print("\tComputing justifications... ");
 		JustificationFinder just = new JustificationFinder(ont, nrJusts);
-		Set<Set<Explanation<OWLAxiom>>> exps = null;
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> exps = null;
 		try { 
 			exps = just.getJustifications(axioms); 
 		} catch (OWLOntologyCreationException e) { e.printStackTrace(); }
@@ -505,9 +506,9 @@ public class CategoricalDiff implements AxiomDiff {
 		double justTime = (System.currentTimeMillis()-start)/1000.0;
 		if(verbose) System.out.println("done (" + justTime + " secs)");
 		
-		ProgressMonitor progress = new ProgressMonitor(exps);
+		ProgressMonitor progress = new ProgressMonitor(exps.keySet());
 		int status = 0;
-		for(Set<Explanation<OWLAxiom>> expsSet : exps) {
+		for(Set<Explanation<OWLAxiom>> expsSet : exps.values()) {
 			try {
 				if(!expsSet.isEmpty())
 					result.add(categoriseIneffectualChange(desc, expsSet, effectual, ineffectual, ont, just, src_reasoner));
@@ -898,7 +899,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 * Empty and nullify set of objects
 	 * @param s	Set of objects
 	 */
-	private void cleanUp(Set<?> s) {
+	private void cleanUp(Map<?,?> s) {
 		s.clear(); s = null;
 	}
 }

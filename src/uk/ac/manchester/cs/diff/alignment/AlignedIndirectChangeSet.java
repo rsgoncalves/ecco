@@ -19,19 +19,16 @@
 package uk.ac.manchester.cs.diff.alignment;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
-import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
-import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -43,7 +40,7 @@ public class AlignedIndirectChangeSet {
 	private OWLOntology ont1, ont2;
 	private ConceptChangeSet conceptChangeSet;
 	private Set<OWLAxiom> eff_adds, eff_rems;
-	private Map<OWLAxiom,Set<ConceptChange>> ont1map_spec, ont1map_gen, ont2map_spec, ont2map_gen;
+	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1map_spec, ont1map_gen, ont2map_spec, ont2map_gen;
 	private int nrJusts;
 	
 	/**
@@ -70,68 +67,23 @@ public class AlignedIndirectChangeSet {
 	 * Initialise data structures and execute change alignment
 	 */
 	private void init() {
-		ont1map_spec = new HashMap<OWLAxiom,Set<ConceptChange>>();
-		ont1map_gen = new HashMap<OWLAxiom,Set<ConceptChange>>();
-		ont2map_spec = new HashMap<OWLAxiom,Set<ConceptChange>>();
-		ont2map_gen = new HashMap<OWLAxiom,Set<ConceptChange>>();
+		ont1map_spec = new HashMap<OWLAxiom,Set<? extends ConceptChange>>();
+		ont1map_gen = new HashMap<OWLAxiom,Set<? extends ConceptChange>>();
+		ont2map_spec = new HashMap<OWLAxiom,Set<? extends ConceptChange>>();
+		ont2map_gen = new HashMap<OWLAxiom,Set<? extends ConceptChange>>();
 		alignChanges();
 	}
 		
 	
 	/**
 	 * Align all concept and axiom changes
-	 * @throws OWLOntologyCreationException
 	 */
 	public void alignChanges() {
-		try {
-			align(ont1map_spec, ont1, eff_rems, conceptChangeSet.getLHSIndirectlySpecialised(), true);
-			align(ont1map_gen, ont1, eff_rems, conceptChangeSet.getLHSIndirectlyGeneralised(), false);
-			align(ont2map_spec, ont2, eff_adds, conceptChangeSet.getRHSIndirectlySpecialised(), true);
-			align(ont2map_gen, ont2, eff_adds, conceptChangeSet.getRHSIndirectlyGeneralised(), false);
-		} catch (OWLOntologyCreationException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	/**
-	 * Align a given set of concept changes, based on their witness axioms' justifications, with the respective axioms
-	 * @param map	Map to be populated
-	 * @param ont	Ontology
-	 * @param effChanges	Effectual change set
-	 * @param changes	Concept changes
-	 * @param spec	true if checking specialisations, false if generalisations
-	 * @throws OWLOntologyCreationException
-	 */
-	private void align(Map<OWLAxiom,Set<ConceptChange>> map, OWLOntology ont, Set<OWLAxiom> effChanges, 
-			Set<? extends ConceptChange> changes, boolean spec) throws OWLOntologyCreationException {
-		JustificationFinder justs = new JustificationFinder(ont, nrJusts);
-		
-		for(ConceptChange c : changes) {
-			Set<OWLAxiom> wits = null;
-			if(spec) wits = c.getIndirectSpecialisationWitnesses();
-			else wits = c.getIndirectGeneralisationWitnesses();
-			
-			for(OWLAxiom ax : wits) {
-				Set<Explanation<OWLAxiom>> exps = justs.getJustifications(ax);
-				for(Explanation<OWLAxiom> e : exps) {
-					for(OWLAxiom just_ax : e.getAxioms()) {
-						if(effChanges.contains(just_ax)) {
-							if(map.containsKey(just_ax)) {
-								Set<ConceptChange> mappings = map.get(just_ax);
-								mappings.add(c);
-								map.put(just_ax, mappings);
-							}
-							else {
-								Set<ConceptChange> mappings = new HashSet<ConceptChange>();
-								mappings.add(c);
-								map.put(just_ax, mappings);
-							}
-						}
-					}
-				}
-			}
-		}
+		ForkJoinPool fjPool = new ForkJoinPool();
+		ont1map_spec = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlySpecialised(), eff_rems, nrJusts, true, false));
+		ont1map_gen = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlyGeneralised(), eff_rems, nrJusts, false, false));
+		ont2map_spec = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, true, false));
+		ont2map_gen = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, false, false));
 	}
 	
 	
@@ -139,7 +91,7 @@ public class AlignedIndirectChangeSet {
 	 * Get the map of axioms to concepts they specialise in ontology 1
 	 * @return Map  of axioms to concepts they specialise in ontology 1
 	 */
-	public Map<OWLAxiom,Set<ConceptChange>> getOnt1SpecialisationsMap() {
+	public Map<OWLAxiom,Set<? extends ConceptChange>> getOnt1SpecialisationsMap() {
 		return ont1map_spec;
 	}
 	
@@ -148,7 +100,7 @@ public class AlignedIndirectChangeSet {
 	 * Get the map of axioms to concepts they generalise in ontology 1
 	 * @return Map  of axioms to concepts they generalise in ontology 1
 	 */
-	public Map<OWLAxiom,Set<ConceptChange>> getOnt1GeneralisationsMap() {
+	public Map<OWLAxiom,Set<? extends ConceptChange>> getOnt1GeneralisationsMap() {
 		return ont1map_gen;
 	}
 	
@@ -157,7 +109,7 @@ public class AlignedIndirectChangeSet {
 	 * Get the map of axioms to concepts they specialise in ontology 2
 	 * @return Map  of axioms to concepts they specialise in ontology 2
 	 */
-	public Map<OWLAxiom,Set<ConceptChange>> getOnt2SpecialisationsMap() {
+	public Map<OWLAxiom,Set<? extends ConceptChange>> getOnt2SpecialisationsMap() {
 		return ont2map_spec;
 	}
 	
@@ -166,7 +118,7 @@ public class AlignedIndirectChangeSet {
 	 * Get the map of axioms to concepts they generalise in ontology 2
 	 * @return Map  of axioms to concepts they generalise in ontology 2
 	 */
-	public Map<OWLAxiom,Set<ConceptChange>> getOnt2GeneralisationsMap() {
+	public Map<OWLAxiom,Set<? extends ConceptChange>> getOnt2GeneralisationsMap() {
 		return ont2map_gen;
 	}
 }

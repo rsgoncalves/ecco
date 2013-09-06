@@ -491,8 +491,8 @@ If not, see http://www.gnu.org/licenses/
 						<td class="topleft">[<a href="javascript:void(0);" id="tree2-expandAll">Expand All</a> | <a href="javascript:void(0);" id="tree2-collapseAll">Collapse All</a>]</td>
 					</tr>
 				</table>
-				<table width="100%"> <!-- style="table-layout:fixed;" -->
-					<colgroup><col width="4%"/><col width="36%"/><col width="36%"/><col width="12%"/><col width="12%"/></colgroup>
+				<table width="100%" style="table-layout:fixed;">
+					<colgroup><col width="4%"/><col width="35%"/><col width="35%"/><col width="13%"/><col width="13%"/></colgroup>
 					<xsl:apply-templates/>
 					<tr class="withoutstyle"><td>&#160;</td></tr>
 				</table>
@@ -1406,11 +1406,13 @@ If not, see http://www.gnu.org/licenses/
 	<!-- Get the set of witness axioms -->
 	<xsl:template name="getWitnesses">
 		<xsl:param name="wits"/>
-		<xsl:text>'&lt;pre&gt;</xsl:text>
+		<!--<xsl:text>'&lt;pre&gt;</xsl:text>-->
+		'<xsl:element name="pre">
 			<xsl:for-each select="$wits/Axiom">
 				<xsl:value-of select="normalize-space(.)"/><xsl:text>.\n</xsl:text>
 			</xsl:for-each>
-		<xsl:text>&lt;/pre&gt;'</xsl:text>
+		</xsl:element>'
+		<!--<xsl:text>&lt;/pre&gt;'</xsl:text>-->
 	</xsl:template>
 	
 	
@@ -1423,7 +1425,7 @@ If not, see http://www.gnu.org/licenses/
 					<xsl:with-param name="wits" select="WitnessAxioms"/>
 				</xsl:call-template>
 			</xsl:variable>
-			<div style="display:inline" class="hotspot" onmouseout="tooltip.hide();" onmouseover="tooltip.show({$witnesses});">
+			<div style="display:inline;word-break:break-all;" class="hotspot" onmouseout="tooltip.hide();" onmouseover="tooltip.show({$witnesses});">
 				<xsl:value-of select="Concept"/>.
 			</div>
 		</xsl:for-each>

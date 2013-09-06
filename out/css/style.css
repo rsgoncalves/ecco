@@ -337,4 +337,5 @@ form.inl {
 pre {
     font-size: 12px;
     font-family: Verdana, Helvetica, Arial, sans-serif;
+    word-break: break-all;
 }

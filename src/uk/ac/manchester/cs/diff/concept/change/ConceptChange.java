@@ -18,6 +18,7 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.concept.change;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -33,7 +34,7 @@ import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
  */
 public class ConceptChange {
 	private OWLClass c;
-	private Set<OWLAxiom> dirSpecWit, indirSpecWit, dirGenWit, indirGenWit;
+	private Set<OWLAxiom> dirSpecWit, indirSpecWit, dirGenWit, indirGenWit, allWit;
 
 	/**
 	 * Constructor
@@ -47,6 +48,7 @@ public class ConceptChange {
 		indirSpecWit = specWits.getIndirectWitnesses();
 		dirGenWit = genWits.getDirectWitnesses();
 		indirGenWit = genWits.getIndirectWitnesses();
+		allWit = new HashSet<OWLAxiom>();
 	}
 	
 	
@@ -64,6 +66,7 @@ public class ConceptChange {
 		this.indirSpecWit = indirSpecWit;
 		this.dirGenWit = dirGenWit;
 		this.indirGenWit = indirGenWit;
+		allWit = new HashSet<OWLAxiom>();
 	}
 		
 	
@@ -73,6 +76,19 @@ public class ConceptChange {
 	 */
 	public OWLClass getConcept() {
 		return c;
+	}
+	
+	
+	/**
+	 * Get all witness axioms for the concept change
+	 * @return Set of witness axioms
+	 */
+	public Set<OWLAxiom> getAllWitnesses() {
+		allWit.addAll(dirSpecWit);
+		allWit.addAll(dirGenWit);
+		allWit.addAll(indirSpecWit);
+		allWit.addAll(indirGenWit);
+		return allWit;
 	}
 	
 	

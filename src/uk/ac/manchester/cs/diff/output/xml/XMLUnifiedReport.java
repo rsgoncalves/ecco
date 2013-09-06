@@ -41,8 +41,8 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
  * University of Manchester <br/>
  */
 public class XMLUnifiedReport extends XMLAxiomDiffReport {
-	private Map<OWLAxiom,Set<ConceptChange>> ont1DirSpec, ont1DirGen, ont2DirSpec, ont2DirGen;
-	private Map<OWLAxiom,Set<ConceptChange>> ont1IndirSpec, ont1IndirGen, ont2IndirSpec, ont2IndirGen;
+	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1DirSpec, ont1DirGen, ont2DirSpec, ont2DirGen;
+	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1IndirSpec, ont1IndirGen, ont2IndirSpec, ont2IndirGen;
 	
 	/**
 	 * Constructor
@@ -140,25 +140,26 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param sf	Short form provider
 	 * @return Number of direct concept changes caused by the given axiom
 	 */
+	@SuppressWarnings("unchecked")
 	private int addDirectChanges(OWLAxiom axiom, Element parent, Document d, ShortFormProvider sf) {
 		int nrChanges = 0;
 		if(ont1DirSpec.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont1DirSpec.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont1DirSpec.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Specialisation", true, parent, d, sf);
 		}
 		if(ont1DirGen.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont1DirGen.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont1DirGen.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Generalisation", true, parent, d, sf);
 		}
 		if(ont2DirSpec.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont2DirSpec.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont2DirSpec.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Specialisation", true, parent, d, sf);
 		}
 		if(ont2DirGen.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont2DirGen.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont2DirGen.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Generalisation", true, parent, d, sf);
 		}
@@ -174,25 +175,26 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param sf	Short form provider
 	 * @return Number of indirect concept changes caused by the given axiom
 	 */
+	@SuppressWarnings("unchecked")
 	private int addIndirectChanges(OWLAxiom axiom, Element parent, Document d, ShortFormProvider sf) {
 		int nrChanges = 0;
 		if(ont1IndirSpec.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont1IndirSpec.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont1IndirSpec.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Specialisation", false, parent, d, sf);
 		}
 		if(ont1IndirGen.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont1IndirGen.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont1IndirGen.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Generalisation", false, parent, d, sf);
 		}
 		if(ont2IndirSpec.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont2IndirSpec.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont2IndirSpec.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Specialisation", false, parent, d, sf);
 		}
 		if(ont2IndirGen.containsKey(axiom)) {
-			Set<ConceptChange> changes = ont2IndirGen.get(axiom);
+			Set<ConceptChange> changes = (Set<ConceptChange>) ont2IndirGen.get(axiom);
 			nrChanges += changes.size();
 			addConceptChanges(changes, "Generalisation", false, parent, d, sf);
 		}
