@@ -164,7 +164,7 @@ public class EccoRunner {
 			if(axiomChanges == null) {
 				out = new XMLAxiomDiffReport(ont1, ont2, axiom_diff.getStructuralChangeSet());
 				transform = false;
-				// TODO: csv for struct diff?
+				// TODO: csv for struct diff
 			}
 			else {
 				out = axiom_diff.getXMLReport();

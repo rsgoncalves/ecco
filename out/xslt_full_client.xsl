@@ -1402,17 +1402,15 @@ If not, see http://www.gnu.org/licenses/
 
 	<!--                     CONCEPT HANDLING TEMPLATES                     -->
 
-
+	
 	<!-- Get the set of witness axioms -->
 	<xsl:template name="getWitnesses">
 		<xsl:param name="wits"/>
-		<!--<xsl:text>'&lt;pre&gt;</xsl:text>-->
-		'<xsl:element name="pre">
+		<xsl:text>'&lt;pre&gt;</xsl:text>
 			<xsl:for-each select="$wits/Axiom">
 				<xsl:value-of select="normalize-space(.)"/><xsl:text>.\n</xsl:text>
 			</xsl:for-each>
-		</xsl:element>'
-		<!--<xsl:text>&lt;/pre&gt;'</xsl:text>-->
+		<xsl:text>&lt;/pre&gt;'</xsl:text>
 	</xsl:template>
 	
 	

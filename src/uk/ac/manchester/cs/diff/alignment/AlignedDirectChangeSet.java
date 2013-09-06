@@ -80,10 +80,10 @@ public class AlignedDirectChangeSet {
 	 */
 	public void alignChanges() {
 		ForkJoinPool fjPool = new ForkJoinPool();
-		ont1map_spec = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlySpecialised(), eff_rems, nrJusts, true, true));
-		ont1map_gen = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlyGeneralised(), eff_rems, nrJusts, false, true));
-		ont2map_spec = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, true, true));
-		ont2map_gen = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, false, true));
+		ont1map_spec = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSDirectlySpecialised(), eff_rems, nrJusts, true, true));
+		ont1map_gen = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSDirectlyGeneralised(), eff_rems, nrJusts, false, true));
+		ont2map_spec = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSDirectlySpecialised(), eff_adds, nrJusts, true, true));
+		ont2map_gen = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSDirectlySpecialised(), eff_adds, nrJusts, false, true));
 	}
 	
 	

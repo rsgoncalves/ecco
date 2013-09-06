@@ -44,7 +44,7 @@ public class ChangeAligner extends RecursiveTask<Map<OWLAxiom,Set<? extends Conc
 	private OWLOntology ont;
 	private boolean spec, direct;
 	private int limit;
-	private int MAX_SEQ = 20;
+	private int MAX_SEQ = 10;
 	
 	/**
 	 * Constructor
