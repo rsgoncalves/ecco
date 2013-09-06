@@ -145,7 +145,7 @@ public class EccoRunner {
 			ConceptChangeSet conceptChanges = concept_diff.getDiff();
 			
 			long t2 = System.currentTimeMillis();
-			System.out.print("Aligning term and axiom changes... ");
+			if(verbose) System.out.print("Aligning term and axiom changes... ");
 			
 			AlignedDirectChangeSet dirChanges = new AlignedDirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
 			AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
