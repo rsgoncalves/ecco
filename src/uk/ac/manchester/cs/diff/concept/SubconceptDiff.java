@@ -18,7 +18,6 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.concept;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,17 +28,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -54,7 +42,6 @@ import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.w3c.dom.Document;
 
 import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
@@ -629,32 +616,6 @@ public class SubconceptDiff implements ConceptDiff {
 			ont2axs.add(new AddAxiom(ont1, df.getOWLDeclarationAxiom(c)));
 		}
 		ont1.getOWLOntologyManager().applyChanges(ont2axs);
-	}
-	
-	
-	/**
-	 * Get the XML change set and serialise it
-	 */
-	public void serializeXMLReport() {
-		XMLConceptDiffReport report = getXMLReport();
-		Document doc = report.getReport();
-		
-		Transformer transformer = null;
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		} catch (TransformerConfigurationException | TransformerFactoryConfigurationError e) {
-			e.printStackTrace();
-		}
-		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
-		Result output = new StreamResult(new File(outputDir + "diffChangeSet.xml"));
-		Source input = new DOMSource(doc);
-
-		try {
-			transformer.transform(input, output);
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	

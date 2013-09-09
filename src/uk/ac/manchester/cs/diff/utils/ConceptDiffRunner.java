@@ -23,7 +23,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Set;
+
+import javax.xml.transform.TransformerException;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -31,8 +35,12 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
+import uk.ac.manchester.cs.diff.concept.ConceptDiff;
+import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
+import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -86,11 +94,14 @@ public class ConceptDiffRunner {
 	 * param 0: ontology1
 	 * param 1: ontology2
 	 * param 2: output directory
-	 * param 3: signature file
+	 * param 3: diff type
+	 * param 4: signature file
 	 * @throws OWLOntologyCreationException 
 	 * @throws InterruptedException 
+	 * @throws TransformerException 
 	 */
-	public static void main(String[] args) throws OWLOntologyCreationException, InterruptedException {
+	public static void main(String[] args) throws OWLOntologyCreationException, InterruptedException, TransformerException {
+		boolean verbose = true;
 		File f1 = new File(args[0]), f2 = new File(args[1]);
 		OWLOntologyManager man1 = OWLManager.createOWLOntologyManager(), man2 = OWLManager.createOWLOntologyManager();
 		
@@ -107,14 +118,29 @@ public class ConceptDiffRunner {
 		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); 
 		man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
 		
-		// get diff
-		SubconceptDiff diff = new SubconceptDiff(ont1, ont2, outputDir, true);
-		ConceptChangeSet cs = diff.getDiff();
+		String cdiff = args[3];
 		
+		// get diff
+		ConceptDiff diff = null;
+		if(cdiff.equals("at")) {
+			diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+			((SubconceptDiff)diff).setAtomicConceptDiff(true);
+		}
+		else if(cdiff.equals("sub"))
+			diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+		else if(cdiff.equals("gr"))
+			diff = new GrammarDiff(ont1, ont2, outputDir, verbose);
+		else if(cdiff.equals("cvs"))
+			diff = new ContentCVSDiff(ont1, ont2, outputDir, verbose);
+		
+		ConceptChangeSet cs = diff.getDiff();
+		XMLConceptDiffReport rep = diff.getXMLReport();
+		
+		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
 		if(cs != null) {
 			String report = diff.getCSVChangeReport();
 			serializeString(report, outputDir, "diffLog.csv");
-			diff.serializeXMLReport();
+			serializeString(rep.getReportAsString(rep.getReport()), outputDir, "diffChangeSet_" + timeStamp + ".xml");
 		}
 	}
 }
