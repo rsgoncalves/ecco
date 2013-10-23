@@ -19,6 +19,7 @@
 
 body {
     background: #fff url(../images/logomanchester.png) no-repeat 5px 0px;
+    background-size: 150px 139px;
     font-size: 12px;
     font-family: Verdana, Helvetica, Arial, sans-serif; 
     color: #666666;

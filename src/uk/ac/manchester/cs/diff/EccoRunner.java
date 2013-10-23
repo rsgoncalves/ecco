@@ -36,6 +36,7 @@ import org.semanticweb.owlapi.io.IRIDocumentSource;
 import org.semanticweb.owlapi.io.StreamDocumentSource;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -106,6 +107,10 @@ public class EccoRunner {
 		man = OWLManager.createOWLOntologyManager();
 		config = new OWLOntologyLoaderConfiguration();
 		config.setLoadAnnotationAxioms(false);
+		if(!processImports) {
+			config.setFollowRedirects(false);
+			config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+		}
 	}
 	
 	
@@ -156,7 +161,7 @@ public class EccoRunner {
 			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
 			
 			if(saveDocs) {
-				saveXMLDocuments(out, xsltPath);
+				saveXMLDocuments(out, xsltPath, false);
 				// TODO csv report incl. concept changes
 			}
 		} 
@@ -171,7 +176,7 @@ public class EccoRunner {
 				saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
 			}
 			
-			if(saveDocs) saveXMLDocuments(out, xsltPath);
+			if(saveDocs) saveXMLDocuments(out, xsltPath, false);
 		}
 		
 		long end = System.currentTimeMillis();
@@ -187,11 +192,15 @@ public class EccoRunner {
 	 * @throws UnsupportedEncodingException
 	 * @throws TransformerException
 	 */
-	public void saveXMLDocuments(XMLReport report, String xsltPath) throws UnsupportedEncodingException, TransformerException {
+	public void saveXMLDocuments(XMLReport report, String xsltPath, boolean includeTimestamp) 
+			throws UnsupportedEncodingException, TransformerException {
 		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
-		saveDocumentToFile(report, report.getXMLDocumentUsingTermNames(), outputDir, "_names_" + timeStamp , xsltPath);	// term name based document
-		saveDocumentToFile(report, report.getXMLDocumentUsingLabels(), outputDir, "_labels_" + timeStamp, xsltPath);	// label based document
-		saveDocumentToFile(report, report.getXMLDocumentUsingGenSyms(), outputDir, "_gensyms_" + timeStamp, xsltPath);	// gensym based document
+		saveDocumentToFile(report, report.getXMLDocumentUsingTermNames(), outputDir, 
+				(includeTimestamp ? "_names_" + timeStamp : "_names"), xsltPath);	// term name based document
+		saveDocumentToFile(report, report.getXMLDocumentUsingLabels(), outputDir, 
+				(includeTimestamp ? "_labels_" + timeStamp : "_labels"), xsltPath);	// label based document
+		saveDocumentToFile(report, report.getXMLDocumentUsingGenSyms(), outputDir, 
+				(includeTimestamp ? "_gensyms_" + timeStamp : "_gensyms"), xsltPath);	// gensym based document
 	}
 	
 	
@@ -227,7 +236,7 @@ public class EccoRunner {
 		if(!localFile) sep = "/";
 		String filename = filepath.substring(filepath.lastIndexOf(sep)+1, filepath.length());
 		System.out.println("Input " + ontNr + ": " + filename + " (" + filepath + ")");
-		
+
 		// Load ontology
 		OWLOntology ont = null;
 		try {
@@ -387,7 +396,7 @@ public class EccoRunner {
 	private void saveStringToFile(String outputDir, String filename, String content, String sep) {
         try {
             new File(outputDir).mkdirs();
-            FileWriter fw = new FileWriter(outputDir + sep + filename, true);
+            FileWriter fw = new FileWriter(outputDir + sep + filename, false);
             fw.write(content);
             fw.close();
         } catch (IOException e) {
@@ -508,7 +517,7 @@ public class EccoRunner {
 				runner.setOutputDirectory("out" + sep, verbose);
 				System.out.println("Using default output directory: [ecco_folder]" + sep + "out" + sep + "\n");
 			}
-
+			
 			OWLOntology ont1 = runner.loadOntology(1, f1, localOnt1);
 			OWLOntology ont2 = runner.loadOntology(2, f2, localOnt2);
 			
