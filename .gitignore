@@ -48,3 +48,4 @@ build/*
 Icon?
 ehthumbs.db
 Thumbs.db
+/bin
