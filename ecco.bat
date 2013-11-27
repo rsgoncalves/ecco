@@ -14,4 +14,4 @@ if not exist ecco.jar echo Building ecco from sources... && ant
 ::
 :: Run ecco with the specified arguments
 :: Maximum heap space is set to: 4GB, and Java library path to: .\lib
-java -Xmx4G -Djava.library.path=".\lib" -DentityExpansionLimit=100000000 -jar ecco.jar %*
+java -Xmx8G -Djava.library.path=".\lib" -DentityExpansionLimit=100000000 -jar ecco.jar %*

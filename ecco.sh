@@ -12,8 +12,8 @@
 # Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
 [ -f ecco.jar ] || (echo "Building ecco from sources..." && ant)
 # 
-# Set the maximum memory to be used, by default, 4GB
-maxmem="4G"
+# Set the maximum memory to be used, by default, 8GB
+maxmem="8G"
 #
 # Library folder to load FaCT++'s native library
 lib=`pwd`"/lib" 

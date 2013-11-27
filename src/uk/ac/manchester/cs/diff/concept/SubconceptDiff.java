@@ -328,8 +328,8 @@ public class SubconceptDiff implements ConceptDiff {
 	protected WitnessConcepts getSpecialisationWitnesses(OWLClass subc, Map<OWLClass,OWLClassExpression> map, 
 			Set<OWLClass> topSuper1, Set<OWLClass> topSuper2, OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
 		// Get all superclasses
-		Set<OWLClass> ind1 = ont1reasoner.getSuperClasses(subc, false).getFlattened();
-		Set<OWLClass> ind2 = ont2reasoner.getSuperClasses(subc, false).getFlattened();
+		 Set<OWLClass> ind1 = ont1reasoner.getSuperClasses(subc, false).getFlattened();
+		 Set<OWLClass> ind2 = ont2reasoner.getSuperClasses(subc, false).getFlattened();
 
 		// Remove superclasses of Top
 		if(!subc.isOWLThing()) {

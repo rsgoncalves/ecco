@@ -381,7 +381,7 @@ public class EccoRunner {
 	 */
 	public void setOutputDirectory(String outputDirectory, String ontFile, boolean localOnt) {
 		ontFile = ontFile.substring(0, ontFile.lastIndexOf(sep)+1);
-		outputDir = ontFile + "out" + sep;
+		outputDir = "out" + sep + ontFile;
 		if(verbose) System.out.println("Output directory: " + outputDir + "\n");
 	}
 	
@@ -414,7 +414,7 @@ public class EccoRunner {
 		System.out.println("	[ONTOLOGY]	An input ontology file path or URL");
 		System.out.println();
 		System.out.println("	[OPTIONS]");
-		System.out.println("	-o		output directory; \"ont1\" and \"ont2\" can be used as shortcuts");
+		System.out.println("	-o		absolute output directory [default: ECCO-FOLDER/out ]");
 		System.out.println("	-t		transform resulting XML report into HTML");
 		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
 		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");
@@ -423,7 +423,7 @@ public class EccoRunner {
 		System.out.println("	-x		filepath to XSL Transformation file");
 		System.out.println("	-i		ignore Abox axioms");
 		System.out.println("	-j		maximum number of justifications computed per ineffectual change. Reducing");
-		System.out.println("			this can significantly speed things up [default: 10]");
+		System.out.println("			this can significantly speed up computation [default: 10]");
 		System.out.println("	-v		verbose mode");
 		System.out.println("	-h -help	print help message\n");
 	}

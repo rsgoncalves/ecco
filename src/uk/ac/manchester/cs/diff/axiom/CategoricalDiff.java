@@ -396,7 +396,16 @@ public class CategoricalDiff implements AxiomDiff {
 			throws OWLOntologyCreationException {
 		CategorisedChange change = null;
 		if(!newTerms.isEmpty()) {
-			if(!(eval.isLocal(ax, newTerms))) {
+			boolean atomicLhs = true;
+			if(ax instanceof OWLSubClassOfAxiom) {
+				OWLClassExpression c = ((OWLSubClassOfAxiom)ax).getSubClass();
+				if(c.isAnonymous() || !newTerms.contains(c))
+					atomicLhs = false;
+			}
+			else if(ax instanceof OWLEquivalentClassesAxiom)
+				atomicLhs = false;
+
+			if(atomicLhs && !(eval.isLocal(ax, newTerms))) {
 				if(effAdds) change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.NEWDESCRIPTION, new HashSet<OWLAxiom>(), newTerms);
 				else change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.RETIREDDESCRIPTION, new HashSet<OWLAxiom>(), newTerms);
 			}
