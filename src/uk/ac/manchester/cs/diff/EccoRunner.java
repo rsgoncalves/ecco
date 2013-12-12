@@ -77,8 +77,8 @@ public class EccoRunner {
 	private String outputDir;
 	private int nrJusts;
 	private static String sep = File.separator,
-			versionInfo = "2.3",
-			releaseDate = "6-Sep-2013",
+			versionInfo = "2.4",
+			releaseDate = "12-Dec-2013",
 			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
 			programTitle = 
 			"-------------------------------------------------------------------\n" +
@@ -126,7 +126,6 @@ public class EccoRunner {
 	 */
 	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath, boolean saveDocs) 
 			throws TransformerException, UnsupportedEncodingException {
-		System.out.println("\ndiff initiated");
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 		XMLReport out = null;
 		long start = System.currentTimeMillis();
