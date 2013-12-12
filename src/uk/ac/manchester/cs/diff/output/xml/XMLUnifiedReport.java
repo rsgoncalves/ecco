@@ -146,22 +146,22 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 		if(ont1DirSpec.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont1DirSpec.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Specialisation", true, parent, d, sf);
+			addConceptChanges(axiom, changes, "Specialisation", true, parent, d, sf);
 		}
 		if(ont1DirGen.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont1DirGen.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Generalisation", true, parent, d, sf);
+			addConceptChanges(axiom, changes, "Generalisation", true, parent, d, sf);
 		}
 		if(ont2DirSpec.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont2DirSpec.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Specialisation", true, parent, d, sf);
+			addConceptChanges(axiom, changes, "Specialisation", true, parent, d, sf);
 		}
 		if(ont2DirGen.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont2DirGen.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Generalisation", true, parent, d, sf);
+			addConceptChanges(axiom, changes, "Generalisation", true, parent, d, sf);
 		}
 		return nrChanges;
 	}
@@ -181,22 +181,22 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 		if(ont1IndirSpec.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont1IndirSpec.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Specialisation", false, parent, d, sf);
+			addConceptChanges(axiom, changes, "Specialisation", false, parent, d, sf);
 		}
 		if(ont1IndirGen.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont1IndirGen.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Generalisation", false, parent, d, sf);
+			addConceptChanges(axiom, changes, "Generalisation", false, parent, d, sf);
 		}
 		if(ont2IndirSpec.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont2IndirSpec.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Specialisation", false, parent, d, sf);
+			addConceptChanges(axiom, changes, "Specialisation", false, parent, d, sf);
 		}
 		if(ont2IndirGen.containsKey(axiom)) {
 			Set<ConceptChange> changes = (Set<ConceptChange>) ont2IndirGen.get(axiom);
 			nrChanges += changes.size();
-			addConceptChanges(changes, "Generalisation", false, parent, d, sf);
+			addConceptChanges(axiom, changes, "Generalisation", false, parent, d, sf);
 		}
 		return nrChanges;
 	}
@@ -209,25 +209,25 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param d	XML document
 	 * @param sf	Short form provider
 	 */
-	private void addConceptChanges(Set<ConceptChange> concepts, String type, boolean direct, Element parent, Document d, ShortFormProvider sf) {
+	private void addConceptChanges(OWLAxiom axiomChange, Set<ConceptChange> concepts, String type, boolean direct, Element parent, Document d, ShortFormProvider sf) {
 		for(ConceptChange c : concepts) {
 			Element change = d.createElement(type);
 			Element concept = d.createElement("Concept");
 			concept.setTextContent(getManchesterRendering(c.getConcept(), sf));
 			change.appendChild(concept);
-			
+
 			Set<OWLAxiom> witnesses = null;
 			if(type.equalsIgnoreCase("Specialisation")) {
 				if(direct)
-					witnesses = c.getDirectSpecialisationWitnesses();
+					witnesses = c.getDirectSpecialisationWitnessesForAxiom(axiomChange);
 				else
-					witnesses = c.getIndirectSpecialisationWitnesses();
+					witnesses = c.getIndirectSpecialisationWitnessesForAxiom(axiomChange);
 			}
 			else if(type.equals("Generalisation")) {
 				if(direct)
-					witnesses = c.getDirectGeneralisationWitnesses();
+					witnesses = c.getDirectGeneralisationWitnessesForAxiom(axiomChange);
 				else
-					witnesses = c.getIndirectGeneralisationWitnesses();
+					witnesses = c.getIndirectGeneralisationWitnessesForAxiom(axiomChange);
 			}
 			addWitnesses(witnesses, change, d, sf);
 			parent.appendChild(change);

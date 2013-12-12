@@ -78,7 +78,7 @@ public class ChangeAligner extends RecursiveTask<Map<OWLAxiom,Set<? extends Conc
 				if(direct) wits = c.getDirectGeneralisationWitnesses();
 				else wits = c.getIndirectGeneralisationWitnesses();
 			}
-			
+
 			for(OWLAxiom ax : wits) {
 				Set<Explanation<OWLAxiom>> exps = new JustificationFinder(ont, limit).getJustifications(ax);
 				for(Explanation<OWLAxiom> e : exps) {
@@ -94,6 +94,10 @@ public class ChangeAligner extends RecursiveTask<Map<OWLAxiom,Set<? extends Conc
 								mappings.add(c);
 								map.put(just_ax, mappings);
 							}
+							if(spec && direct) c.addDirectSpecialisationWitnessForAxiom(just_ax, ax);
+							if(!spec && direct) c.addDirectGeneralisationWitnessForAxiom(just_ax, ax);
+							if(spec && !direct) c.addIndirectSpecialisationWitnessForAxiom(just_ax, ax);
+							if(!spec && !direct) c.addIndirectGeneralisationWitnessForAxiom(just_ax, ax);
 						}
 					}
 				}

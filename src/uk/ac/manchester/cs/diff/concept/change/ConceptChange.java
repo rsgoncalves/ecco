@@ -18,7 +18,10 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.concept.change;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -35,6 +38,7 @@ import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
 public class ConceptChange {
 	private OWLClass c;
 	private Set<OWLAxiom> dirSpecWit, indirSpecWit, dirGenWit, indirGenWit, allWit;
+	private Map<OWLAxiom,Set<OWLAxiom>> dirSpecWitsOfAx, dirGenWitsOfAx, indirSpecWitsOfAx, indirGenWitsOfAx;
 
 	/**
 	 * Constructor
@@ -49,6 +53,10 @@ public class ConceptChange {
 		dirGenWit = genWits.getDirectWitnesses();
 		indirGenWit = genWits.getIndirectWitnesses();
 		allWit = new HashSet<OWLAxiom>();
+		dirSpecWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
+		dirGenWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
+		indirSpecWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
+		indirGenWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
 	}
 	
 	
@@ -67,6 +75,10 @@ public class ConceptChange {
 		this.dirGenWit = dirGenWit;
 		this.indirGenWit = indirGenWit;
 		allWit = new HashSet<OWLAxiom>();
+		dirSpecWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
+		dirSpecWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
+		indirSpecWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
+		indirSpecWitsOfAx = new HashMap<OWLAxiom,Set<OWLAxiom>>();
 	}
 		
 	
@@ -269,5 +281,109 @@ public class ConceptChange {
 			return true;
 		else
 			return false;
+	}
+	
+	
+	/**
+	 * Add an entailment (witness) axiom which is a consequence of an effectual axiom change (which in turn directly specialises the concept)
+	 * @param effAx	Effectual axiom which gives rise to the entailment (witness) axiom change
+	 * @param witnessAx	Entailment in the diff - the witness axiom
+	 */
+	public void addDirectSpecialisationWitnessForAxiom(OWLAxiom effAx, OWLAxiom witnessAx) {
+		if(dirSpecWitsOfAx.containsKey(effAx)) {
+			Set<OWLAxiom> wits = dirSpecWitsOfAx.get(effAx);
+			wits.add(witnessAx);
+			dirSpecWitsOfAx.put(effAx, wits);
+		}
+		else
+			dirSpecWitsOfAx.put(effAx, new HashSet<OWLAxiom>(Collections.singleton(witnessAx)));
+	}
+	
+	
+	/**
+	 * Add an entailment (witness) axiom which is a consequence of an effectual axiom change (which in turn directly generalises the concept)
+	 * @param effAx	Effectual axiom which gives rise to the entailment (witness) axiom change
+	 * @param witnessAx	Entailment in the diff - the witness axiom
+	 */
+	public void addDirectGeneralisationWitnessForAxiom(OWLAxiom effAx, OWLAxiom witnessAx) {
+		if(dirGenWitsOfAx.containsKey(effAx)) {
+			Set<OWLAxiom> wits = dirGenWitsOfAx.get(effAx);
+			wits.add(witnessAx);
+			dirGenWitsOfAx.put(effAx, wits);
+		}
+		else
+			dirGenWitsOfAx.put(effAx, new HashSet<OWLAxiom>(Collections.singleton(witnessAx)));
+	}
+	
+	
+	/**
+	 * Add an entailment (witness) axiom which is a consequence of an effectual axiom change (which in turn indirectly specialises the concept)
+	 * @param effAx	Effectual axiom which gives rise to the entailment (witness) axiom change
+	 * @param witnessAx	Entailment in the diff - the witness axiom
+	 */
+	public void addIndirectSpecialisationWitnessForAxiom(OWLAxiom effAx, OWLAxiom witnessAx) {
+		if(indirSpecWitsOfAx.containsKey(effAx)) {
+			Set<OWLAxiom> wits = indirSpecWitsOfAx.get(effAx);
+			wits.add(witnessAx);
+			indirSpecWitsOfAx.put(effAx, wits);
+		}
+		else
+			indirSpecWitsOfAx.put(effAx, new HashSet<OWLAxiom>(Collections.singleton(witnessAx)));
+	}
+	
+	
+	/**
+	 * Add an entailment (witness) axiom which is a consequence of an effectual axiom change (which in turn indirectly generalises the concept)
+	 * @param effAx	Effectual axiom which gives rise to the entailment (witness) axiom change
+	 * @param witnessAx	Entailment in the diff - the witness axiom
+	 */
+	public void addIndirectGeneralisationWitnessForAxiom(OWLAxiom effAx, OWLAxiom witnessAx) {
+		if(indirGenWitsOfAx.containsKey(effAx)) {
+			Set<OWLAxiom> wits = indirGenWitsOfAx.get(effAx);
+			wits.add(witnessAx);
+			indirGenWitsOfAx.put(effAx, wits);
+		}
+		else
+			indirGenWitsOfAx.put(effAx, new HashSet<OWLAxiom>(Collections.singleton(witnessAx)));
+	}
+	
+	
+	/**
+	 * Get the set of (direct specialisation) witness axioms for this concept change which are related to the given axiom 
+	 * @param axiom	Effectual axiom change
+	 * @return Set of witness axioms that are a consequence of the given axiom
+	 */
+	public Set<OWLAxiom> getDirectSpecialisationWitnessesForAxiom(OWLAxiom axiom) {
+		return dirSpecWitsOfAx.get(axiom);
+	}
+	
+	
+	/**
+	 * Get the set of (direct generalisation) witness axioms for this concept change which are related to the given axiom 
+	 * @param axiom	Effectual axiom change
+	 * @return Set of witness axioms that are a consequence of the given axiom
+	 */
+	public Set<OWLAxiom> getDirectGeneralisationWitnessesForAxiom(OWLAxiom axiom) {
+		return dirGenWitsOfAx.get(axiom);
+	}
+	
+	
+	/**
+	 * Get the set of (indirect specialisation) witness axioms for this concept change which are related to the given axiom 
+	 * @param axiom	Effectual axiom change
+	 * @return Set of witness axioms that are a consequence of the given axiom
+	 */
+	public Set<OWLAxiom> getIndirectSpecialisationWitnessesForAxiom(OWLAxiom axiom) {
+		return indirSpecWitsOfAx.get(axiom);
+	}
+	
+	
+	/**
+	 * Get the set of (indirect generalisation) witness axioms for this concept change which are related to the given axiom 
+	 * @param axiom	Effectual axiom change
+	 * @return Set of witness axioms that are a consequence of the given axiom
+	 */
+	public Set<OWLAxiom> getIndirectGeneralisationWitnessesForAxiom(OWLAxiom axiom) {
+		return indirGenWitsOfAx.get(axiom);
 	}
 }
