@@ -123,7 +123,7 @@ public class StructuralDiff implements AxiomDiff {
 		changeSet = new StructuralChangeSet(additions, removals, shared);
 		addOntologyFileNames(); changeSet.setDiffTime(diffTime);
 		
-		if(verbose) { System.out.println("done"); printDiff(); }
+		if(verbose) { System.out.println("done (" + diffTime + " secs)"); printDiff(); }
 		return changeSet;
 	}
 	
@@ -132,8 +132,7 @@ public class StructuralDiff implements AxiomDiff {
 	 * Print diff results
 	 */
 	public void printDiff() {
-		System.out.println("   Structural diff time: " + diffTime + " seconds");
-		System.out.println("   Structural changes:" + 
+		System.out.println(
 				"\n\tAdditions: " + changeSet.getAddedAxioms().size() +
 				"\n\tRemovals: " + changeSet.getRemovedAxioms().size() + 
 				"\n\tShared: " + changeSet.getShared().size());

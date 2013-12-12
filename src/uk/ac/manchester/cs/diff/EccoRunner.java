@@ -126,7 +126,7 @@ public class EccoRunner {
 	 */
 	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath, boolean saveDocs) 
 			throws TransformerException, UnsupportedEncodingException {
-		System.out.println("Computing diff...");
+		System.out.println("\ndiff initiated");
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 		XMLReport out = null;
 		long start = System.currentTimeMillis();

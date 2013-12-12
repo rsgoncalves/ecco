@@ -147,7 +147,7 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals);
 		logicalChangeSet.setDiffTime(diffTime);
 
-		if(verbose) { System.out.println("done"); printDiff(); }
+		if(verbose) { System.out.println("done (" + diffTime + " secs)"); printDiff(); }
 		return logicalChangeSet;
 	}
 	
@@ -189,8 +189,7 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 	 * Print diff results
 	 */
 	public void printDiff() {
-		System.out.println("   Logical diff time: " + diffTime + " seconds");
-		System.out.println("   Logical changes:" + 
+		System.out.println( 
 				"\n\tEffectual Additions: " + logicalChangeSet.getEffectualAdditionAxioms().size() +
 				"\n\tEffectual Removals: " + logicalChangeSet.getEffectualRemovalAxioms().size() + 
 				"\n\tIneffectual Additions: " + logicalChangeSet.getIneffectualAdditionAxioms().size() +
