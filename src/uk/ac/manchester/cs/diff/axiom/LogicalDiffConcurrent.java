@@ -190,7 +190,7 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 	 */
 	public void printDiff() {
 		System.out.println( 
-				"\n\tEffectual Additions: " + logicalChangeSet.getEffectualAdditionAxioms().size() +
+				"\tEffectual Additions: " + logicalChangeSet.getEffectualAdditionAxioms().size() +
 				"\n\tEffectual Removals: " + logicalChangeSet.getEffectualRemovalAxioms().size() + 
 				"\n\tIneffectual Additions: " + logicalChangeSet.getIneffectualAdditionAxioms().size() +
 				"\n\tIneffectual Removals: " + logicalChangeSet.getIneffectualRemovalAxioms().size());

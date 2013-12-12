@@ -133,7 +133,7 @@ public class StructuralDiff implements AxiomDiff {
 	 */
 	public void printDiff() {
 		System.out.println(
-				"\n\tAdditions: " + changeSet.getAddedAxioms().size() +
+				"\tAdditions: " + changeSet.getAddedAxioms().size() +
 				"\n\tRemovals: " + changeSet.getRemovedAxioms().size() + 
 				"\n\tShared: " + changeSet.getShared().size());
 	}
