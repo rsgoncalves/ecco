@@ -317,8 +317,6 @@ public class SubconceptDiff implements ConceptDiff {
 	 * Get the sets of (LHS and RHS) generalisation witnesses for the given concept
 	 * @param subc	Concept
 	 * @param map	Map of fresh concept names to the concepts they represent
-	 * @param botSub1	Set of unsatisfiable classes from ontology 1
-	 * @param botSub2	Set of unsatisfiable classes from ontology 2
 	 * @param ont1reasoner	Ontology 1 reasoner
 	 * @param ont2reasoner	Ontology 2 reasoner
 	 * @return Generalisation concept witnesses for the given concept
@@ -345,8 +343,6 @@ public class SubconceptDiff implements ConceptDiff {
 	 * Get the sets of (LHS and RHS) specialisation witnesses for the given concept
 	 * @param subc	Concept
 	 * @param map	Map of fresh concept names to the concepts they represent
-	 * @param topSuper1	Set of superclasses of Top in ontology 1
-	 * @param topSuper2	Set of superclasses of Top in ontology 2
 	 * @param ont1reasoner	Ontology 1 reasoner
 	 * @param ont2reasoner	Ontology 2 reasoner
 	 * @return Specialisation concept witnesses for the given concept
