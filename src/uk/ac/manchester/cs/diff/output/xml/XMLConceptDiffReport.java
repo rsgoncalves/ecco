@@ -144,6 +144,7 @@ public class XMLConceptDiffReport {
 		addGeneralisationChanges("Mixed", "lhs_mg", changeSet.getLHSMixedGeneralised(), d, "lhs_gen");
 	}
 	
+	
 	/**
 	 * Add ontology 2 (RHS) affected concepts
 	 * @param parent	Parent element
@@ -301,6 +302,7 @@ public class XMLConceptDiffReport {
 		root.setAttribute("uuid", id);
 		d.appendChild(root);
 	}
+	
 	
 	/**
 	 * Get Manchester syntax of an OWL object

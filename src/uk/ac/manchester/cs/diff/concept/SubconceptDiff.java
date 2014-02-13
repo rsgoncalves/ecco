@@ -86,6 +86,7 @@ public class SubconceptDiff implements ConceptDiff {
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
 		sigma = new HashSet<OWLEntity>(new Signature().getUnionConceptNames(ont1, ont2));
+		sigma.add(df.getOWLNothing()); sigma.add(df.getOWLThing());
 		initDataStructures();
 		equalizeSignatures(ont1, ont2);
 	}
@@ -133,8 +134,7 @@ public class SubconceptDiff implements ConceptDiff {
 		if(verbose) System.out.println("   Input signature: sigma contains " + sigma.size() + " concept names");
 		
 		Map<OWLClass,OWLClassExpression> map = null;
-		if(!atomicOnly) 
-			map = getSubConceptsMapping();
+		if(!atomicOnly) map = getSubConceptsMapping();
 		classifyOntologies(ont1, ont2);
 		
 		Set<OWLClass> affected = computeChangeWitnesses(map);
@@ -195,26 +195,25 @@ public class SubconceptDiff implements ConceptDiff {
 		Set<OWLClass> affected = new HashSet<OWLClass>();
 		long start = System.currentTimeMillis();
 
-		Set<OWLClass> topSuper1 = ont1reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
-		Set<OWLClass> topSuper2 = ont2reasoner.getSuperClasses(df.getOWLThing(), false).getFlattened();
-		Set<OWLClass> botSub1 = ont1reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
-		Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
-		
 		// Get specialisation and generalisation witnesses for each concept
 		for(OWLEntity subc : sigma) {
 			if(subc instanceof OWLClass) {
 				OWLClass c = (OWLClass)subc;
-				WitnessConcepts specWit = getSpecialisationWitnesses(c, map, topSuper1, topSuper2, ont1reasoner, ont2reasoner);
-				WitnessConcepts genWit = getGeneralisationWitnesses(c, map, botSub1, botSub2, ont1reasoner, ont2reasoner);
+				WitnessConcepts specWit = getSpecialisationWitnesses(c, map, ont1reasoner, ont2reasoner);
+				WitnessConcepts genWit = getGeneralisationWitnesses(c, map, ont1reasoner, ont2reasoner);
 
-				if(!specWit.isEmpty() || !genWit.isEmpty()) affected.add(c);
-				addChangeToMap(c, specWit.getLHSWitnesses(), ont1_diffL);
-				addChangeToMap(c, genWit.getLHSWitnesses(), ont1_diffR);
-				addChangeToMap(c, specWit.getRHSWitnesses(), ont2_diffL);
-				addChangeToMap(c, genWit.getRHSWitnesses(), ont2_diffR);
+				if((specWit != null && !specWit.isEmpty()) || (genWit != null && !genWit.isEmpty())) affected.add(c);
+				
+				if(genWit != null) {
+					addChangeToMap(c, genWit.getLHSWitnesses(), ont1_diffR);
+					addChangeToMap(c, genWit.getRHSWitnesses(), ont2_diffR);
+				}
+				if(specWit != null) {
+					addChangeToMap(c, specWit.getLHSWitnesses(), ont1_diffL);
+					addChangeToMap(c, specWit.getRHSWitnesses(), ont2_diffL);
+				}
 			}
 		}
-		
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
 		return affected;
@@ -231,17 +230,42 @@ public class SubconceptDiff implements ConceptDiff {
 	protected ConceptChangeSet splitDirectIndirectChanges(Set<OWLClass> affected, OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
 		if(verbose) System.out.print("   Splitting directly and indirectly affected concepts... ");
 		long start = System.currentTimeMillis();
+		/* 
+		 * TODO: The filtering of changes to (or via) Bottom and Top is somewhat crippled: The OWL API only allows us to extract unsatisfiable 
+		 * and global *atomic* concepts, meaning that we'd have to test whether each extracted subconcept is unsatisfiable or equivalent to Top
+		 */
+		Set<OWLClass> topSuper1 = ont1reasoner.getEquivalentClasses(df.getOWLThing()).getEntities();
+		Set<OWLClass> topSuper2 = ont2reasoner.getEquivalentClasses(df.getOWLThing()).getEntities();
+		Set<OWLClass> botSub1 = ont1reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
+		Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 		
+		WitnessPack lhs_spec = getWitnesses(ont1_diffL, ont1reasoner, true, topSuper1, botSub1);
+		WitnessPack lhs_gen = getWitnesses(ont1_diffR, ont1reasoner, false, topSuper1, botSub1);
+
+		WitnessPack rhs_spec = getWitnesses(ont2_diffL, ont2reasoner, true, topSuper2, botSub2);
+		WitnessPack rhs_gen = getWitnesses(ont2_diffR, ont2reasoner, false, topSuper2, botSub2);
+
+		long end = System.currentTimeMillis();
+		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		return sortOutChangeSet(affected, lhs_spec, lhs_gen, rhs_spec, rhs_gen);
+	}
+	
+	
+	/**
+	 * Given the set of affected concepts, and their respective (direct and/or indirect witnesses), create a concept-based change set
+	 * for both ontologies, as well as an overall change set representation which takes into account changes in both ontologies 
+	 * @param affected	Set of affected concept names
+	 * @param lhs_spec	Pack of direct and indirect specialisation witnesses in ontology 1 
+	 * @param lhs_gen	Pack of direct and indirect generalisation witnesses in ontology 1
+	 * @param rhs_spec	Pack of direct and indirect specialisation witnesses in ontology 2
+	 * @param rhs_gen	Pack of direct and indirect generalisation witnesses in ontology 2
+	 * @return Concept change set
+	 */
+	private ConceptChangeSet sortOutChangeSet(Set<OWLClass> affected, WitnessPack lhs_spec, WitnessPack lhs_gen, WitnessPack rhs_spec, WitnessPack rhs_gen) {
 		Set<RHSConceptChange> rhsConceptChanges = new HashSet<RHSConceptChange>();
 		Set<LHSConceptChange> lhsConceptChanges = new HashSet<LHSConceptChange>();
 		Set<ConceptChange> conceptChanges = new HashSet<ConceptChange>();
 		
-		WitnessPack lhs_spec = getWitnesses(ont1_diffL, ont1reasoner, true);
-		WitnessPack lhs_gen = getWitnesses(ont1_diffR, ont1reasoner, false);
-
-		WitnessPack rhs_spec = getWitnesses(ont2_diffL, ont2reasoner, true);
-		WitnessPack rhs_gen = getWitnesses(ont2_diffR, ont2reasoner, false);
-
 		for(OWLClass c : affected) {
 			WitnessAxioms ls = new WitnessAxioms(lhs_spec.getDirectWitnesses(c), lhs_spec.getIndirectWitnesses(c));
 			WitnessAxioms rs = new WitnessAxioms(rhs_spec.getDirectWitnesses(c), rhs_spec.getIndirectWitnesses(c));
@@ -273,8 +297,6 @@ public class SubconceptDiff implements ConceptDiff {
 				conceptChanges.add(change);
 			}
 		}
-		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
 		return new ConceptChangeSet(lhsConceptChanges, rhsConceptChanges, conceptChanges);
 	}
 	
@@ -302,16 +324,20 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Generalisation concept witnesses for the given concept
 	 */
 	protected WitnessConcepts getGeneralisationWitnesses(OWLClass subc, Map<OWLClass,OWLClassExpression> map, 
-			Set<OWLClass> botSub1, Set<OWLClass> botSub2, OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
-		// Get all subclasses
-		Set<OWLClass> ind1 = ont1reasoner.getSubClasses(subc, false).getFlattened();
-		Set<OWLClass> ind2 = ont2reasoner.getSubClasses(subc, false).getFlattened();
+			OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
+		Set<OWLClass> ind1 = ont1reasoner.getEquivalentClasses(subc).getEntitiesMinus(subc);
+		Set<OWLClass> ind2 = ont2reasoner.getEquivalentClasses(subc).getEntitiesMinus(subc);
+
+		ind1.addAll(ont1reasoner.getSubClasses(subc, false).getFlattened());
+		ind2.addAll(ont2reasoner.getSubClasses(subc, false).getFlattened());
+
+		// Remove bottom
+		ind1.remove(df.getOWLNothing()); ind2.remove(df.getOWLNothing());
 		
-		// Remove subclasses of Bottom
-		if(!subc.isOWLNothing()) {
-			ind1.removeAll(botSub1); ind2.removeAll(botSub2);
-		}
-		return getDifferentConcepts(ind1, ind2, map);
+		if(!subc.isOWLThing())
+			return getDifferentConcepts(ind1, ind2, map);
+		else
+			return null;
 	}
 	
 	
@@ -326,16 +352,20 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Specialisation concept witnesses for the given concept
 	 */
 	protected WitnessConcepts getSpecialisationWitnesses(OWLClass subc, Map<OWLClass,OWLClassExpression> map, 
-			Set<OWLClass> topSuper1, Set<OWLClass> topSuper2, OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
-		// Get all superclasses
-		 Set<OWLClass> ind1 = ont1reasoner.getSuperClasses(subc, false).getFlattened();
-		 Set<OWLClass> ind2 = ont2reasoner.getSuperClasses(subc, false).getFlattened();
+			OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
+		Set<OWLClass> ind1 = ont1reasoner.getEquivalentClasses(subc).getEntitiesMinus(subc);
+		Set<OWLClass> ind2 = ont2reasoner.getEquivalentClasses(subc).getEntitiesMinus(subc);
 
-		// Remove superclasses of Top
-		if(!subc.isOWLThing()) {
-			ind1.removeAll(topSuper1); ind2.removeAll(topSuper2);
-		}
-		return getDifferentConcepts(ind1, ind2, map);
+		ind1.addAll(ont1reasoner.getSuperClasses(subc, false).getFlattened());
+		ind2.addAll(ont2reasoner.getSuperClasses(subc, false).getFlattened());
+
+		// Remove top
+		ind1.remove(df.getOWLThing()); ind2.remove(df.getOWLThing());
+		
+		if(!subc.isOWLNothing())
+			return getDifferentConcepts(ind1, ind2, map);
+		else
+			return null;
 	}
 	
 	
@@ -381,14 +411,35 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param diffL	true if checking specialisations, false if generalisations
 	 * @return Pack of direct and indirect witnesses
 	 */
-	private WitnessPack getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner, boolean diffL) {
+	private WitnessPack getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner, boolean diffL,
+			Set<OWLClass> topSuper, Set<OWLClass> unsat) {
 		Map<OWLClassExpression,Set<OWLClass>> witMap = getWitnessMap(affectedConceptMap);
-		Map<OWLClass, Set<OWLAxiom>> directWits = new HashMap<OWLClass,Set<OWLAxiom>>();
-		Map<OWLClass, Set<OWLAxiom>> indirectWits = new HashMap<OWLClass,Set<OWLAxiom>>();
+		Map<OWLClass,Set<OWLAxiom>> directWits = new HashMap<OWLClass,Set<OWLAxiom>>();
+		Map<OWLClass,Set<OWLAxiom>> indirectWits = new HashMap<OWLClass,Set<OWLAxiom>>();
+		
 		for(OWLClassExpression ce : witMap.keySet()) {
 			Set<OWLClass> subs = null;
-			if(diffL) subs = reasoner.getSubClasses(ce, true).getFlattened();
-			else subs = reasoner.getSuperClasses(ce, true).getFlattened();
+			if(diffL) {
+				if(!reasoner.isSatisfiable(ce) || reasoner.isEntailed(df.getOWLEquivalentClassesAxiom(ce, df.getOWLThing()))) {
+					subs = reasoner.getEquivalentClasses(ce).getEntities();
+					if(!ce.isAnonymous()) subs.remove((OWLClass)ce);
+				}
+				else {
+					subs = reasoner.getSubClasses(ce, true).getFlattened();
+					subs.removeAll(unsat); // Remove unsat classes
+				}
+			}
+			else {
+				if(!reasoner.isSatisfiable(ce) || reasoner.isEntailed(df.getOWLEquivalentClassesAxiom(ce, df.getOWLThing()))) {
+					subs = reasoner.getEquivalentClasses(ce).getEntities();
+					if(!ce.isAnonymous()) subs.remove((OWLClass)ce);
+				}
+				else {
+					subs = reasoner.getSuperClasses(ce, true).getFlattened();
+					subs.removeAll(unsat); // Remove unsat classes
+					subs.removeAll(topSuper);
+				}
+			}
 			
 			for(OWLClass c : witMap.get(ce)) {
 				if(subs.contains(c)) { // direct witness

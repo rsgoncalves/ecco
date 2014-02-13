@@ -77,7 +77,7 @@ public class EccoRunner {
 	private String outputDir;
 	private int nrJusts;
 	private static String sep = File.separator,
-			versionInfo = "2.4",
+			versionInfo = "2.5",
 			releaseDate = "12-Dec-2013",
 			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
 			programTitle = 
@@ -161,23 +161,21 @@ public class EccoRunner {
 			
 			if(saveDocs) {
 				saveXMLDocuments(out, xsltPath, false);
-				// TODO csv report incl. concept changes
+				// TODO: CSV report which includes concept changes
 			}
 		} 
 		else {
 			if(axiomChanges == null) {
 				out = new XMLAxiomDiffReport(ont1, ont2, axiom_diff.getStructuralChangeSet());
 				transform = false;
-				// TODO: csv for struct diff
+				// TODO: CSV output for structural diff alone
 			}
 			else {
 				out = axiom_diff.getXMLReport();
 				saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport(), sep);
 			}
-			
 			if(saveDocs) saveXMLDocuments(out, xsltPath, false);
 		}
-		
 		long end = System.currentTimeMillis();
 		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " seconds)");
 		return out;

@@ -83,7 +83,7 @@ public class AlignedIndirectChangeSet {
 		ont1map_spec = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlySpecialised(), eff_rems, nrJusts, true, false));
 		ont1map_gen = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlyGeneralised(), eff_rems, nrJusts, false, false));
 		ont2map_spec = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, true, false));
-		ont2map_gen = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, false, false));
+		ont2map_gen = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlyGeneralised(), eff_adds, nrJusts, false, false));
 	}
 	
 	
