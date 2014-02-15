@@ -3,7 +3,7 @@
  * 
  * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
  *  
- * Copyright 2011-2013, The University of Manchester
+ * Copyright 2011-2014, The University of Manchester
  *  
  * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the 
@@ -21,10 +21,9 @@ package uk.ac.manchester.cs.diff.alignment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
 
+import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
@@ -37,26 +36,23 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
  * University of Manchester <br/>
  */
 public class AlignedIndirectChangeSet {
-	private OWLOntology ont1, ont2;
 	private ConceptChangeSet conceptChangeSet;
 	private Set<OWLAxiom> eff_adds, eff_rems;
 	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1map_spec, ont1map_gen, ont2map_spec, ont2map_gen;
-	private int nrJusts;
+	private Map<OWLAxiom, Set<Explanation<OWLAxiom>>> justsMap1, justsMap2;
 	
 	/**
 	 * Constructor
-	 * @param ont1	Ontology 1
-	 * @param ont2	Ontology 2
 	 * @param axiomChangeSet	Axiom change set
 	 * @param conceptChangeSet	Concept change set
-	 * @param nrJusts	Maximum number of justifications computed per change
+	 * @param justsMap1	Map of ontology1 witness axioms to their justifications in ontology 1
+	 * @param justsMap2	Map of ontology2 witness axioms to their justifications in ontology 2
 	 */
-	public AlignedIndirectChangeSet(OWLOntology ont1, OWLOntology ont2, CategorisedChangeSet axiomChangeSet, 
-			ConceptChangeSet conceptChangeSet, int nrJusts) {
-		this.ont1 = ont1;
-		this.ont2 = ont2;
+	public AlignedIndirectChangeSet(CategorisedChangeSet axiomChangeSet, ConceptChangeSet conceptChangeSet, 
+			Map<OWLAxiom, Set<Explanation<OWLAxiom>>> justsMap1, Map<OWLAxiom, Set<Explanation<OWLAxiom>>> justsMap2) {
 		this.conceptChangeSet = conceptChangeSet;
-		this.nrJusts = nrJusts;
+		this.justsMap1 = justsMap1;
+		this.justsMap2 = justsMap2;
 		eff_adds = axiomChangeSet.getEffectualAdditionAxioms();
 		eff_rems = axiomChangeSet.getEffectualRemovalAxioms();
 		init();
@@ -79,11 +75,14 @@ public class AlignedIndirectChangeSet {
 	 * Align all concept and axiom changes
 	 */
 	public void alignChanges() {
-		ForkJoinPool fjPool = new ForkJoinPool();
-		ont1map_spec = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlySpecialised(), eff_rems, nrJusts, true, false));
-		ont1map_gen = fjPool.invoke(new ChangeAligner(ont1, conceptChangeSet.getLHSIndirectlyGeneralised(), eff_rems, nrJusts, false, false));
-		ont2map_spec = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlySpecialised(), eff_adds, nrJusts, true, false));
-		ont2map_gen = fjPool.invoke(new ChangeAligner(ont2, conceptChangeSet.getRHSIndirectlyGeneralised(), eff_adds, nrJusts, false, false));
+		ont1map_spec = 
+				new ChangeAligner(conceptChangeSet.getLHSIndirectlySpecialised(),eff_rems,justsMap1,true,false).alignChangeWitnesses();
+		ont1map_gen = 
+				new ChangeAligner(conceptChangeSet.getLHSIndirectlyGeneralised(),eff_rems,justsMap1,false,false).alignChangeWitnesses();
+		ont2map_spec = 
+				new ChangeAligner(conceptChangeSet.getRHSIndirectlySpecialised(),eff_adds,justsMap2,true,false).alignChangeWitnesses();
+		ont2map_gen = 
+				new ChangeAligner(conceptChangeSet.getRHSIndirectlyGeneralised(),eff_adds,justsMap2,false,false).alignChangeWitnesses();
 	}
 	
 	

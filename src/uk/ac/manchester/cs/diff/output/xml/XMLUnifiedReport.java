@@ -3,7 +3,7 @@
  * 
  * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
  *  
- * Copyright 2011-2013, The University of Manchester
+ * Copyright 2011-2014, The University of Manchester
  *  
  * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the 
@@ -113,7 +113,6 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 */
 	private void checkAndAddEffect(OWLAxiom axiom, Document d, Element parent, ShortFormProvider sf) {
 		Element effEle = d.createElement("ConceptChanges");
-		
 		Element direct = d.createElement("DirectChanges");
 		Element indirect = d.createElement("IndirectChanges");
 		
@@ -169,7 +168,7 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	
 	/**
 	 * Add indirect concept changes caused by the given axiom, and get the total number of changes
-	 * @param axiom	Axiom
+	 * @param axiom	Asserted axiom change
 	 * @param parent	Parent element in the document
 	 * @param d	XML document
 	 * @param sf	Short form provider
@@ -204,18 +203,22 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	
 	/**
 	 * Add set of concepts to the given element
-	 * @param concepts	Set of concepts
+	 * @param axiomChange	Asserted axiom change
+	 * @param concepts	Set of concept changes
+	 * @param type	Specialisation or generalisation
+	 * @param direct	true if handling directly changed concepts
 	 * @param parent	Element to append concept elements to
 	 * @param d	XML document
 	 * @param sf	Short form provider
 	 */
-	private void addConceptChanges(OWLAxiom axiomChange, Set<ConceptChange> concepts, String type, boolean direct, Element parent, Document d, ShortFormProvider sf) {
+	private void addConceptChanges(OWLAxiom axiomChange, Set<ConceptChange> concepts, String type, boolean direct, Element parent, 
+			Document d, ShortFormProvider sf) {
 		for(ConceptChange c : concepts) {
 			Element change = d.createElement(type);
 			Element concept = d.createElement("Concept");
 			concept.setTextContent(getManchesterRendering(c.getConcept(), sf));
 			change.appendChild(concept);
-
+			
 			Set<OWLAxiom> witnesses = null;
 			if(type.equalsIgnoreCase("Specialisation")) {
 				if(direct)
@@ -229,8 +232,10 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 				else
 					witnesses = c.getIndirectGeneralisationWitnessesForAxiom(axiomChange);
 			}
-			addWitnesses(witnesses, change, d, sf);
-			parent.appendChild(change);
+			if(witnesses != null) {
+				addWitnesses(witnesses, change, d, sf);
+				parent.appendChild(change);
+			}
 		}
 	}
 	

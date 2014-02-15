@@ -3,7 +3,7 @@
  * 
  * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
  *  
- * Copyright 2011-2013, The University of Manchester
+ * Copyright 2011-2014, The University of Manchester
  *  
  * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the 
@@ -667,13 +667,17 @@ public class CategoricalDiff implements AxiomDiff {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void updateJustificationMapWithAddition(HashMap justMap, Explanation<OWLAxiom> exp, String cat) {
 		IneffectualAdditionCategory category = null;
-		switch(cat) {
-		case "redundant": category = IneffectualAdditionCategory.REDUNDANCY; break;
-		case "rewrite": category = IneffectualAdditionCategory.REWRITE; break;
-		case "prewrite": category = IneffectualAdditionCategory.PREWRITE; break;
-		case "reshuffle": category = IneffectualAdditionCategory.RESHUFFLEREDUNDANCY; break;
-		case "new": category = IneffectualAdditionCategory.NEWPROSPREDUNDANCY; break;
-		}
+		if(cat.equalsIgnoreCase("redundant"))
+			category = IneffectualAdditionCategory.REDUNDANCY;
+		else if(cat.equalsIgnoreCase("rewrite"))
+			category = IneffectualAdditionCategory.REWRITE;
+		else if(cat.equalsIgnoreCase("prewrite"))
+			category = IneffectualAdditionCategory.PREWRITE;
+		else if(cat.equalsIgnoreCase("reshuffle"))
+			category = IneffectualAdditionCategory.RESHUFFLEREDUNDANCY;
+		else if(cat.equalsIgnoreCase("new"))
+			category = IneffectualAdditionCategory.NEWPROSPREDUNDANCY;
+		
 		if(justMap.containsKey(exp)) {
 			Set<IneffectualAdditionCategory> catSet = (Set<IneffectualAdditionCategory>) justMap.get(exp);
 			catSet.add(category);
@@ -693,13 +697,17 @@ public class CategoricalDiff implements AxiomDiff {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void updateJustificationMapWithRemoval(HashMap justMap, Explanation<OWLAxiom> exp, String cat) {
 		IneffectualRemovalCategory category = null;
-		switch(cat) {
-		case "redundant": category = IneffectualRemovalCategory.REDUNDANCY; break;
-		case "rewrite": category = IneffectualRemovalCategory.REWRITE; break;
-		case "prewrite": category = IneffectualRemovalCategory.PREWRITE; break;
-		case "reshuffle": category = IneffectualRemovalCategory.RESHUFFLEREDUNDANCY; break;
-		case "new": category = IneffectualRemovalCategory.NEWPROSPREDUNDANCY; break;
-		}
+		if(cat.equalsIgnoreCase("redundant"))
+			category = IneffectualRemovalCategory.REDUNDANCY;
+		else if(cat.equalsIgnoreCase("rewrite"))
+			category = IneffectualRemovalCategory.REWRITE;
+		else if(cat.equalsIgnoreCase("prewrite"))
+			category = IneffectualRemovalCategory.PREWRITE;
+		else if(cat.equalsIgnoreCase("reshuffle"))
+			category = IneffectualRemovalCategory.RESHUFFLEREDUNDANCY;
+		else if(cat.equalsIgnoreCase("new"))
+			category = IneffectualRemovalCategory.NEWPROSPREDUNDANCY;
+
 		if(justMap.containsKey(exp)) {
 			Set<IneffectualRemovalCategory> set = (Set<IneffectualRemovalCategory>) justMap.get(exp);
 			set.add(category);

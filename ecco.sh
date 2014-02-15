@@ -1,13 +1,13 @@
 #!/bin/bash
 # 
 # ecco: a diff tool for OWL ontologies
-# Copyright 2011-2013, The University of Manchester
+# Copyright 2011-2014, The University of Manchester
 #
 # This script builds (if necessary) and runs ecco. This requires 
-# Java 1.7 installed, and the default JRE. Additionally, if building 
+# Java 1.6 installed, and the default JRE. Additionally, if building 
 # from sources, ant must be installed.
 # 
-# Last updated: 7-May-13
+# Last updated: 13-Feb-14
 # 
 # Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
 [ -f ecco.jar ] || (echo "Building ecco from sources..." && ant)

@@ -24,9 +24,9 @@ Note that these are all sound but incomplete approximations of the *minimal [con
 
 After detecting the set of affected concepts, *ecco* distinguishes between concepts that are directly or indirectly affected, that is, whether some concept `A` changed due to a change in some concept `B`, where both ontologies entail that `A => B`. 
 
-For the time being, concept changes are only shown in the XML change set output.
+Finally, axiom changes are aligned with the concepts that they affect; these are shown on the right hand side columns. When hovering over affected concepts, the tool will show the entailment differences for each concept change.
 
-<!-- For more details and literature pointers, check [this webpage](http://owl.cs.manchester.ac.uk/research/topics/diff/). It contains links to published papers with the relevant definitions. -->
+<!-- For full details, there is no better pointer than [my thesis](http://owl.cs.manchester.ac.uk/research/topics/diff/), particularly Chapter 7 where a tool walkthrough is carried out. -->
 
 
 usage
@@ -55,7 +55,7 @@ The standard output of *ecco* is an XML file representing the change set. With t
 
 before running
 --------------------
-Make sure that **Java 1.7** is installed and the default Java runtime environment. In order to execute properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
+Make sure that **Java 1.6** is installed and the default Java Runtime Environment. In order to execute properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
 This library, denoted *FaCT++ version 1.6.2; precompiled [OS] binaries* should be obtained from [here](https://code.google.com/p/factplusplus/downloads/list).
 Afterwards, the *single* appropriate file (in Windows a **.dll**, in Linux a **.so**, or in Mac OS X a **.jnlib** file) should
 be moved into the **_lib_** folder.
@@ -72,7 +72,7 @@ dependencies
 
 *ecco* relies on the following projects:
 
- * [OWL API](http://owlapi.sourceforge.net/) (v3.4.5)
+ * [OWL API](http://owlapi.sourceforge.net/) (v3.4.10)
  * [HermiT](http://www.hermit-reasoner.com/) reasoner (v1.3.8)
  * [FaCT++](https://code.google.com/p/factplusplus/) reasoner (v1.6.2)
  

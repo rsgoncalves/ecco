@@ -3,7 +3,7 @@
  * 
  * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
  *  
- * Copyright 2011-2013, The University of Manchester
+ * Copyright 2011-2014, The University of Manchester
  *  
  * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the 
@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,9 +35,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
-import java.util.concurrent.RecursiveTask;
 
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owl.explanation.api.ExplanationGenerator;
@@ -57,6 +54,7 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
+import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -81,7 +79,7 @@ public class JustificationFinder {
 		this.justLimit = nrJusts;
 		this.lacJustLimit = nrJusts;
 		man = OWLManager.createOWLOntologyManager();
-		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
+		rf = new FaCTPlusPlusReasonerFactory(); //new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
 		regFac = ExplanationManager.createExplanationGeneratorFactory(rf);
 		lacFac = new LaconicExplanationGeneratorFactory<OWLAxiom>(regFac);
 	} 
@@ -93,7 +91,7 @@ public class JustificationFinder {
 	 * @return Set of (sets of) justifications for the given entailments
 	 */
 	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
-		ForkJoinPool fjPool = new ForkJoinPool();
+		jsr166e.ForkJoinPool fjPool = new jsr166e.ForkJoinPool();
 		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
 	}
 	
@@ -103,7 +101,8 @@ public class JustificationFinder {
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
 	 */
-	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustificationsSequentially(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
+	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustificationsSequentially(Set<OWLAxiom> entailments) 
+			throws OWLOntologyCreationException {
 		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> regExps = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 		for(OWLAxiom ax : entailments)
 			regExps.put(ax,getJustifications(ax));
@@ -129,7 +128,7 @@ public class JustificationFinder {
 	/**
 	 * Justification finder
 	 */
-	public class RegularJustificationFinder extends RecursiveTask<Map<OWLAxiom,Set<Explanation<OWLAxiom>>>> {
+	public class RegularJustificationFinder extends jsr166e.RecursiveTask<Map<OWLAxiom,Set<Explanation<OWLAxiom>>>> {
 		private static final long serialVersionUID = -953162808746083965L;
 		private Set<OWLAxiom> axioms;
     	private int limit;
@@ -218,7 +217,10 @@ public class JustificationFinder {
 			try {
 				if(f.get() != null)
 					results.addAll(f.get());
-			} catch (CancellationException | InterruptedException | ExecutionException e) { /* Do nothing */ }
+			} /* Do nothing */ 
+			catch(CancellationException e) {}
+			catch(InterruptedException e) {}
+			catch(ExecutionException e) {}
 		}
 		exec.shutdownNow();
 		return results;
@@ -257,7 +259,9 @@ public class JustificationFinder {
 			try {
 				Process p = executeOperation(LaconicJustificationFinder.class, false, list);
 				output = streamToString(p.getInputStream());
-			} catch (IOException | InterruptedException e) {
+			} catch(IOException e) {
+				e.printStackTrace();
+			} catch(InterruptedException e) {
 				e.printStackTrace();
 			}
 			if(output != null) {
@@ -288,7 +292,9 @@ public class JustificationFinder {
 				man.saveOntology(ont, new OWLXMLOntologyFormat(), IRI.create(f));
 				if(desc.equals("ent")) entCounter++;
 				else if(desc.equals("just")) justCounter++;
-			} catch (OWLOntologyStorageException | OWLOntologyCreationException e) {
+			} catch(OWLOntologyStorageException e) {
+				e.printStackTrace();
+			} catch(OWLOntologyCreationException e) {
 				e.printStackTrace();
 			}
 			return f;
@@ -333,9 +339,9 @@ public class JustificationFinder {
 			cmdArgs.addAll(args);
 
 			ProcessBuilder builder = new ProcessBuilder(cmdArgs);
-			builder.redirectError(Redirect.INHERIT);			
-			if(redirectIO) builder.redirectOutput(Redirect.INHERIT);
-			else builder.redirectOutput(Redirect.PIPE);
+			builder.redirectErrorStream(true);			
+//			if(redirectIO) builder.redirectOutput(Redirect.INHERIT);
+//			else builder.redirectOutput(Redirect.PIPE);
 			
 			Process process = builder.start();
 			process.waitFor();

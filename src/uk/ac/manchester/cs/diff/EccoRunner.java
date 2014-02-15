@@ -3,7 +3,7 @@
  * 
  * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
  *  
- * Copyright 2011-2013, The University of Manchester
+ * Copyright 2011-2014, The University of Manchester
  *  
  * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the 
@@ -26,11 +26,13 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.IRIDocumentSource;
 import org.semanticweb.owlapi.io.StreamDocumentSource;
@@ -53,6 +55,7 @@ import org.w3c.dom.Document;
 
 import uk.ac.manchester.cs.diff.alignment.AlignedDirectChangeSet;
 import uk.ac.manchester.cs.diff.alignment.AlignedIndirectChangeSet;
+import uk.ac.manchester.cs.diff.alignment.WitnessJustifier;
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.concept.ConceptDiff;
@@ -78,15 +81,15 @@ public class EccoRunner {
 	private int nrJusts;
 	private static String sep = File.separator,
 			versionInfo = "2.5",
-			releaseDate = "12-Dec-2013",
+			releaseDate = "13-Feb-2014",
 			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
 			programTitle = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
 			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
-			"by Rafael Goncalves. Copyright 2011-2013 University of Manchester\n" + 
-			"powered by the OWL API version " + owlapiVersion + "\n";
+			"by Rafael Goncalves. Copyright 2011-2014 University of Manchester\n" + 
+			"powered by the OWL API version " + owlapiVersion.substring(0, owlapiVersion.indexOf("-")) + "\n";
 	
 	
 	/**
@@ -123,9 +126,10 @@ public class EccoRunner {
 	 * @return XML diff report
 	 * @throws TransformerException
 	 * @throws UnsupportedEncodingException
+	 * @throws OWLOntologyCreationException 
 	 */
 	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath, boolean saveDocs) 
-			throws TransformerException, UnsupportedEncodingException {
+			throws TransformerException, UnsupportedEncodingException, OWLOntologyCreationException {
 		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
 		XMLReport out = null;
 		long start = System.currentTimeMillis();
@@ -149,10 +153,19 @@ public class EccoRunner {
 			ConceptChangeSet conceptChanges = concept_diff.getDiff();
 			
 			long t2 = System.currentTimeMillis();
-			if(verbose) System.out.print("Aligning term and axiom changes... ");
+			if(verbose) System.out.println("Aligning term and axiom changes... ");
 			
-			AlignedDirectChangeSet dirChanges = new AlignedDirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
-			AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(ont1, ont2, axiomChanges, conceptChanges, nrJusts);
+			if(verbose) System.out.print("   Computing justifications for witness axioms... ");
+			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = 
+					new WitnessJustifier(ont1, conceptChanges, nrJusts, "lhs").getJustifications();
+			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = 
+					new WitnessJustifier(ont2, conceptChanges, nrJusts, "rhs").getJustifications();
+			if(verbose) System.out.print("   done (" + (System.currentTimeMillis()-t2)/1000.0 + " secs)");
+			
+			AlignedDirectChangeSet dirChanges = 
+					new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
+			AlignedIndirectChangeSet indirChanges = 
+					new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
 			
 			long t3 = System.currentTimeMillis();
 			System.out.println("done (" + (t3-t2)/1000.0 + " secs)");

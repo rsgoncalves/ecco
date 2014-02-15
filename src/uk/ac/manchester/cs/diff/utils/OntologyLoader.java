@@ -3,7 +3,7 @@
  * 
  * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
  *  
- * Copyright 2011-2013, The University of Manchester
+ * Copyright 2011-2014, The University of Manchester
  *  
  * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the 
@@ -21,7 +21,6 @@ package uk.ac.manchester.cs.diff.utils;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.RecursiveTask;
 
 import org.semanticweb.owlapi.io.IRIDocumentSource;
 import org.semanticweb.owlapi.model.AxiomType;
@@ -40,7 +39,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
  * School of Computer Science <br/>
  * University of Manchester <br/>
  */
-public class OntologyLoader extends RecursiveTask<OWLOntology> {
+public class OntologyLoader extends jsr166e.RecursiveTask<OWLOntology> {
 	private static final long serialVersionUID = -5909585243181647744L;
 	private OWLOntologyManager man;
 	private OWLOntologyLoaderConfiguration config;

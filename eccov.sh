@@ -1,7 +1,7 @@
 #!/bin/bash
 # 
 # ecco: a diff tool for OWL ontologies
-# Copyright 2011-2013, The University of Manchester
+# Copyright 2011-2014, The University of Manchester
 #
 # This script builds (if necessary) and runs ecco on a set of versions. The set of
 # versions must be organised either as appropriately-sorted files within a folder, or
@@ -9,14 +9,14 @@
 # 
 # For ecco's optional arguments (that can be passed onto it from here), do: sh ecco.sh -h
 # 
-# Last updated: 9-Jul-13
+# Last updated: 13-Feb-14
 # 
 # Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
 [ -f ecco.jar ] || (echo "Building ecco from sources..." && ant)
 #
 # Default argument values (which can be altered via options below)
 # 
-maxmem="4G"	# Maximum heap space allocated to the JVM. Default: 4GB
+maxmem="8G"	# Maximum heap space allocated to the JVM. Default: 8GB
 factlib=`pwd`"/lib"	# Library folder to load FaCT++'s native library
 # 
 # Iterate arguments
@@ -29,7 +29,7 @@ usage(){
 	echo ""
 	echo "   -b --base	Base folder where the the ontology files or folders are contained"
 	echo "   -o --ont	If the 'base' folder contains folders, then -o must specify a single, universal ontology name"
-	echo "   -m --mem	Maximum heap space (memory) allocated to the JVM. Default: 4G (4 GB)"
+	echo "   -m --mem	Maximum heap space (memory) allocated to the JVM. Default: 8G (8 GB)"
 	echo "   -f --fact	Directory where the FaCT++ native library resides. Default: ./lib/ "
 	echo ""
 }
