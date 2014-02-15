@@ -111,7 +111,7 @@ public class LogicalDiff implements AxiomDiff {
 			return null;
 		}
 		
-		if(verbose) System.out.print("Verifying axiom impact... ");
+		System.out.print("   Verifying axiom impact... ");
 		long start = bean.getCurrentThreadCpuTime();
 		
 		Set<OWLAxiom> ineffectualAdditions = getIneffectualChanges(structChangeSet.getAddedAxioms(), ont1reasoner);
@@ -128,7 +128,8 @@ public class LogicalDiff implements AxiomDiff {
 		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals);
 		logicalChangeSet.setDiffTime(diffTime);
 
-		if(verbose) { System.out.println("done (" + diffTime + " secs)"); printDiff(); }
+		System.out.println("done (" + diffTime + " secs)");
+		if(verbose) printDiff();
 		return logicalChangeSet;
 	}
 	

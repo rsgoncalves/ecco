@@ -130,7 +130,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 */
 	public ConceptChangeSet getDiff() {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.println("Computing concept diff...");
+		System.out.println("Computing concept diff...");
 		if(verbose) System.out.println("   Input signature: sigma contains " + sigma.size() + " concept names");
 		
 		Map<OWLClass,OWLClassExpression> map = null;
@@ -151,7 +151,7 @@ public class SubconceptDiff implements ConceptDiff {
 		changeSet.setEntailmentDiffTime((mid-start)/1000.0);
 		changeSet.setPartitioningTime((end-mid)/1000.0);
 		changeSet.setTotalTime((end-start)/1000.0);
-		
+		System.out.println("finished concept diff (" + (end-start)/1000.0 + " secs)"); 
 		if(verbose) printDiff();
 		return changeSet;
 	}
@@ -165,7 +165,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 */
 	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) {
 		long start = System.currentTimeMillis();
-		if(verbose) System.out.print("   Precomputing inferences... ");
+		 System.out.print("   Precomputing inferences... ");
 		
 		ExecutorService exec = Executors.newFixedThreadPool(2);
 		
@@ -179,7 +179,7 @@ public class SubconceptDiff implements ConceptDiff {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		if(verbose) System.out.println("done (" + (System.currentTimeMillis()-start)/1000.0 + " secs)");
+		 System.out.println("done (" + (System.currentTimeMillis()-start)/1000.0 + " secs)");
 		
 		ont1reasoner = ont1worker.getReasoner(); ont2reasoner = ont2worker.getReasoner();
 	}
@@ -191,7 +191,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Set of affected concept names
 	 */
 	protected Set<OWLClass> computeChangeWitnesses(Map<OWLClass,OWLClassExpression> map) {
-		if(verbose) System.out.print("   Computing change witnesses... ");
+		System.out.print("   Computing change witnesses... ");
 		Set<OWLClass> affected = new HashSet<OWLClass>();
 		long start = System.currentTimeMillis();
 
@@ -215,7 +215,7 @@ public class SubconceptDiff implements ConceptDiff {
 			}
 		}
 		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		System.out.println("done (" + (end-start)/1000.0 + " secs)");
 		return affected;
 	}
 
@@ -228,7 +228,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @return Concept-based change set
 	 */
 	protected ConceptChangeSet splitDirectIndirectChanges(Set<OWLClass> affected, OWLReasoner ont1reasoner, OWLReasoner ont2reasoner) {
-		if(verbose) System.out.print("   Splitting directly and indirectly affected concepts... ");
+		System.out.print("   Splitting directly and indirectly affected concepts... ");
 		long start = System.currentTimeMillis();
 		/* 
 		 * TODO: The filtering of changes to (or via) Bottom and Top is somewhat crippled: The OWL API only allows us to extract unsatisfiable 
@@ -246,7 +246,7 @@ public class SubconceptDiff implements ConceptDiff {
 		WitnessPack rhs_gen = getWitnesses(ont2_diffR, ont2reasoner, false, topSuper2, botSub2);
 
 		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		System.out.println("done (" + (end-start)/1000.0 + " secs)");
 		return sortOutChangeSet(affected, lhs_spec, lhs_gen, rhs_spec, rhs_gen);
 	}
 	
@@ -697,7 +697,6 @@ public class SubconceptDiff implements ConceptDiff {
 	 * Print diff results
 	 */
 	public void printDiff() {
-		System.out.println("finished concept diff (" + changeSet.getTotalDiffTime() + " seconds)");
 		System.out.println("   Concept changes:");
 		System.out.println("\t[ont1]" +
 				"\tSpecialised: " + changeSet.getLHSSpecialisedConcepts().size() + 

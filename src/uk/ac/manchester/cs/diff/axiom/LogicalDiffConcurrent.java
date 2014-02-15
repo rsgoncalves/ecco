@@ -113,7 +113,7 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 			return null;
 		}
 		
-		if(verbose) System.out.print("Verifying axiom impact... ");
+		System.out.print("   Verifying axiom impact... ");
 		long start = System.currentTimeMillis();
 		
 		IneffectualChangeChecker ineffAddChecker = new IneffectualChangeChecker(structChangeSet.getAddedAxioms(), ont1reasoner);
@@ -149,7 +149,8 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals);
 		logicalChangeSet.setDiffTime(diffTime);
 
-		if(verbose) { System.out.println("done (" + diffTime + " secs)"); printDiff(); }
+		System.out.println("done (" + diffTime + " secs)"); 
+		if(verbose) printDiff();
 		return logicalChangeSet;
 	}
 	

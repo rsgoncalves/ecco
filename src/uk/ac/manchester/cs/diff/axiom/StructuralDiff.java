@@ -86,7 +86,7 @@ public class StructuralDiff implements AxiomDiff {
 	public StructuralChangeSet getDiff() {
 		if(changeSet != null) return changeSet;
 		
-		if(verbose) System.out.print("\nComputing structural changes... ");
+		System.out.print("   Computing structural differences... ");
 		Set<OWLLogicalAxiom> o1axs = ont1.getLogicalAxioms();
 		Set<OWLLogicalAxiom> o2axs = ont2.getLogicalAxioms();
 		
@@ -123,7 +123,8 @@ public class StructuralDiff implements AxiomDiff {
 		changeSet = new StructuralChangeSet(additions, removals, shared);
 		addOntologyFileNames(); changeSet.setDiffTime(diffTime);
 		
-		if(verbose) { System.out.println("done (" + diffTime + " secs)"); printDiff(); }
+		System.out.println("done (" + diffTime + " secs)"); 
+		if(verbose) printDiff();
 		return changeSet;
 	}
 	

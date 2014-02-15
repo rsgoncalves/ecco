@@ -153,14 +153,14 @@ public class EccoRunner {
 			ConceptChangeSet conceptChanges = concept_diff.getDiff();
 			
 			long t2 = System.currentTimeMillis();
-			if(verbose) System.out.println("Aligning term and axiom changes... ");
+			System.out.println("Aligning concept and axiom changes... ");
 			
-			if(verbose) System.out.print("   Computing justifications for witness axioms... ");
+			System.out.print("   Computing justifications for witness axioms... ");
 			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = 
 					new WitnessJustifier(ont1, conceptChanges, nrJusts, "lhs").getJustifications();
 			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = 
 					new WitnessJustifier(ont2, conceptChanges, nrJusts, "rhs").getJustifications();
-			if(verbose) System.out.print("   done (" + (System.currentTimeMillis()-t2)/1000.0 + " secs)");
+			System.out.println("done (" + (System.currentTimeMillis()-t2)/1000.0 + " secs)");
 			
 			AlignedDirectChangeSet dirChanges = 
 					new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
@@ -168,7 +168,7 @@ public class EccoRunner {
 					new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
 			
 			long t3 = System.currentTimeMillis();
-			System.out.println("done (" + (t3-t2)/1000.0 + " secs)");
+			System.out.println("finished aligning (" + (t3-t2)/1000.0 + " secs)");
 			
 			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
 			
@@ -190,7 +190,7 @@ public class EccoRunner {
 			if(saveDocs) saveXMLDocuments(out, xsltPath, false);
 		}
 		long end = System.currentTimeMillis();
-		System.out.println("finished (total diff time: " + (end-start)/1000.0 + " seconds)");
+		System.out.println("-\nfinished diff (total time: " + (end-start)/1000.0 + " seconds)");
 		return out;
 	}
 	
@@ -258,7 +258,7 @@ public class EccoRunner {
 		
 		Set<OWLAxiom> result = null;
 		if(ont != null) {
-			if(verbose) System.out.println("\tLoaded ontology " + ontNr + " (" + ont.getLogicalAxiomCount() + " logical axioms)");
+			 System.out.println("\tLoaded ontology " + ontNr + " (" + ont.getLogicalAxiomCount() + " logical axioms)");
 			if(ignoreAbox) removeAbox(ont);
 			result = ont.getAxioms();
 			if(processImports) {
@@ -266,7 +266,7 @@ public class EccoRunner {
 					for(OWLImportsDeclaration d : ont.getImportsDeclarations()) {
 						try {
 							OWLOntology imported = man.loadOntology(d.getIRI());
-							if(verbose) System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
+							 System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
 							result.addAll(imported.getLogicalAxioms());
 							man.removeOntology(imported);
 						} catch (OWLOntologyCreationException e) {
@@ -326,7 +326,7 @@ public class EccoRunner {
 	 * @param verbose	Verbose mode
 	 */
 	private void normalizeEntityURIs(OWLOntology ont1, OWLOntology ont2) {
-		if(verbose) System.out.print("  Normalizing entity URIs... ");
+		 System.out.print("  Normalizing entity URIs... ");
 		final SimpleShortFormProvider sf = new SimpleShortFormProvider();
 		Set<OWLOntology> ontSet = new HashSet<OWLOntology>();
 		ontSet.add(ont1); ontSet.add(ont2);
@@ -340,7 +340,7 @@ public class EccoRunner {
 			}
 		});
 		man.applyChanges(converter.getChanges());
-		if(verbose) System.out.println("done");
+		 System.out.println("done");
 	}
 	
 	
@@ -379,7 +379,7 @@ public class EccoRunner {
 	 */
 	public void setOutputDirectory(String outputDirectory, boolean verbose) {
 		outputDir = outputDirectory;
-		if(verbose) System.out.println("Output directory: " + outputDir + "\n");
+		 System.out.println("Output directory: " + outputDir + "\n");
 	}
 	
 	
@@ -392,7 +392,7 @@ public class EccoRunner {
 	public void setOutputDirectory(String outputDirectory, String ontFile, boolean localOnt) {
 		ontFile = ontFile.substring(0, ontFile.lastIndexOf(sep)+1);
 		outputDir = "out" + sep + ontFile;
-		if(verbose) System.out.println("Output directory: " + outputDir + "\n");
+		 System.out.println("Output directory: " + outputDir + "\n");
 	}
 	
 	

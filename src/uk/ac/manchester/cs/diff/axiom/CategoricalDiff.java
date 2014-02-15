@@ -83,7 +83,7 @@ public class CategoricalDiff implements AxiomDiff {
 	private LogicalChangeSet logicalChangeSet;
 	private OWLReasoner ont1reasoner, ont2reasoner, emptyOntReasoner;
 	private Set<OWLAxiom> sharedAxioms;
-	private double diffTime, eaTime, erTime, iaTime, irTime, iaJustTime, irJustTime, iaLacJustTime = 0, irLacJustTime = 0;
+	private double diffTime, eaTime, erTime, iaTime, irTime, iaJustTime, irJustTime;
 	private int nrJusts;
 	private boolean verbose;
 	private static ShortFormProvider p = new SimpleShortFormProvider();
@@ -131,7 +131,7 @@ public class CategoricalDiff implements AxiomDiff {
 	@SuppressWarnings("deprecation")
 	public CategorisedChangeSet getDiff() {
 		if(categorisedChangeSet != null) return categorisedChangeSet;
-		
+		System.out.println("\nComputing axiom diff...");
 		long start = System.currentTimeMillis();
 		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner();
 		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner();
@@ -150,13 +150,15 @@ public class CategoricalDiff implements AxiomDiff {
 		Set<OWLAxiom> ia = logicalChangeSet.getIneffectualAdditionAxioms();
 		Set<OWLAxiom> ir = logicalChangeSet.getIneffectualRemovalAxioms();
 		
-		if(verbose) System.out.println("Computing change categorisation...");
+		System.out.print("   Computing change categorisation... ");
+		long start2 = System.currentTimeMillis();
 		Set<CategorisedEffectualAddition> effAdds = categoriseEffectualAdditions(ea, er, ir);
 		Set<CategorisedEffectualRemoval> effRems = categoriseEffectualRemovals(er, ea, ia);
 		Set<CategorisedIneffectualAddition> ineffAdds = categoriseIneffectualAdditions(ia, er, ir);
 		Set<CategorisedIneffectualRemoval> ineffRems = categoriseIneffectualRemovals(ir, ea, ia);
 		
 		long end = System.currentTimeMillis();
+		if(!verbose) System.out.print("done (" + (end-start2)/1000.0 + " secs)");
 		diffTime = (end-start)/1000.0;
 		
 		categorisedChangeSet = new CategorisedChangeSet(effAdds, ineffAdds, effRems, ineffRems, sharedAxioms);
@@ -166,10 +168,9 @@ public class CategoricalDiff implements AxiomDiff {
 		categorisedChangeSet.setIneffectualRemovalCategorisationTime(irTime);
 		categorisedChangeSet.setIneffectualAdditionCategorisationTime(iaTime);
 		categorisedChangeSet.setIneffectualAdditionJustificationFindingTime(iaJustTime);
-		categorisedChangeSet.setIneffectualAdditionLaconicJustificationFindingTime(iaLacJustTime);
 		categorisedChangeSet.setIneffectualRemovalJustificationFindingTime(irJustTime);
-		categorisedChangeSet.setIneffectualRemovalLaconicJustificationFindingTime(irLacJustTime);
 		
+		System.out.println("\nfinished axiom diff (" + diffTime + " seconds)");
 		if(verbose) printDiff();
 		return categorisedChangeSet;
 	}
@@ -184,7 +185,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	@SuppressWarnings("unchecked")
 	private Set<CategorisedEffectualAddition> categoriseEffectualAdditions(Set<OWLAxiom> ea, Set<OWLAxiom> er, Set<OWLAxiom> ir) {
-		if(verbose) System.out.println("   Categorising effectual additions... ");
+		if(verbose) System.out.println("\n   Categorising effectual additions... ");
 		Set<CategorisedEffectualAddition> effAdds = new HashSet<CategorisedEffectualAddition>();
 		if(!ea.isEmpty())
 			try { effAdds = (Set<CategorisedEffectualAddition>) categoriseEffectualChanges(true, ea, ont1, er, ir); }
@@ -316,12 +317,16 @@ public class CategoricalDiff implements AxiomDiff {
 				// Pure Alterations
 				if(!newOrRetiredAx && !stOrWkAx && !modEquiv) {
 					if(effAdds) {
-						if(newTerms.isEmpty()) result.add(new CategorisedEffectualAddition(ax, EffectualAdditionCategory.PUREADDITION, new HashSet<OWLAxiom>(), newTerms));
-						else result.add(new CategorisedEffectualAddition(ax, EffectualAdditionCategory.PUREADDITIONNT, new HashSet<OWLAxiom>(), newTerms));
+						if(newTerms.isEmpty()) 
+							result.add(new CategorisedEffectualAddition(ax, EffectualAdditionCategory.PUREADDITION, new HashSet<OWLAxiom>(), newTerms));
+						else 
+							result.add(new CategorisedEffectualAddition(ax, EffectualAdditionCategory.PUREADDITIONNT, new HashSet<OWLAxiom>(), newTerms));
 					}
 					else {
-						if(newTerms.isEmpty()) result.add(new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.PUREREMOVAL, new HashSet<OWLAxiom>(), newTerms));
-						else result.add(new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.PUREREMOVALRT, new HashSet<OWLAxiom>(), newTerms));
+						if(newTerms.isEmpty()) 
+							result.add(new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.PUREREMOVAL, new HashSet<OWLAxiom>(), newTerms));
+						else 
+							result.add(new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.PUREREMOVALRT, new HashSet<OWLAxiom>(), newTerms));
 					}
 				}
 			} // end if logical axiom
@@ -354,7 +359,8 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @return Strengthening or Weakening-type change, or null if not a strengthening or weakening
 	 * @throws OWLOntologyCreationException
 	 */
-	private CategorisedChange checkStrengtheningOrWeakening(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, Set<OWLAxiom> searchSpace, Set<OWLEntity> newTerms) {
+	private CategorisedChange checkStrengtheningOrWeakening(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, 
+			Set<OWLAxiom> searchSpace, Set<OWLEntity> newTerms) {
 		CategorisedChange change = null;
 		OWLOntology axOnt = createOntology(ax);
 		OWLReasoner reasoner = new ReasonerLoader(axOnt).createReasoner();
@@ -369,12 +375,16 @@ public class CategoricalDiff implements AxiomDiff {
 		}
 		if(!stAlignments.isEmpty()) {
 			if(newTerms.isEmpty()) {
-				if(effAdds) change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.STRENGTHENING, stAlignments, newTerms);
-				else change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.WEAKENING, stAlignments, newTerms);
+				if(effAdds) 
+					change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.STRENGTHENING, stAlignments, newTerms);
+				else 
+					change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.WEAKENING, stAlignments, newTerms);
 			}
 			else {
-				if(effAdds) change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.STRENGTHENINGNT, stAlignments, newTerms);
-				else change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.WEAKENINGRT, stAlignments, newTerms);
+				if(effAdds) 
+					change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.STRENGTHENINGNT, stAlignments, newTerms);
+				else 
+					change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.WEAKENINGRT, stAlignments, newTerms);
 			}
 		}
 		cleanUp(reasoner); cleanUp(axOnt);
@@ -392,7 +402,8 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @return New or Retired Description-type change, or null if not one
 	 * @throws OWLOntologyCreationException
 	 */
-	private CategorisedChange checkNewOrRetiredDescription(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, Set<OWLEntity> newTerms, SyntacticLocalityEvaluator eval) 
+	private CategorisedChange checkNewOrRetiredDescription(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, 
+			Set<OWLEntity> newTerms, SyntacticLocalityEvaluator eval) 
 			throws OWLOntologyCreationException {
 		CategorisedChange change = null;
 		if(!newTerms.isEmpty()) {
@@ -406,8 +417,10 @@ public class CategoricalDiff implements AxiomDiff {
 				atomicLhs = false;
 
 			if(atomicLhs && !(eval.isLocal(ax, newTerms))) {
-				if(effAdds) change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.NEWDESCRIPTION, new HashSet<OWLAxiom>(), newTerms);
-				else change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.RETIREDDESCRIPTION, new HashSet<OWLAxiom>(), newTerms);
+				if(effAdds) 
+					change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.NEWDESCRIPTION, new HashSet<OWLAxiom>(), newTerms);
+				else 
+					change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.RETIREDDESCRIPTION, new HashSet<OWLAxiom>(), newTerms);
 			}
 		}
 		return change;
@@ -474,12 +487,16 @@ public class CategoricalDiff implements AxiomDiff {
 		}
 		if(!alignment.isEmpty()) {
 			if(effAdds) {
-				if(newTerms.isEmpty()) change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.MODIFIEDDEFINITION, alignment, newTerms);
-				else change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.MODIFIEDDEFINITIONNT, alignment, newTerms);
+				if(newTerms.isEmpty()) 
+					change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.MODIFIEDDEFINITION, alignment, newTerms);
+				else 
+					change = new CategorisedEffectualAddition(ax, EffectualAdditionCategory.MODIFIEDDEFINITIONNT, alignment, newTerms);
 			}
 			else {
-				if(newTerms.isEmpty()) change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.MODIFIEDDEFINITION, alignment, newTerms);
-				else change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.MODIFIEDDEFINITIONRT, alignment, newTerms);
+				if(newTerms.isEmpty()) 
+					change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.MODIFIEDDEFINITION, alignment, newTerms);
+				else 
+					change = new CategorisedEffectualRemoval(ax, EffectualRemovalCategory.MODIFIEDDEFINITIONRT, alignment, newTerms);
 			}
 		}
 		return change;
@@ -497,8 +514,8 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @return Set of categorised ineffectual changes
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Set<? extends CategorisedChange> categoriseIneffectualChanges(String desc, Set<OWLAxiom> axioms, Set<OWLAxiom> effectual, Set<OWLAxiom> ineffectual, 
-			OWLOntology ont, OWLReasoner src_reasoner) {
+	private Set<? extends CategorisedChange> categoriseIneffectualChanges(String desc, Set<OWLAxiom> axioms, Set<OWLAxiom> effectual, 
+			Set<OWLAxiom> ineffectual, OWLOntology ont, OWLReasoner src_reasoner) {
 		Set result = null;
 		if(desc.equals("rhs")) result = new HashSet<CategorisedIneffectualAddition>();
 		else result = new HashSet<CategorisedIneffectualRemoval>();
@@ -537,18 +554,12 @@ public class CategoricalDiff implements AxiomDiff {
 		if(desc.equals("rhs")) {
 			iaTime = total;
 			iaJustTime = justTime;
-			iaLacJustTime = Math.round(iaLacJustTime*100)/100.0;
-			if(verbose)
-				System.out.println("\n   done (" + total + " secs)");
 		}
 		else {
 			irTime = total;
 			irJustTime = justTime;
-			irLacJustTime = Math.round(irLacJustTime*100)/100.0;
-			if(verbose)
-				System.out.println("\n   done (" + total + " secs)");
 		}
-		
+		if(verbose) System.out.println("\n   done (" + total + " secs)");
 		cleanUp(src_reasoner); cleanUp(exps); just = null;
 		return result;
 	}
@@ -568,8 +579,9 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @throws OWLOntologyCreationException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private CategorisedChange categoriseIneffectualChange(String desc, Set<Explanation<OWLAxiom>> exps, Set<OWLAxiom> effectual, Set<OWLAxiom> ineffectual,
-			OWLOntology ont, JustificationFinder just, OWLReasoner src_reasoner) throws OWLOntologyCreationException {
+	private CategorisedChange categoriseIneffectualChange(String desc, Set<Explanation<OWLAxiom>> exps, Set<OWLAxiom> effectual, 
+			Set<OWLAxiom> ineffectual, OWLOntology ont, JustificationFinder just, OWLReasoner src_reasoner) 
+					throws OWLOntologyCreationException {
 		boolean entailmentAssigned = false;
 		OWLAxiom entailment = null;
 		HashMap justMap = null;
@@ -613,26 +625,8 @@ public class CategoricalDiff implements AxiomDiff {
 			if(prospRedundantAx && !rewrittenAx && !redundancyAx && !prospRedundantNovelAx)
 				updateJustificationMap(desc, justMap, explanation, "reshuffle");
 			// Prospective new redundancy 
-			if(prospRedundantNovelAx && !rewrittenAx && !redundancyAx) {
+			if(prospRedundantNovelAx && !rewrittenAx && !redundancyAx)
 				updateJustificationMap(desc, justMap, explanation, "new");
-				 
-//				long start = System.currentTimeMillis();
-//				Set<Set<OWLAxiom>> lacJusts = just.getLaconicJustifications(entailment, Collections.singleton(explanation));
-//				if(desc.equals("rhs"))
-//					iaLacJustTime += (System.currentTimeMillis()-start)/1000.0;
-//				else 
-//					irLacJustTime += (System.currentTimeMillis()-start)/1000.0;
-//				
-//				boolean isNew = false;
-//				loopExps:
-//				for(Set<OWLAxiom> exp : lacJusts) {
-//					if(!src_reasoner.isEntailed(exp))
-//						isNew = true; break loopExps;
-//				}
-//				if(isNew)  updateJustificationMap(desc, justMap, explanation, "novel");
-//				else updateJustificationMap(desc, justMap, explanation, "pseudo");
-				
-			}
 		} // end for each explanation
 		cleanUp(reasoner);
 		cleanUp(entOnt);
@@ -830,7 +824,6 @@ public class CategoricalDiff implements AxiomDiff {
 	 * Print diff results
 	 */
 	public void printDiff() {
-		System.out.println("\nfinished axiom diff (" + diffTime + " seconds)");
 		System.out.println("   Categorised axiom changes:" + 
 				"\n\tEffectual Additions: " + categorisedChangeSet.getEffectualAdditions().size() +
 				"\n\t   Strengthenings: " + categorisedChangeSet.getStrengthenings().size() +
@@ -913,8 +906,8 @@ public class CategoricalDiff implements AxiomDiff {
 	
 	
 	/**
-	 * Empty and nullify set of objects
-	 * @param s	Set of objects
+	 * Empty and nullify map of objects
+	 * @param s	Map of objects
 	 */
 	private void cleanUp(Map<?,?> s) {
 		s.clear(); s = null;
