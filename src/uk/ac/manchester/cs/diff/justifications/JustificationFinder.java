@@ -54,7 +54,6 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
-import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -79,7 +78,7 @@ public class JustificationFinder {
 		this.justLimit = nrJusts;
 		this.lacJustLimit = nrJusts;
 		man = OWLManager.createOWLOntologyManager();
-		rf = new FaCTPlusPlusReasonerFactory(); //new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
+		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
 		regFac = ExplanationManager.createExplanationGeneratorFactory(rf);
 		lacFac = new LaconicExplanationGeneratorFactory<OWLAxiom>(regFac);
 	} 

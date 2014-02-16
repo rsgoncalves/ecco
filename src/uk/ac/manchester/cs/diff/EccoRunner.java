@@ -266,7 +266,7 @@ public class EccoRunner {
 					for(OWLImportsDeclaration d : ont.getImportsDeclarations()) {
 						try {
 							OWLOntology imported = man.loadOntology(d.getIRI());
-							 System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
+							if(verbose) System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
 							result.addAll(imported.getLogicalAxioms());
 							man.removeOntology(imported);
 						} catch (OWLOntologyCreationException e) {
