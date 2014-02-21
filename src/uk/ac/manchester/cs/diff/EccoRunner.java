@@ -266,7 +266,8 @@ public class EccoRunner {
 					for(OWLImportsDeclaration d : ont.getImportsDeclarations()) {
 						try {
 							OWLOntology imported = man.loadOntology(d.getIRI());
-							if(verbose) System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
+							if(verbose) 
+								System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
 							result.addAll(imported.getLogicalAxioms());
 							man.removeOntology(imported);
 						} catch (OWLOntologyCreationException e) {
@@ -393,6 +394,19 @@ public class EccoRunner {
 		ontFile = ontFile.substring(0, ontFile.lastIndexOf(sep)+1);
 		outputDir = "out" + sep + ontFile;
 		 System.out.println("Output directory: " + outputDir + "\n");
+	}
+	
+	
+	/**
+	 * Set import handling
+	 * @param processImports	true if imports should be processed, false otherwise
+	 */
+	public void setProcessImports(boolean processImports) {
+		this.processImports = processImports;
+		if(!processImports) {
+			config.setFollowRedirects(false);
+			config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+		}
 	}
 	
 	

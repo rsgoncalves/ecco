@@ -21,6 +21,7 @@ package uk.ac.manchester.cs.diff.utils;
 import org.semanticweb.HermiT.Configuration;
 import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.reasoner.BufferingMode;
 import org.semanticweb.owlapi.reasoner.ConsoleProgressMonitor;
 import org.semanticweb.owlapi.reasoner.FreshEntityPolicy;
 import org.semanticweb.owlapi.reasoner.IndividualNodeSetPolicy;
@@ -29,6 +30,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 
 import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
+import uk.ac.manchester.cs.jfact.JFactReasoner;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -97,6 +99,24 @@ public class ReasonerLoader {
 		long start = System.currentTimeMillis();
 		
 		OWLReasoner reasoner = fac.createReasoner(ont, config);
+		
+		long end = System.currentTimeMillis();
+		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+		return reasoner;
+	}
+	
+	
+	/**
+	 * Create a JFact reasoner instance
+	 * @return Reasoner instance
+	 */
+	public OWLReasoner createJFactReasoner() {
+		SimpleConfiguration config = new SimpleConfiguration();
+		
+		if(verbose) System.out.print("   Creating reasoner... ");
+		long start = System.currentTimeMillis();
+		
+		OWLReasoner reasoner = new JFactReasoner(ont, config, BufferingMode.NON_BUFFERING);
 		
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");

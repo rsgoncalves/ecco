@@ -18,8 +18,6 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.axiom;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,7 +40,6 @@ public class StructuralDiff implements AxiomDiff {
 	private OWLOntology ont1, ont2;
 	private String ont1name, ont2name;
 	private StructuralChangeSet changeSet;
-	private ThreadMXBean bean;
 	private double diffTime;
 	private boolean verbose;
 	
@@ -56,7 +53,6 @@ public class StructuralDiff implements AxiomDiff {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.verbose = verbose;
-		bean = ManagementFactory.getThreadMXBean();
 	}
 	
 	
@@ -74,7 +70,6 @@ public class StructuralDiff implements AxiomDiff {
 		this.ont1name = ont1name;
 		this.ont2name = ont2name;
 		this.verbose = verbose;
-		bean = ManagementFactory.getThreadMXBean();
 	}
 	
 	
@@ -94,7 +89,7 @@ public class StructuralDiff implements AxiomDiff {
 		Set<OWLAxiom> removals = new HashSet<OWLAxiom>();
 		Set<OWLAxiom> shared = new HashSet<OWLAxiom>();
 		
-		long start = bean.getCurrentThreadCpuTime();
+		long start = System.currentTimeMillis();
 		for(OWLAxiom ax : o1axs) {
 			if(!o2axs.contains(ax)) {
 				if(ax instanceof OWLSubClassOfAxiom) {
@@ -117,8 +112,8 @@ public class StructuralDiff implements AxiomDiff {
 			else shared.add(ax);
 		}
 		
-		long end = bean.getCurrentThreadCpuTime();
-		diffTime = (end-start)/1000000000.0;
+		long end = System.currentTimeMillis();
+		diffTime = (end-start)/1000.0;
 
 		changeSet = new StructuralChangeSet(additions, removals, shared);
 		addOntologyFileNames(); changeSet.setDiffTime(diffTime);

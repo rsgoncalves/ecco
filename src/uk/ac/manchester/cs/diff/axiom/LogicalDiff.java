@@ -18,8 +18,6 @@
  ******************************************************************************/
 package uk.ac.manchester.cs.diff.axiom;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,7 +43,6 @@ public class LogicalDiff implements AxiomDiff {
 	private StructuralChangeSet structChangeSet;
 	private LogicalChangeSet logicalChangeSet;
 	private OWLReasoner ont1reasoner, ont2reasoner;
-	private ThreadMXBean bean;
 	private double diffTime;
 	private boolean verbose;
 	
@@ -58,7 +55,6 @@ public class LogicalDiff implements AxiomDiff {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.verbose = verbose;
-		bean = ManagementFactory.getThreadMXBean();
 	}
 	
 	
@@ -73,7 +69,6 @@ public class LogicalDiff implements AxiomDiff {
 		this.ont2 = ont2;
 		this.structChangeSet = changeSet;
 		this.verbose = verbose;
-		bean = ManagementFactory.getThreadMXBean();
 	}
 
 	
@@ -112,7 +107,7 @@ public class LogicalDiff implements AxiomDiff {
 		}
 		
 		System.out.print("   Verifying axiom impact... ");
-		long start = bean.getCurrentThreadCpuTime();
+		long start = System.currentTimeMillis();
 		
 		Set<OWLAxiom> ineffectualAdditions = getIneffectualChanges(structChangeSet.getAddedAxioms(), ont1reasoner);
 		Set<OWLAxiom> effectualAdditions = new HashSet<OWLAxiom>(structChangeSet.getAddedAxioms());
@@ -122,8 +117,8 @@ public class LogicalDiff implements AxiomDiff {
 		Set<OWLAxiom> effectualRemovals = new HashSet<OWLAxiom>(structChangeSet.getRemovedAxioms());
 		effectualRemovals.removeAll(ineffectualRemovals);
 		
-		long end = bean.getCurrentThreadCpuTime();
-		diffTime = (end-start)/1000000000.0;
+		long end = System.currentTimeMillis();
+		diffTime = (end-start)/1000.0;
 	
 		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals);
 		logicalChangeSet.setDiffTime(diffTime);
