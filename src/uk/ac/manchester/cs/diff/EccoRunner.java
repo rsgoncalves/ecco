@@ -100,6 +100,7 @@ public class EccoRunner {
 	 * @param normalizeURIs	true if namespaces of shared entities should be forced to be similar, false otherwise
 	 * @param verbose	true if detailed messages should be output, false otherwise
 	 */
+	@SuppressWarnings("deprecation")
 	public EccoRunner(boolean processImports, boolean ignoreAbox, boolean transform, boolean normalizeURIs, int nrJusts, boolean verbose) {
 		this.processImports = processImports;
 		this.ignoreAbox = ignoreAbox;
@@ -111,6 +112,7 @@ public class EccoRunner {
 		config = new OWLOntologyLoaderConfiguration();
 		config.setLoadAnnotationAxioms(false);
 		if(!processImports) {
+			config.setSilentMissingImportsHandling(true); // though deprecated, this works, while the code below does not.. 
 			config.setFollowRedirects(false);
 			config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 		}
@@ -155,20 +157,24 @@ public class EccoRunner {
 			long t2 = System.currentTimeMillis();
 			System.out.println("Aligning concept and axiom changes... ");
 			
-			System.out.print("   Computing justifications for witness axioms... ");
+			System.out.print("   Computing justifications for (lost entailment) witness axioms... ");
 			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = 
 					new WitnessJustifier(ont1, conceptChanges, nrJusts, "lhs").getJustifications();
+			long t3 = System.currentTimeMillis();
+			System.out.println("done (" + (t3-t2)/1000.0 + " secs)");
+			
+			System.out.print("   Computing justifications for (new entailment) witness axioms... ");
 			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = 
 					new WitnessJustifier(ont2, conceptChanges, nrJusts, "rhs").getJustifications();
-			System.out.println("done (" + (System.currentTimeMillis()-t2)/1000.0 + " secs)");
+			System.out.println("done (" + (System.currentTimeMillis()-t3)/1000.0 + " secs)");
 			
 			AlignedDirectChangeSet dirChanges = 
 					new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
 			AlignedIndirectChangeSet indirChanges = 
 					new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
 			
-			long t3 = System.currentTimeMillis();
-			System.out.println("finished aligning (" + (t3-t2)/1000.0 + " secs)");
+			long t4 = System.currentTimeMillis();
+			System.out.println("finished aligning (" + (t4-t2)/1000.0 + " secs)");
 			
 			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
 			
@@ -258,7 +264,7 @@ public class EccoRunner {
 		
 		Set<OWLAxiom> result = null;
 		if(ont != null) {
-			 System.out.println("\tLoaded ontology " + ontNr + " (" + ont.getLogicalAxiomCount() + " logical axioms)");
+			System.out.println("\tLoaded ontology " + ontNr + " (" + ont.getLogicalAxiomCount() + " logical axioms)");
 			if(ignoreAbox) removeAbox(ont);
 			result = ont.getAxioms();
 			if(processImports) {
@@ -476,14 +482,14 @@ public class EccoRunner {
 				if(hasOnt1) throw new RuntimeException("\nToo many -ont1 options provided.\n");
 				if(++i == args.length) throw new RuntimeException("\n-ont1 must be followed by an ontology URI.\n");
 				f1 = args[i].trim(); hasOnt1 = true;
-				if(f1.contains("http")) localOnt1 = false;
+				if(f1.contains("http") || f1.contains("ftp")) localOnt1 = false;
 			} 
 			// Ontology 2
 			else if(arg.equalsIgnoreCase("-ont2")) {
 				if(hasOnt2) throw new RuntimeException("\nToo many -ont2 options provided.\n");
 				if(++i == args.length) throw new RuntimeException("\n-ont2 must be followed by an ontology URI.\n");
 				f2 = args[i].trim(); hasOnt2 = true; 
-				if(f2.contains("http")) localOnt2 = false;
+				if(f2.contains("http") || f2.contains("ftp")) localOnt2 = false;
 			}
 			// Output directory for change report
 			else if(arg.equalsIgnoreCase("-o")) {

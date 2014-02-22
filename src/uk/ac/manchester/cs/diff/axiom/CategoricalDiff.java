@@ -185,13 +185,13 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	@SuppressWarnings("unchecked")
 	private Set<CategorisedEffectualAddition> categoriseEffectualAdditions(Set<OWLAxiom> ea, Set<OWLAxiom> er, Set<OWLAxiom> ir) {
-		if(verbose) System.out.println("\n   Categorising effectual additions... ");
+		if(verbose) System.out.println("\n    Categorising effectual additions... ");
 		Set<CategorisedEffectualAddition> effAdds = new HashSet<CategorisedEffectualAddition>();
 		if(!ea.isEmpty())
 			try { effAdds = (Set<CategorisedEffectualAddition>) categoriseEffectualChanges(true, ea, ont1, er, ir); }
 			catch (OWLOntologyCreationException e) { e.printStackTrace(); }
 		else
-			if(verbose) System.out.println("     done (no effectual additions)");
+			if(verbose) System.out.println("    done (no effectual additions)");
 		return effAdds;
 	}
 	
@@ -205,13 +205,13 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	@SuppressWarnings("unchecked")
 	private Set<CategorisedEffectualRemoval> categoriseEffectualRemovals(Set<OWLAxiom> er, Set<OWLAxiom> ea, Set<OWLAxiom> ia) {
-		if(verbose) System.out.println("   Categorising effectual removals... ");
+		if(verbose) System.out.println("    Categorising effectual removals... ");
 		Set<CategorisedEffectualRemoval> effRems = new HashSet<CategorisedEffectualRemoval>();
 		if(!er.isEmpty())
 			try { effRems = (Set<CategorisedEffectualRemoval>) categoriseEffectualChanges(false, er, ont2, ea, ia); }
 			catch (OWLOntologyCreationException e) { e.printStackTrace(); }
 		else
-			if(verbose) System.out.println("     done (no effectual removals)");
+			if(verbose) System.out.println("    done (no effectual removals)");
 		return effRems;
 	}
 	
@@ -225,12 +225,12 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	@SuppressWarnings("unchecked")
 	private Set<CategorisedIneffectualAddition> categoriseIneffectualAdditions(Set<OWLAxiom> ia, Set<OWLAxiom> er, Set<OWLAxiom> ir) {
-		if(verbose) System.out.println("   Categorising ineffectual additions... ");
+		if(verbose) System.out.println("    Categorising ineffectual additions... ");
 		Set<CategorisedIneffectualAddition> ineffAdds = new HashSet<CategorisedIneffectualAddition>();
 		if(!ia.isEmpty())
 			ineffAdds = (Set<CategorisedIneffectualAddition>) categoriseIneffectualChanges("rhs", ia, er, ir, ont1, ont2reasoner);
 		else
-			if(verbose) System.out.println("     done (no ineffectual additions)");
+			if(verbose) System.out.println("    done (no ineffectual additions)");
 		return ineffAdds;
 	}
 	
@@ -244,12 +244,12 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	@SuppressWarnings("unchecked")
 	private Set<CategorisedIneffectualRemoval> categoriseIneffectualRemovals(Set<OWLAxiom> ir, Set<OWLAxiom> ea, Set<OWLAxiom> ia) {
-		if(verbose) System.out.println("   Categorising ineffectual removals... ");
+		if(verbose) System.out.println("    Categorising ineffectual removals... ");
 		Set<CategorisedIneffectualRemoval> ineffRems = new HashSet<CategorisedIneffectualRemoval>();
 		if(!ir.isEmpty())
 			ineffRems = (Set<CategorisedIneffectualRemoval>) categoriseIneffectualChanges("lhs", ir, ea, ia, ont2, ont1reasoner);
 		else
-			if(verbose) System.out.println("     done (no ineffectual removals)");
+			if(verbose) System.out.println("    done (no ineffectual removals)");
 		return ineffRems;
 	}
 
@@ -340,7 +340,7 @@ public class CategoricalDiff implements AxiomDiff {
 		
 		long end = System.currentTimeMillis();
 		double total = (end-start)/1000.0;
-		if(verbose) System.out.println("\n   done (" + total + " secs)");
+		if(verbose) System.out.println("\n    done (" + total + " secs)");
 		
 		if(effAdds) eaTime = total;
 		else erTime = total;
@@ -559,7 +559,7 @@ public class CategoricalDiff implements AxiomDiff {
 			irTime = total;
 			irJustTime = justTime;
 		}
-		if(verbose) System.out.println("\n   done (" + total + " secs)");
+		if(verbose) System.out.println("\n    done (" + total + " secs)");
 		cleanUp(src_reasoner); cleanUp(exps); just = null;
 		return result;
 	}

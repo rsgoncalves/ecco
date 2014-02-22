@@ -54,6 +54,7 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
+import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -72,13 +73,15 @@ public class JustificationFinder {
 	/**
 	 * Constructor
 	 * @param ont	OWL ontology
+	 * @param nrJusts	Maximum number of justifications to compute per entailment
 	 */
 	public JustificationFinder(OWLOntology ont, int nrJusts) {
 		this.ont = ont;
 		this.justLimit = nrJusts;
 		this.lacJustLimit = nrJusts;
 		man = OWLManager.createOWLOntologyManager();
-		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
+		rf = new FaCTPlusPlusReasonerFactory();
+//		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
 		regFac = ExplanationManager.createExplanationGeneratorFactory(rf);
 		lacFac = new LaconicExplanationGeneratorFactory<OWLAxiom>(regFac);
 	} 
@@ -131,7 +134,7 @@ public class JustificationFinder {
 		private static final long serialVersionUID = -953162808746083965L;
 		private Set<OWLAxiom> axioms;
     	private int limit;
-    	private int MAX_AXIOM_SET_SIZE = 5;
+    	private int MAX_AXIOM_SET_SIZE = 10;
     	
     	/**
     	 * Constructor

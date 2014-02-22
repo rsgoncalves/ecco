@@ -110,7 +110,7 @@ If not, see http://www.gnu.org/licenses/
 												<xsl:if test="$wkst > 0">
 													<li id="weaktrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-														<input type="checkbox" name="effAdds" onClick="toggleDiv('weak');"/>
+														<input type="checkbox" name="effRems" onClick="toggleDiv('weak');"/>
 														<xsl:text>  </xsl:text><a href="#weak">With Shared Terms (<xsl:value-of select="$wkst"/>)</a>
 													</li>
 												</xsl:if>
@@ -118,7 +118,7 @@ If not, see http://www.gnu.org/licenses/
 												<xsl:if test="$wkrt > 0">
 													<li id="weakrttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-														<input type="checkbox" name="effAdds" onClick="toggleDiv('weakrt');"/>
+														<input type="checkbox" name="effRems" onClick="toggleDiv('weakrt');"/>
 														<xsl:text>  </xsl:text><a href="#weakrt">With Retired Terms (<xsl:value-of select="$wkrt"/>)</a>
 													</li>
 												</xsl:if>
@@ -137,7 +137,7 @@ If not, see http://www.gnu.org/licenses/
 												<xsl:if test="$rmdst > 0">
 													<li id="wkequivtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-														<input type="checkbox" name="effAdds" onClick="toggleDiv('wkequiv');"/>
+														<input type="checkbox" name="effRems" onClick="toggleDiv('wkequiv');"/>
 														<xsl:text>  </xsl:text><a href="#wkequiv">With Shared Terms (<xsl:value-of select="$rmdst"/>)</a>
 													</li>
 												</xsl:if>
@@ -145,7 +145,7 @@ If not, see http://www.gnu.org/licenses/
 												<xsl:if test="$rmdrt > 0">
 													<li id="wkequivrttrig" >
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-														<input type="checkbox" name="effAdds" onClick="toggleDiv('wkequivrt');"/>
+														<input type="checkbox" name="effRems" onClick="toggleDiv('wkequivrt');"/>
 														<xsl:text>  </xsl:text><a href="#wkequivrt">With Retired Terms (<xsl:value-of select="$rmdrt"/>)</a>
 													</li>
 												</xsl:if>
@@ -174,7 +174,7 @@ If not, see http://www.gnu.org/licenses/
 												<xsl:if test="$premst > 0">
 													<li id="remtrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-														<input type="checkbox" name="effAdds" onClick="toggleDiv('rem');"/>
+														<input type="checkbox" name="effRems" onClick="toggleDiv('rem');"/>
 														<xsl:text>  </xsl:text><a href="#rem">With Shared Terms (<xsl:value-of select="$premst"/>)</a>
 													</li>
 												</xsl:if>
@@ -182,7 +182,7 @@ If not, see http://www.gnu.org/licenses/
 												<xsl:if test="$premrt > 0">
 													<li id="remrttrig">
 														<img src="images/blank.png" alt=""></img><xsl:text>  </xsl:text>
-														<input type="checkbox" name="effAdds" onClick="toggleDiv('remrt');"/>
+														<input type="checkbox" name="effRems" onClick="toggleDiv('remrt');"/>
 														<xsl:text>  </xsl:text><a href="#remrt">With Retired Terms (<xsl:value-of select="$premrt"/>)</a>
 													</li>
 												</xsl:if>
