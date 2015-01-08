@@ -89,7 +89,7 @@ public class EccoRunner {
 			"	     ecco: a diff tool for OWL ontologies\n" +
 			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
-			"by Rafael Goncalves. Powered by the OWL API version " + owlapiVersion.substring(0, owlapiVersion.indexOf("-")) + "\n";
+			"by Rafael Goncalves. Powered by the OWL API version " + owlapiVersion + "\n";
 	
 	
 	/**
