@@ -35,10 +35,10 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class OntologyLoader extends jsr166e.RecursiveTask<OWLOntology> {
 	private static final long serialVersionUID = -5909585243181647744L;

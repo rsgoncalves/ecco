@@ -33,10 +33,10 @@ import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class LogicalDiff implements AxiomDiff {
 	private OWLOntology ont1, ont2;
@@ -50,6 +50,7 @@ public class LogicalDiff implements AxiomDiff {
 	 * Constructor
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
+	 * @param verbose	Verbose mode
 	 */
 	public LogicalDiff(OWLOntology ont1, OWLOntology ont2, boolean verbose) {
 		this.ont1 = ont1;
@@ -63,6 +64,7 @@ public class LogicalDiff implements AxiomDiff {
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param changeSet	Structural change set
+	 * @param verbose	Verbose mode
 	 */
 	public LogicalDiff(OWLOntology ont1, OWLOntology ont2, StructuralChangeSet changeSet, boolean verbose) {
 		this.ont1 = ont1;
@@ -132,7 +134,7 @@ public class LogicalDiff implements AxiomDiff {
 	/**
 	 * Get ineffectual changes
 	 * @param axioms	Set of axioms to check
-	 * @param ont	OWL ontology
+	 * @param reasoner	OWL reasoner
 	 * @return Set of ineffectual changes
 	 */
 	private Set<OWLAxiom> getIneffectualChanges(Set<OWLAxiom> axioms, OWLReasoner reasoner) {

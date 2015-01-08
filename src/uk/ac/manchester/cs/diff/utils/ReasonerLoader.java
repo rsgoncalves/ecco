@@ -31,10 +31,10 @@ import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import uk.ac.manchester.cs.jfact.JFactReasoner;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class ReasonerLoader {
 	private OWLOntology ont;
@@ -52,7 +52,7 @@ public class ReasonerLoader {
 	/**
 	 * Constructor
 	 * @param ont OWL Ontology
-	 * @param verbose
+	 * @param verbose	Verbose mode
 	 */
 	public ReasonerLoader(OWLOntology ont, boolean verbose) {
 		this.ont = ont;
@@ -106,6 +106,7 @@ public class ReasonerLoader {
 	
 	/**
 	 * Create a JFact reasoner instance
+	 * @param useProgressMonitor	true if a progress monitor should be used, false otherwise
 	 * @return Reasoner instance
 	 */
 	public OWLReasoner createReasoner(boolean useProgressMonitor) {

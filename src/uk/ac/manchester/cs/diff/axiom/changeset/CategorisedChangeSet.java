@@ -34,10 +34,10 @@ import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualAddition.Inef
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval.IneffectualRemovalCategory;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class CategorisedChangeSet implements AxiomChangeSet {
 	private double diffTime, eaTime, erTime, iaTime, irTime, iaJustTime, irJustTime, iaLacJustTime, irLacJustTime;
@@ -57,6 +57,7 @@ public class CategorisedChangeSet implements AxiomChangeSet {
 	 * @param ineffectualAdditions	Set of categorised ineffectual additions
 	 * @param effectualRemovals	Set of categorised effectual removals
 	 * @param ineffectualRemovals	Set of categorised ineffectual removals
+	 * @param sharedAxioms	Set of shared (unchanged) axioms
 	 */
 	public CategorisedChangeSet(Set<CategorisedEffectualAddition> effectualAdditions, Set<CategorisedIneffectualAddition> ineffectualAdditions, 
 			Set<CategorisedEffectualRemoval> effectualRemovals, Set<CategorisedIneffectualRemoval> ineffectualRemovals, Set<OWLAxiom> sharedAxioms) {

@@ -25,10 +25,10 @@ import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class LabelShortFormProvider implements ShortFormProvider {
 	private HashMap<OWLEntity,String> map;
@@ -36,7 +36,7 @@ public class LabelShortFormProvider implements ShortFormProvider {
 	
 	/**
 	 * Constructor
-	 * @param map
+	 * @param map	Map of entities to labels
 	 */
 	public LabelShortFormProvider(HashMap<OWLEntity,String> map) {
 		this.map = map;

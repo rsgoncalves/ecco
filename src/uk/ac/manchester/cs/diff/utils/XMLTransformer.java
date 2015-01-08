@@ -37,10 +37,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class XMLTransformer {
 	private String xsltPath;
@@ -61,7 +61,7 @@ public class XMLTransformer {
 	 * Process given XML file
 	 * @param f	XML file
 	 * @param directory	Directory where XML resides
-	 * @throws TransformerException
+	 * @throws TransformerException	Transformer exception
 	 */
 	public void processFile(File f, File directory) throws TransformerException {
 		System.out.println("  Processing file: " + f.getName());
@@ -86,7 +86,7 @@ public class XMLTransformer {
 	 * Get XML document transformed into HTML as a string
 	 * @param doc	XML document
 	 * @return String containing the HTML transformation
-	 * @throws TransformerException 
+	 * @throws TransformerException Transformer exception
 	 */
 	public String getReportAsHTML(Document doc) throws TransformerException {
 		TransformerFactory transfac = TransformerFactory.newInstance();
@@ -122,9 +122,10 @@ public class XMLTransformer {
 	
 	
 	/**
-	 * @param args
-	 * @throws ParserConfigurationException 
-	 * @throws TransformerException 
+	 * Main
+	 * @param args	Arguments
+	 * @throws ParserConfigurationException Parser configuration exception
+	 * @throws TransformerException Transformer exception
 	 */
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException {
 		String xsltPath = args[0];

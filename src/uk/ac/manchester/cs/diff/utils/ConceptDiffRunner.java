@@ -44,10 +44,10 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class ConceptDiffRunner {
 
@@ -92,14 +92,15 @@ public class ConceptDiffRunner {
 	
 	/**
 	 * Tester class
+	 * @param args	Arguments, as below:
 	 * param 0: ontology1
 	 * param 1: ontology2
 	 * param 2: output directory
 	 * param 3: diff type
 	 * param 4: signature file
-	 * @throws OWLOntologyCreationException 
-	 * @throws InterruptedException 
-	 * @throws TransformerException 
+	 * @throws OWLOntologyCreationException	Ontology creation exception
+	 * @throws InterruptedException	Interruption exception
+	 * @throws TransformerException	Transformer exception
 	 */
 	public static void main(String[] args) throws OWLOntologyCreationException, InterruptedException, TransformerException {
 		boolean verbose = true;

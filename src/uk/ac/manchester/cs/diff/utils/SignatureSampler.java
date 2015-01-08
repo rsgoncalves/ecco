@@ -36,10 +36,10 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import uk.ac.manchester.cs.diff.concept.Signature;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class SignatureSampler {
 	private OWLOntology ont1, ont2;
@@ -94,7 +94,7 @@ public class SignatureSampler {
 	
 	/**
 	 * main
-	 * @param args
+	 * @param args	Arguments
 	 */
 	public static void main(String[] args) {
 		int sampleSize = Integer.parseInt(args[0]);

@@ -27,10 +27,10 @@ import uk.ac.manchester.cs.diff.axiom.change.LogicalAddition;
 import uk.ac.manchester.cs.diff.axiom.change.LogicalRemoval;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class LogicalChangeSet implements AxiomChangeSet {
 	private Set<OWLAxiom> effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals;

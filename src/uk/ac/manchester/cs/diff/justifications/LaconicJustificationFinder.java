@@ -39,10 +39,10 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class LaconicJustificationFinder {
 	private OWLReasonerFactory rf;
@@ -123,7 +123,8 @@ public class LaconicJustificationFinder {
 	
 	
 	/**
-	 * @param args
+	 * Main
+	 * @param args	Arguments
 	 */
 	public static void main(String[] args) {
 		String entailment = args[0];

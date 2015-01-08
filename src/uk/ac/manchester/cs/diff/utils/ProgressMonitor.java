@@ -21,10 +21,10 @@ package uk.ac.manchester.cs.diff.utils;
 import java.util.Set;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class ProgressMonitor {
 	private Integer total;
@@ -54,6 +54,7 @@ public class ProgressMonitor {
 	
 	/**
 	 * Increment the number of processed objects by the specified amount
+	 * @param increment	Amount to increment
 	 * @return Percentage of objects processed
 	 */
 	public Integer incrementProgress(int increment) {

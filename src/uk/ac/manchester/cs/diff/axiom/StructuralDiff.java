@@ -31,10 +31,10 @@ import uk.ac.manchester.cs.diff.output.csv.CSVAxiomDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class StructuralDiff implements AxiomDiff {
 	private OWLOntology ont1, ont2;

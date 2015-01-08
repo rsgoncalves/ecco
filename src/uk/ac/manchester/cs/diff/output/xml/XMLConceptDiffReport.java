@@ -44,10 +44,10 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class XMLConceptDiffReport {
 	private final String uuid = UUID.randomUUID().toString();
@@ -87,7 +87,7 @@ public class XMLConceptDiffReport {
 	 * Get XML document as a string
 	 * @param doc	XML document
 	 * @return String version of the XML document
-	 * @throws TransformerException 
+	 * @throws TransformerException Transformer exception
 	 */
 	public String getReportAsString(Document doc) throws TransformerException {
 		TransformerFactory transfac = TransformerFactory.newInstance();
@@ -101,7 +101,7 @@ public class XMLConceptDiffReport {
 	 * @param trans	Transformer
 	 * @param doc	XML document
 	 * @return String result of transforming the XML document
-	 * @throws TransformerException
+	 * @throws TransformerException	Transformer exception
 	 */
 	private String getXMLAsString(Transformer trans, Document doc) throws TransformerException {
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -273,6 +273,7 @@ public class XMLConceptDiffReport {
 	 * @param d	Document to be added to
 	 * @param parent	Parent of this new element
 	 * @param includeSize	Include the size of the children as an attribute of the new element
+	 * @return Element
 	 */
 	private Element addElement(String name, String id, int size, Document d, String parent, boolean includeSize) {
 		Element ele = d.createElement(name);

@@ -27,10 +27,10 @@ import uk.ac.manchester.cs.diff.axiom.change.StructuralAddition;
 import uk.ac.manchester.cs.diff.axiom.change.StructuralRemoval;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class StructuralChangeSet implements AxiomChangeSet {
 	private Set<OWLAxiom> additions, removals, shared;
@@ -52,6 +52,7 @@ public class StructuralChangeSet implements AxiomChangeSet {
 	
 	/**
 	 * Set file name of specified ontology (1 or 2)
+	 * @param ontNr	Ontology number
 	 * @param name	Ontology file name
 	 * @deprecated
 	 */

@@ -29,10 +29,10 @@ import uk.ac.manchester.cs.diff.concept.change.LHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.RHSConceptChange;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class ConceptChangeSet {
 	private Set<ConceptChange> allChanges;

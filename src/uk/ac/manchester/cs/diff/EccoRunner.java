@@ -69,10 +69,10 @@ import uk.ac.manchester.cs.diff.output.xml.XMLReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class EccoRunner {
 	private OWLOntologyManager man;
@@ -98,6 +98,7 @@ public class EccoRunner {
 	 * @param ignoreAbox	true if abox axioms should be ignored, false otherwise
 	 * @param transform	true if XML files should be transformed to HTML
 	 * @param normalizeURIs	true if namespaces of shared entities should be forced to be similar, false otherwise
+	 * @param nrJusts	Number of justifications to be computed
 	 * @param verbose	true if detailed messages should be output, false otherwise
 	 */
 	public EccoRunner(boolean processImports, boolean ignoreAbox, boolean transform, boolean normalizeURIs, int nrJusts, boolean verbose) {
@@ -123,10 +124,11 @@ public class EccoRunner {
 	 * @param ont2	Ontology 2
 	 * @param cdiff	Concept diff notion to be used
 	 * @param xsltPath	Path to XSLT file
+	 * @param saveDocs	true if XML documents should be saved on disk, false otherwise 
 	 * @return XML diff report
-	 * @throws TransformerException
-	 * @throws UnsupportedEncodingException
-	 * @throws OWLOntologyCreationException 
+	 * @throws TransformerException	Transformer exception
+	 * @throws UnsupportedEncodingException	Unsupported encoding exception
+	 * @throws OWLOntologyCreationException Ontology creation exception
 	 */
 	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, String xsltPath, boolean saveDocs) 
 			throws TransformerException, UnsupportedEncodingException, OWLOntologyCreationException {
@@ -203,8 +205,9 @@ public class EccoRunner {
 	 * Process local output by saving XML change sets, CSV log, and, if applicable, the HTML transformation 
 	 * @param report	XML report instance
 	 * @param xsltPath	Path to XSLT file
-	 * @throws UnsupportedEncodingException
-	 * @throws TransformerException
+	 * @param includeTimestamp	true if timestamp should be included in file name(s), false otherwise
+	 * @throws UnsupportedEncodingException	Unsupported encoding exception
+	 * @throws TransformerException	Transformer exception
 	 */
 	public void saveXMLDocuments(XMLReport report, String xsltPath, boolean includeTimestamp) 
 			throws UnsupportedEncodingException, TransformerException {
@@ -225,7 +228,7 @@ public class EccoRunner {
 	 * @param outputDir	Output directory
 	 * @param suffix	Suffix for the different variants of the XML report
 	 * @param xsltPath	Path to the XSL transformation sheet
-	 * @throws TransformerException
+	 * @throws TransformerException	Transformer exception
 	 */
 	private void saveDocumentToFile(XMLReport report, Document doc, String outputDir, String suffix, String xsltPath) 
 			throws TransformerException {
@@ -244,7 +247,7 @@ public class EccoRunner {
 	 * @param filepath	Ontology file path
 	 * @param localFile	true if local file, false otherwise
 	 * @return Loaded ontology
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	public OWLOntology loadOntology(int ontNr, String filepath, boolean localFile) throws OWLOntologyCreationException {
 		if(!localFile) sep = "/";
@@ -294,7 +297,7 @@ public class EccoRunner {
 	 * @param stream	Input stream
 	 * @param localFile	true if local file, false otherwise
 	 * @return Loaded ontology
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	public OWLOntology loadOntology(int ontNr, InputStream stream, boolean localFile) throws OWLOntologyCreationException {
 		if(!localFile) sep = "/";
@@ -328,7 +331,6 @@ public class EccoRunner {
 	 * the diff will report changes involving "A" -- not desirable
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @param verbose	Verbose mode
 	 */
 	private void normalizeEntityURIs(OWLOntology ont1, OWLOntology ont2) {
 		 System.out.print("  Normalizing entity URIs... ");
@@ -381,6 +383,7 @@ public class EccoRunner {
 	/**
 	 * Set the output directory
 	 * @param outputDirectory	Output directory
+	 * @param verbose	Verbose mode
 	 */
 	public void setOutputDirectory(String outputDirectory, boolean verbose) {
 		outputDir = outputDirectory;
@@ -459,11 +462,11 @@ public class EccoRunner {
 	
 	/**
 	 * Main
-	 * @param args
-	 * @throws OWLOntologyCreationException 
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws TransformerException 
+	 * @param args	Arguments
+	 * @throws OWLOntologyCreationException	Ontology creation exception
+	 * @throws ParserConfigurationException Parser configuration exception
+	 * @throws IOException IO exception
+	 * @throws TransformerException Transformer exception
 	 */
 	public static void main(String[] args) throws OWLOntologyCreationException, ParserConfigurationException, IOException, TransformerException {
 		boolean hasOnt1 = false, hasOnt2 = false, processImports = true, normalizeURIs = false, ignoreAbox = false, 

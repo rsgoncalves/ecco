@@ -23,10 +23,10 @@ import java.util.Set;
 import org.semanticweb.owlapi.model.OWLAxiom;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class WitnessAxioms {
 	private Set<OWLAxiom> direct, indirect;

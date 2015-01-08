@@ -26,10 +26,10 @@ import org.semanticweb.owlapi.model.OWLOntologyChangeBroadcastStrategy;
 import org.semanticweb.owlapi.model.OWLOntologyChangeListener;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class SilentChangeBroadcastStrategy implements OWLOntologyChangeBroadcastStrategy {
 	private static final long serialVersionUID = 8035434562859540956L;

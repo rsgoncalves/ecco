@@ -51,10 +51,10 @@ import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
 import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class SubconceptDiffAlternative {
 	private File ont1, ont2;
@@ -63,8 +63,9 @@ public class SubconceptDiffAlternative {
 
 	/**
 	 * Constructor for subconcept diff w.r.t. Sigma = sig(O1) U sig(O2)
-	 * @param ont1	Ontology 1
-	 * @param ont2	Ontology 2
+	 * @param ont1	Ontology 1 file
+	 * @param ont2	Ontology 2 file
+	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
 	public SubconceptDiffAlternative(File ont1, File ont2, String outputDir, boolean verbose) {
@@ -78,8 +79,8 @@ public class SubconceptDiffAlternative {
 	/**
 	 * Distinguish between directly and indirectly affected concepts
 	 * @return Concept-based change set
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @throws ExecutionException	Execution exception
+	 * @throws InterruptedException	Interruption exception
 	 */
 	public ConceptChangeSet getDiff() throws InterruptedException, ExecutionException {
 		long start = System.currentTimeMillis();

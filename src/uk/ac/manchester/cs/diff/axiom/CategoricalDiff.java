@@ -68,10 +68,10 @@ import com.clarkparsia.owlapi.modularity.locality.LocalityClass;
 import com.clarkparsia.owlapi.modularity.locality.SyntacticLocalityEvaluator;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class CategoricalDiff implements AxiomDiff {
 	private OWLOntology ont1, ont2;
@@ -91,6 +91,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 * Constructor
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
+	 * @param nrJusts	Number of justifications to be computed
 	 * @param verbose	Verbose mode
 	 */
 	public CategoricalDiff(OWLOntology ont1, OWLOntology ont2, int nrJusts, boolean verbose) {
@@ -109,6 +110,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param logicalChangeSet	Logical change set
+	 * @param nrJusts	Number of justifications to be computed
 	 * @param verbose	Verbose mode
 	 */
 	public CategoricalDiff(OWLOntology ont1, OWLOntology ont2, LogicalChangeSet logicalChangeSet, int nrJusts, boolean verbose) {
@@ -257,11 +259,11 @@ public class CategoricalDiff implements AxiomDiff {
 	 * Categorise effectual changes
 	 * @param effAdds	true if checking effectual additions, false for removals
 	 * @param axioms	Set of changes to categorise
-	 * @param ont	if(effAdds) => ont1, else ont2
-	 * @param effectual	if(effAdds) => Set of effectual removals, else Set of effectual additions
-	 * @param ineffectual	if(effAdds) => Set of ineffectual removals, else Set of ineffectual additions
+	 * @param ont	if(effAdds) then ont1, else ont2
+	 * @param effectual	if(effAdds) then Set of effectual removals, else Set of effectual additions
+	 * @param ineffectual	if(effAdds) then Set of ineffectual removals, else Set of ineffectual additions
 	 * @return Set of categorised changes
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Set<? extends CategorisedEffectualChange> categoriseEffectualChanges(boolean effAdds, Set<OWLAxiom> axioms, OWLOntology ont, 
@@ -357,7 +359,6 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param searchSpace	Set of axioms in the search space
 	 * @param newTerms	Set of new terms used in this axiom
 	 * @return Strengthening or Weakening-type change, or null if not a strengthening or weakening
-	 * @throws OWLOntologyCreationException
 	 */
 	private CategorisedChange checkStrengtheningOrWeakening(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, 
 			Set<OWLAxiom> searchSpace, Set<OWLEntity> newTerms) {
@@ -397,14 +398,13 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param effAdds	true if checking additions, false if checking removals
 	 * @param man	OWL ontology manager
 	 * @param ax	OWL axiom to be checked
-	 * @param searchSpace	Set of axioms in the search space
 	 * @param newTerms	Set of new terms used in this axiom
+	 * @param eval	Syntactic locality evaluator
 	 * @return New or Retired Description-type change, or null if not one
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	private CategorisedChange checkNewOrRetiredDescription(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, 
-			Set<OWLEntity> newTerms, SyntacticLocalityEvaluator eval) 
-			throws OWLOntologyCreationException {
+			Set<OWLEntity> newTerms, SyntacticLocalityEvaluator eval) throws OWLOntologyCreationException {
 		CategorisedChange change = null;
 		if(!newTerms.isEmpty()) {
 			boolean atomicLhs = true;
@@ -432,11 +432,10 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param effAdds	true if checking additions, false if checking removals
 	 * @param man	OWL ontology manager
 	 * @param ax	OWL axiom to be checked
-	 * @param searchSpace	Set of axioms in the search space
 	 * @param modExtractor	Star module extractor
 	 * @param newTerms	Set of new terms used in this axiom
 	 * @return Modified definition-type change, or null if not one
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	private CategorisedChange checkModifiedDefinitions(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, 
 			SyntacticLocalityModuleExtractor modExtractor, Set<OWLEntity> newTerms)  throws OWLOntologyCreationException {
@@ -510,7 +509,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param effectual	Set of effectual changes of the opposite ontology
 	 * @param ineffectual	Set of ineffectual changes of the opposite ontology
 	 * @param ont	Opposite ontology
-	 * @param source	Ontology containing the given set of ineffectual axioms
+	 * @param src_reasoner	Reasoner instance for source ontology
 	 * @return Set of categorised ineffectual changes
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -572,11 +571,10 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @param effectual	Effectual changes
 	 * @param ineffectual	Ineffectual changes
 	 * @param ont	Target ontology
-	 * @param source	Source ontology (where changes are asserted)
 	 * @param just	Justification generator interface
 	 * @param src_reasoner	Reasoner instance with the source ontology loaded
 	 * @return Categorised change
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CategorisedChange categoriseIneffectualChange(String desc, Set<Explanation<OWLAxiom>> exps, Set<OWLAxiom> effectual, 

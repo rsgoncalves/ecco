@@ -56,10 +56,10 @@ import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class SubconceptDiff implements ConceptDiff {
 	protected OWLOntology ont1, ont2;
@@ -126,7 +126,6 @@ public class SubconceptDiff implements ConceptDiff {
 	/**
 	 * Get the concept-based change set between the given ontologies 
 	 * @return Concept-based change set
-	 * @throws InterruptedException
 	 */
 	public ConceptChangeSet getDiff() {
 		long start = System.currentTimeMillis();
@@ -161,7 +160,6 @@ public class SubconceptDiff implements ConceptDiff {
 	 * Classify both ontologies
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @throws InterruptedException
 	 */
 	public void classifyOntologies(OWLOntology ont1, OWLOntology ont2) {
 		long start = System.currentTimeMillis();
@@ -405,6 +403,8 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param affectedConceptMap	Map of concepts to their change witnesses
 	 * @param reasoner	Reasoner instance
 	 * @param diffL	true if checking specialisations, false if generalisations
+	 * @param topSuper	Superclasses of Top
+	 * @param unsat	Unsatisfiable classes
 	 * @return Pack of direct and indirect witnesses
 	 */
 	private WitnessPack getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner, boolean diffL,
@@ -644,6 +644,8 @@ public class SubconceptDiff implements ConceptDiff {
 	/**
 	 * Given two ontologies, inject entity declarations so that both ontologies
 	 * end up with the same signature
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
 	 */
 	protected void equalizeSignatures(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLEntity> ont1sig = ont1.getSignature();

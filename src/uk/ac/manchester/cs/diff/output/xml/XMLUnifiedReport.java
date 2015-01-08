@@ -35,10 +35,10 @@ import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1DirSpec, ont1DirGen, ont2DirSpec, ont2DirGen;

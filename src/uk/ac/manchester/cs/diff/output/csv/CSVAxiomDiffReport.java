@@ -24,10 +24,10 @@ import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class CSVAxiomDiffReport {
 	private String header, row;
@@ -59,7 +59,7 @@ public class CSVAxiomDiffReport {
 	
 	/**
 	 * Get a CSV report of a structural change set
-	 * @param changeSet	Structural change set
+	 * @param stChangeSet	Structural change set
 	 * @return CSV structural change set report
 	 */
 	private String getStructuralChangeSetReport(StructuralChangeSet stChangeSet) {
@@ -77,7 +77,7 @@ public class CSVAxiomDiffReport {
 	
 	/**
 	 * Get a CSV report of a logical change set
-	 * @param changeSet	Logical change set
+	 * @param logChangeSet	Logical change set
 	 * @return CSV logical change set report
 	 */
 	private String getLogicalChangeSetReport(LogicalChangeSet logChangeSet) {
@@ -93,7 +93,7 @@ public class CSVAxiomDiffReport {
 	
 	/**
 	 * Get a CSV report of a categorised change set
-	 * @param changeSet	Categorised change set
+	 * @param catChangeSet	Categorised change set
 	 * @return CSV categorised change set report
 	 */
 	private String getCategorisedChangeSetReport(CategorisedChangeSet catChangeSet) {

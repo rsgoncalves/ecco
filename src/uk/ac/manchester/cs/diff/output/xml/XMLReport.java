@@ -27,10 +27,10 @@ import uk.ac.manchester.cs.diff.axiom.change.CategorisedChange;
 import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public interface XMLReport {
 
@@ -59,6 +59,7 @@ public interface XMLReport {
 	 * Get a specified XML document as a string
 	 * @param doc	XML document
 	 * @return String containing the given XML document
+	 * @throws TransformerException	Transformer exception
 	 */
 	public String getReportAsString(Document doc) throws TransformerException;
 	
@@ -68,7 +69,7 @@ public interface XMLReport {
 	 * @param doc	XML document
 	 * @param xsltPath	File path to XSLT file
 	 * @return String containing the HTML code resulting from the transformation
-	 * @throws TransformerException
+	 * @throws TransformerException	Transformer exception
 	 */
 	public String getReportAsHTML(Document doc, String xsltPath) throws TransformerException;
 

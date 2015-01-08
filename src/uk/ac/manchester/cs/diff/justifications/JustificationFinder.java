@@ -57,10 +57,10 @@ import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
 import uk.ac.manchester.cs.jfact.JFactFactory;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class JustificationFinder {
 	private OWLOntology ont;
@@ -91,6 +91,7 @@ public class JustificationFinder {
 	 * Get all justifications for a given set of entailments (concurrently)
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
 		jsr166e.ForkJoinPool fjPool = new jsr166e.ForkJoinPool();
@@ -102,6 +103,7 @@ public class JustificationFinder {
 	 * Get justifications for a given set of entailments (sequentially)
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustificationsSequentially(Set<OWLAxiom> entailments) 
 			throws OWLOntologyCreationException {
@@ -306,7 +308,7 @@ public class JustificationFinder {
 		 * Convert a given input stream into a String
 		 * @param in	Input stream
 		 * @return String containing the content of the input stream
-		 * @throws IOException
+		 * @throws IOException	IO exception
 		 */
 		private String streamToString(InputStream in) throws IOException {
 			StringBuilder out = new StringBuilder();
@@ -322,9 +324,9 @@ public class JustificationFinder {
 		 * @param c	Class to execute
 		 * @param redirectIO	true if I/O of the class is to be redirected to this process, false otherwise
 		 * @param args	Additional arguments
-		 * @return Executed process
-		 * @throws IOException
-		 * @throws InterruptedException
+		 * @return Executed process	Process that is executed
+		 * @throws IOException	IO exception
+		 * @throws InterruptedException	Interruption exception
 		 */
 		private Process executeOperation(Class<? extends Object> c, boolean redirectIO, List<String> args) 
 				throws IOException, InterruptedException {

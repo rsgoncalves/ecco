@@ -31,17 +31,16 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.utils.SilentChangeBroadcastStrategy;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class GrammarDiff extends SubconceptDiff {
 	private OWLOntologyManager man;
@@ -77,9 +76,7 @@ public class GrammarDiff extends SubconceptDiff {
 
 	/**
 	 * Get the concept-based change set between the given ontologies 
-	 * @return Concept-based change set
-	 * @throws InterruptedException
-	 * @throws OWLOntologyCreationException 
+	 * @return Concept-based change set 
 	 */
 	public ConceptChangeSet getDiff() {
 		long start = System.currentTimeMillis();
@@ -111,8 +108,7 @@ public class GrammarDiff extends SubconceptDiff {
 
 	/**
 	 * Create a mapping between a new term "TempX" and each sub-concept, and add the appropriate
-	 * equivalence axioms to each ontology
-	 * @param diff	Type of diff that determines the kind of axiom to be added 
+	 * equivalence axioms to each ontology 
 	 * @return Map of new terms to subconcepts
 	 */
 	private Map<OWLClass,OWLClassExpression> getSubConceptsMapping() {

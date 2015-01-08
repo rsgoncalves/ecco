@@ -50,10 +50,10 @@ import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class Diff implements Callable<DiffResult>{
 	private OWLOntology ont1, ont2;
@@ -136,7 +136,6 @@ public class Diff implements Callable<DiffResult>{
 	/**
 	 * Get the concept-based change set between the given ontologies 
 	 * @return Diff result
-	 * @throws InterruptedException
 	 */
 	public DiffResult call() {
 		long start = System.currentTimeMillis();
@@ -171,7 +170,6 @@ public class Diff implements Callable<DiffResult>{
 
 	/**
 	 * Classify both ontologies
-	 * @throws InterruptedException
 	 */
 	public void classifyOntologies() {
 		if(ont1reasoner!=null) ont1reasoner.dispose();
@@ -219,8 +217,6 @@ public class Diff implements Callable<DiffResult>{
 
 	/**
 	 * Compute change witnesses between the given ontologies
-	 * @param ont1reasoner	Ontology 1 reasoner instance
-	 * @param ont2reasoner	Ontology 2 reasoner instance
 	 * @param map	Map of fresh concept names to complex concepts
 	 * @return Set of affected concept names
 	 */
@@ -272,9 +268,9 @@ public class Diff implements Callable<DiffResult>{
 
 	/**
 	 * Add affected concept and given witnesses to the specified diff map
-	 * @param affected
-	 * @param witnesses
-	 * @param map
+	 * @param affected	Affected concept
+	 * @param witnesses	Set of witnesses
+	 * @param map	Map of affected concepts to their witnesses
 	 */
 	private void addChangeToMap(OWLClass affected, Set<OWLClassExpression> witnesses, Map<OWLClass,Set<OWLClassExpression>> map) {
 		if(!witnesses.isEmpty())
@@ -286,6 +282,10 @@ public class Diff implements Callable<DiffResult>{
 	 * Get the sets of (LHS and RHS) specialisation witnesses for the given concept
 	 * @param subc	Concept
 	 * @param map	Map of fresh concept names to the concepts they represent
+	 * @param toRemove1	Set of classes
+	 * @param toRemove2	Set of classes
+	 * @param ont1reasoner	Reasoner instance for ontology1
+	 * @param ont2reasoner	Reasoner instance for ontology2
 	 * @return Concept witnesses for the given concept
 	 */
 	private WitnessConcepts getWitnesses(OWLClass subc, Map<OWLClass,OWLClassExpression> map, 
@@ -348,7 +348,6 @@ public class Diff implements Callable<DiffResult>{
 	 * Extrapolate direct and indirect witnesses from the given map of affected concepts and witnesses 
 	 * @param affectedConceptMap	Map of concepts to their change witnesses
 	 * @param reasoner	Reasoner instance
-	 * @param diffL	true if checking specialisations, false if generalisations
 	 * @return Pack of direct and indirect witnesses
 	 */
 	private WitnessPack getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner) {
@@ -536,6 +535,8 @@ public class Diff implements Callable<DiffResult>{
 	/**
 	 * Given two ontologies, inject entity declarations so that both ontologies
 	 * end up with the same signature
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
 	 */
 	private void equalizeSignatures(OWLOntology ont1, OWLOntology ont2) {
 		Set<OWLEntity> ont1sig = ont1.getSignature();

@@ -31,10 +31,10 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class ChangeAlignerExperimental extends jsr166e.RecursiveTask<Map<OWLAxiom,Set<? extends ConceptChange>>> {
 	private static final long serialVersionUID = 6310419390814641451L;

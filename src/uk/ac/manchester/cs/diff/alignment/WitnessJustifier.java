@@ -32,10 +32,10 @@ import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
 import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class WitnessJustifier {
 	private OWLOntology ont;
@@ -61,7 +61,7 @@ public class WitnessJustifier {
 	/**
 	 * Get justifications for each witness axiom
 	 * @return Map of witness axioms to their corresponding justifications in the given ontology
-	 * @throws OWLOntologyCreationException
+	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	public Map<OWLAxiom, Set<Explanation<OWLAxiom>>> getJustifications() throws OWLOntologyCreationException {
 		Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();

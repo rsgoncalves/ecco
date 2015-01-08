@@ -69,10 +69,10 @@ import uk.ac.manchester.cs.diff.output.GenSymShortFormProvider;
 import uk.ac.manchester.cs.diff.output.LabelShortFormProvider;
 
 /**
- * @author Rafael S. Goncalves <br/>
- * Information Management Group (IMG) <br/>
- * School of Computer Science <br/>
- * University of Manchester <br/>
+ * @author Rafael S. Goncalves <br>
+ * Information Management Group (IMG) <br>
+ * School of Computer Science <br>
+ * University of Manchester <br>
  */
 public class XMLAxiomDiffReport implements XMLReport {
 	protected final String uuid = UUID.randomUUID().toString();
@@ -363,6 +363,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * @param d	Document to be added to
 	 * @param parent	Parent of the new element
 	 * @param includeSize	Include the size of the children set as an attribute of the new element
+	 * @param cat	Ineffectual removal category
 	 * @param sf	Short form provider
 	 */
 	private void addIneffectualRemovals(String name, String id, Set<? extends CategorisedChange> set, Document d, String parent, 
@@ -390,6 +391,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * @param d	Document to be added to
 	 * @param parent	Parent of the new element
 	 * @param includeSize	Include the size of the children set as an attribute of the new element
+	 * @param cat	Ineffectual addition category
 	 * @param sf	Short form provider
 	 */
 	private void addIneffectualAdditions(String name, String id, Set<? extends CategorisedChange> set, Document d, String parent, 
@@ -495,9 +497,10 @@ public class XMLAxiomDiffReport implements XMLReport {
 	
 	/**
 	 * Append an ineffectual change to the specified document report
+	 * @param id	Change ID
+	 * @param parent	Parent element ID
 	 * @param change	Change to be added
 	 * @param d	Document to be updated
-	 * @param ele	Parent element
 	 * @param cat	Change category
 	 * @param sf	Short form provider
 	 */
@@ -541,9 +544,10 @@ public class XMLAxiomDiffReport implements XMLReport {
 	
 	/**
 	 * Append an ineffectual change to the specified document report
+	 * @param id	Change ID
+	 * @param parent	Parent element ID
 	 * @param change	Change to be added
 	 * @param d	Document to be updated
-	 * @param ele	Parent element
 	 * @param cat	Change category
 	 * @param sf	Short form provider
 	 */
@@ -669,7 +673,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * Get XML document as a string
 	 * @param doc	XML document
 	 * @return String version of the XML document
-	 * @throws TransformerException 
+	 * @throws TransformerException Transformer exception
 	 */
 	public String getReportAsString(Document doc) throws TransformerException {
 		TransformerFactory transfac = TransformerFactory.newInstance();
@@ -683,7 +687,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * @param doc	XML document
 	 * @param xsltPath	Path to the XSL Transformation file
 	 * @return String containing the HTML transformation
-	 * @throws TransformerException 
+	 * @throws TransformerException Transformer exception
 	 */
 	public String getReportAsHTML(Document doc, String xsltPath) throws TransformerException {
 		TransformerFactory transfac = TransformerFactory.newInstance();
@@ -697,7 +701,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * @param trans	Transformer
 	 * @param doc	XML document
 	 * @return String result of transforming the XML document
-	 * @throws TransformerException
+	 * @throws TransformerException	Transformer exception
 	 */
 	private String getXMLAsString(Transformer trans, Document doc) throws TransformerException {
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -769,7 +773,6 @@ public class XMLAxiomDiffReport implements XMLReport {
 	/**
 	 * Sort a given set of axioms into a list
 	 * @param set	Set of axioms
-	 * @param sf	Short form provider
 	 * @return List of ordered axioms 
 	 */
 	private List<OWLAxiom> sortAxioms(Set<OWLAxiom> set) {
