@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -38,9 +39,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
-import org.semanticweb.owlapi.reasoner.BufferingMode;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 
@@ -62,8 +61,8 @@ import uk.ac.manchester.cs.diff.output.csv.CSVAxiomDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.utils.ProgressMonitor;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
-import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasoner;
-import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
+import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
+import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
 
 import com.clarkparsia.owlapi.modularity.locality.LocalityClass;
 import com.clarkparsia.owlapi.modularity.locality.SyntacticLocalityEvaluator;
@@ -133,8 +132,8 @@ public class CategoricalDiff implements AxiomDiff {
 		if(categorisedChangeSet != null) return categorisedChangeSet;
 		System.out.println("\nComputing axiom diff...");
 		long start = System.currentTimeMillis();
-		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner();
-		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner();
+		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner(true);
+		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner(true);
 		
 		if(logicalChangeSet == null) {
 			LogicalDiffConcurrent lDiff = new LogicalDiffConcurrent(ont1, ont2, verbose);
@@ -277,7 +276,8 @@ public class CategoricalDiff implements AxiomDiff {
 		int status = 0;
 		Set<OWLEntity> ontSig = ont.getSignature();
 		OWLOntologyManager man = ont.getOWLOntologyManager();
-		FaCTPlusPlusReasoner modExtractorEff = new FaCTPlusPlusReasoner(ont, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
+		SyntacticLocalityModuleExtractor modExtractorEff = new SyntacticLocalityModuleExtractor(man, ont, ModuleType.STAR);
+//		FaCTPlusPlusReasoner modExtractorEff = new FaCTPlusPlusReasoner(ont, new SimpleConfiguration(), BufferingMode.NON_BUFFERING);
 		SyntacticLocalityEvaluator eval = new SyntacticLocalityEvaluator(LocalityClass.BOTTOM_BOTTOM);
 
 		// Loop effectual changes
@@ -336,7 +336,7 @@ public class CategoricalDiff implements AxiomDiff {
 				status = p;
 			}
 		} // end for loop
-		modExtractorEff.dispose(); modExtractorEff = null; progress = null;
+		modExtractorEff = null; progress = null;
 		
 		long end = System.currentTimeMillis();
 		double total = (end-start)/1000.0;
@@ -363,7 +363,7 @@ public class CategoricalDiff implements AxiomDiff {
 			Set<OWLAxiom> searchSpace, Set<OWLEntity> newTerms) {
 		CategorisedChange change = null;
 		OWLOntology axOnt = createOntology(ax);
-		OWLReasoner reasoner = new ReasonerLoader(axOnt).createReasoner();
+		OWLReasoner reasoner = new ReasonerLoader(axOnt).createReasoner(false);
 		Set<OWLAxiom> stAlignments = new HashSet<OWLAxiom>();
 		for(OWLAxiom axiom : searchSpace) {
 			if(axiom.isLogicalAxiom() && signatureOverlaps(ax, axiom)) {
@@ -439,7 +439,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 * @throws OWLOntologyCreationException
 	 */
 	private CategorisedChange checkModifiedDefinitions(boolean effAdds, OWLOntologyManager man, OWLAxiom ax, 
-			FaCTPlusPlusReasoner modExtractor, Set<OWLEntity> newTerms)  throws OWLOntologyCreationException {
+			SyntacticLocalityModuleExtractor modExtractor, Set<OWLEntity> newTerms)  throws OWLOntologyCreationException {
 		CategorisedChange change = null;
 		Set<OWLAxiom> alignment = new HashSet<OWLAxiom>();
 		OWLEquivalentClassesAxiom equiv = (OWLEquivalentClassesAxiom) ax;
@@ -449,7 +449,7 @@ public class CategoricalDiff implements AxiomDiff {
 		OWLClassExpression lhs = sub1.getSubClass();
 		OWLClassExpression rhs = sub1.getSuperClass();
 
-		Set<OWLAxiom> mod = modExtractor.getModule(ax.getSignature(), false, 2);
+		Set<OWLAxiom> mod = modExtractor.extract(ax.getSignature());
 		loop:
 		for(OWLAxiom a : mod) {
 			if(a.isOfType(AxiomType.EQUIVALENT_CLASSES)) {
@@ -595,7 +595,7 @@ public class CategoricalDiff implements AxiomDiff {
 				entailment = explanation.getEntailment();
 				entailmentAssigned = true;
 				entOnt = createOntology(entailment);
-				reasoner = new ReasonerLoader(entOnt).createReasoner();
+				reasoner = new ReasonerLoader(entOnt).createReasoner(false);
 			}
 			
 			int entailedAxs = 0, shared = 0;
@@ -734,7 +734,7 @@ public class CategoricalDiff implements AxiomDiff {
 		OWLOntology emptyOnt = null;
 		try { emptyOnt = man.createOntology(); }
 		catch (OWLOntologyCreationException e) { e.printStackTrace(); }
-		return new ReasonerLoader(emptyOnt).createReasoner(); 
+		return new ReasonerLoader(emptyOnt).createReasoner(false); 
 	}
 
 	

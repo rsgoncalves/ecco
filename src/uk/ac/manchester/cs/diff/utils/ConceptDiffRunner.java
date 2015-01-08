@@ -34,6 +34,7 @@ import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.parameters.Imports;
 
 import uk.ac.manchester.cs.diff.concept.ConceptDiff;
 import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
@@ -115,8 +116,8 @@ public class ConceptDiffRunner {
 		if(!outputDir.endsWith(File.separator)) outputDir += File.separator;
 		
 		// Remove abox for NCIt
-		man1.removeAxioms(ont1, ont1.getABoxAxioms(true)); 
-		man2.removeAxioms(ont2, ont2.getABoxAxioms(true));
+		man1.removeAxioms(ont1, ont1.getABoxAxioms(Imports.INCLUDED)); 
+		man2.removeAxioms(ont2, ont2.getABoxAxioms(Imports.INCLUDED));
 		
 		String cdiff = args[3];
 		

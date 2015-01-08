@@ -32,6 +32,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.parameters.Imports;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -92,7 +93,7 @@ public class OntologyLoader extends jsr166e.RecursiveTask<OWLOntology> {
 							result.addAll(imported.getLogicalAxioms());
 							man.removeOntology(imported);
 						} catch (OWLOntologyCreationException e) {
-							System.out.println("[Invalid IRI]\tUnable to load the imported ontology: " + d.getURI());
+							System.out.println("[Invalid IRI]\tUnable to load the imported ontology: " + d.getIRI());
 						}
 					}
 				}
@@ -136,7 +137,7 @@ public class OntologyLoader extends jsr166e.RecursiveTask<OWLOntology> {
 	 * @param ont	Ontology to remove axioms from
 	 */
 	private void removeAbox(OWLOntology ont) {
-		Set<OWLAxiom> aboxAxs = ont.getABoxAxioms(true);
+		Set<OWLAxiom> aboxAxs = ont.getABoxAxioms(Imports.INCLUDED);
 		ont.getOWLOntologyManager().removeAxioms(ont, aboxAxs);
 	}
 }

@@ -43,7 +43,7 @@ import org.semanticweb.owl.explanation.api.ExplanationGeneratorFactory;
 import org.semanticweb.owl.explanation.api.ExplanationManager;
 import org.semanticweb.owl.explanation.impl.laconic.LaconicExplanationGeneratorFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.io.OWLXMLOntologyFormat;
+import org.semanticweb.owlapi.formats.OWLXMLDocumentFormat;
 import org.semanticweb.owlapi.io.StringDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -54,7 +54,7 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
-import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
+import uk.ac.manchester.cs.jfact.JFactFactory;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -80,8 +80,8 @@ public class JustificationFinder {
 		this.justLimit = nrJusts;
 		this.lacJustLimit = nrJusts;
 		man = OWLManager.createOWLOntologyManager();
-		rf = new FaCTPlusPlusReasonerFactory();
 //		rf = new org.semanticweb.HermiT.Reasoner.ReasonerFactory();
+		rf = new JFactFactory();
 		regFac = ExplanationManager.createExplanationGeneratorFactory(rf);
 		lacFac = new LaconicExplanationGeneratorFactory<OWLAxiom>(regFac);
 	} 
@@ -291,7 +291,7 @@ public class JustificationFinder {
 			File f = new File("temp" + File.separator + desc + counter + ".owl");
 			try {
 				OWLOntology ont = man.createOntology(axioms);
-				man.saveOntology(ont, new OWLXMLOntologyFormat(), IRI.create(f));
+				man.saveOntology(ont, new OWLXMLDocumentFormat(), IRI.create(f));
 				if(desc.equals("ent")) entCounter++;
 				else if(desc.equals("just")) justCounter++;
 			} catch(OWLOntologyStorageException e) {

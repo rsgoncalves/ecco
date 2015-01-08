@@ -26,10 +26,8 @@ import org.semanticweb.owlapi.reasoner.ConsoleProgressMonitor;
 import org.semanticweb.owlapi.reasoner.FreshEntityPolicy;
 import org.semanticweb.owlapi.reasoner.IndividualNodeSetPolicy;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 
-import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 import uk.ac.manchester.cs.jfact.JFactReasoner;
 
 /**
@@ -66,7 +64,7 @@ public class ReasonerLoader {
 	 * Create a HermiT reasoner instance
 	 * @return Reasoner instance
 	 */
-	public OWLReasoner createReasoner() {
+	public OWLReasoner createHermitReasoner() {
 		Configuration config = new Configuration();
 		config.freshEntityPolicy = FreshEntityPolicy.ALLOW;
 		
@@ -85,34 +83,38 @@ public class ReasonerLoader {
 	 * Create a FaCT++ reasoner instance
 	 * @return Reasoner instance
 	 */
-	public OWLReasoner createFactReasoner(boolean useProgressMonitor) {
-		SimpleConfiguration config;
-		if(useProgressMonitor)
-			config = new SimpleConfiguration(
-					new ConsoleProgressMonitor(), FreshEntityPolicy.ALLOW, Long.MAX_VALUE, IndividualNodeSetPolicy.BY_NAME);
-		else
-			config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE);
-		
-		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
-		
-		if(verbose) System.out.print("   Creating reasoner... ");
-		long start = System.currentTimeMillis();
-		
-		OWLReasoner reasoner = fac.createReasoner(ont, config);
-		
-		long end = System.currentTimeMillis();
-		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
-		return reasoner;
-	}
+//	public OWLReasoner createFactReasoner(boolean useProgressMonitor) {
+//		SimpleConfiguration config;
+//		if(useProgressMonitor)
+//			config = new SimpleConfiguration(
+//					new ConsoleProgressMonitor(), FreshEntityPolicy.ALLOW, Long.MAX_VALUE, IndividualNodeSetPolicy.BY_NAME);
+//		else
+//			config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE);
+//		
+//		OWLReasonerFactory fac = new FaCTPlusPlusReasonerFactory();
+//		
+//		if(verbose) System.out.print("   Creating reasoner... ");
+//		long start = System.currentTimeMillis();
+//		
+//		OWLReasoner reasoner = fac.createReasoner(ont, config);
+//		
+//		long end = System.currentTimeMillis();
+//		if(verbose) System.out.println("done (" + (end-start)/1000.0 + " secs)");
+//		return reasoner;
+//	}
 	
 	
 	/**
 	 * Create a JFact reasoner instance
 	 * @return Reasoner instance
 	 */
-	public OWLReasoner createJFactReasoner() {
-		SimpleConfiguration config = new SimpleConfiguration();
-		
+	public OWLReasoner createReasoner(boolean useProgressMonitor) {
+		SimpleConfiguration config;
+		if(useProgressMonitor)
+			config = new SimpleConfiguration(new ConsoleProgressMonitor(), FreshEntityPolicy.ALLOW, Long.MAX_VALUE, IndividualNodeSetPolicy.BY_NAME);
+		else
+			config = new SimpleConfiguration(FreshEntityPolicy.ALLOW, Long.MAX_VALUE);
+
 		if(verbose) System.out.print("   Creating reasoner... ");
 		long start = System.currentTimeMillis();
 		

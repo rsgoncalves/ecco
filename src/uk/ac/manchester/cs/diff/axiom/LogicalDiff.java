@@ -94,8 +94,8 @@ public class LogicalDiff implements AxiomDiff {
 		if(logicalChangeSet != null) return logicalChangeSet;
 		if(structChangeSet == null) structChangeSet = new StructuralDiff(ont1, ont2, verbose).getDiff();
 		
-		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1).createReasoner();
-		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2).createReasoner();
+		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1).createReasoner(true);
+		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2).createReasoner(true);
 		
 		if(!ont1reasoner.isConsistent()) {
 			System.err.println("\n! Ontology 1 is inconsistent. Cannot perform logical diff on inconsistent input.");

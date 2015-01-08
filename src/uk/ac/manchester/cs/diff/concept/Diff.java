@@ -40,6 +40,7 @@ import org.semanticweb.owlapi.model.OWLLogicalAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
@@ -118,7 +119,7 @@ public class Diff implements Callable<DiffResult>{
 		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
 		}
-		man.removeAxioms(ont, ont.getABoxAxioms(true));
+		man.removeAxioms(ont, ont.getABoxAxioms(Imports.INCLUDED));
 		return ont;
 	}
 
@@ -207,7 +208,7 @@ public class Diff implements Callable<DiffResult>{
 	
 	private OWLReasoner classifyHere(OWLOntology ont) {
 		System.out.println("[diff" + diff + "] [internal] Starting classification on given ontology");
-		OWLReasoner reasoner = new ReasonerLoader(ont, verbose).createFactReasoner(false);
+		OWLReasoner reasoner = new ReasonerLoader(ont, verbose).createReasoner(false);
 		
 		reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 		
@@ -438,7 +439,7 @@ public class Diff implements Callable<DiffResult>{
 		@Override
 		public void run() {
 			System.out.println("[diff" + diff + "] [Classifier] Starting classification on given ontology");
-			reasoner = new ReasonerLoader(ont, verbose).createFactReasoner(false);
+			reasoner = new ReasonerLoader(ont, verbose).createReasoner(false);
 			reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 			System.out.println("[diff" + diff + "] [Classifier] done classifying ");
 		}

@@ -40,7 +40,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.semanticweb.owl.explanation.api.Explanation;
+import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -59,13 +61,12 @@ import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualAddition;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualAddition.IneffectualAdditionCategory;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedIneffectualRemoval.IneffectualRemovalCategory;
-import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
+import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
 import uk.ac.manchester.cs.diff.output.GenSymShortFormProvider;
 import uk.ac.manchester.cs.diff.output.LabelShortFormProvider;
-import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
 
 /**
  * @author Rafael S. Goncalves <br/>
@@ -720,18 +721,21 @@ public class XMLAxiomDiffReport implements XMLReport {
 	private void mapLabels(OWLOntology ont) {
 		Set<OWLEntity> ents = ont.getSignature();
 		for(OWLEntity e : ents) {
-			Set<OWLAnnotation> labels = e.getAnnotations(ont, df.getRDFSLabel());
-			if(!labels.isEmpty()) {
-				for(OWLAnnotation a : labels) {
-					String entry = a.getValue().toString();
-					if(entry.startsWith("\"")) {
-						entry = entry.substring(1);
-						entry = entry.substring(0, entry.indexOf("\""));
+			Set<OWLAnnotationAssertionAxiom> ann_axs = ont.getAnnotationAssertionAxioms(e.getIRI());
+			if(!ann_axs.isEmpty()) {
+				for(OWLAnnotationAssertionAxiom ax : ann_axs) {
+					if(ax.getProperty().isLabel()) {
+						OWLAnnotation a = ax.getAnnotation();
+						String entry = a.getValue().toString();
+						if(entry.startsWith("\"")) {
+							entry = entry.substring(1);
+							entry = entry.substring(0, entry.indexOf("\""));
+						}
+						if(!entry.equals(""))
+							labelMap.put(e, entry);
+						else
+							labelMap.put(e, sf.getShortForm(e));
 					}
-					if(!entry.equals(""))
-						labelMap.put(e, entry);
-					else
-						labelMap.put(e, sf.getShortForm(e));
 				}
 			}
 			else labelMap.put(e, sf.getShortForm(e));

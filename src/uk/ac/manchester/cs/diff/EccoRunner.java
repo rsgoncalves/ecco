@@ -47,6 +47,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.util.OWLEntityURIConverter;
 import org.semanticweb.owlapi.util.OWLEntityURIConverterStrategy;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
@@ -80,16 +81,15 @@ public class EccoRunner {
 	private String outputDir;
 	private int nrJusts;
 	private static String sep = File.separator,
-			versionInfo = "2.5",
-			releaseDate = "13-Feb-2014",
+			versionInfo = "2.6",
+			releaseDate = "9-Jan-2015",
 			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
 			programTitle = 
 			"-------------------------------------------------------------------\n" +
 			"	     ecco: a diff tool for OWL ontologies\n" +
 			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
 			"-------------------------------------------------------------------\n" +
-			"by Rafael Goncalves. Copyright 2011-2014 University of Manchester\n" + 
-			"powered by the OWL API version " + owlapiVersion.substring(0, owlapiVersion.indexOf("-")) + "\n";
+			"by Rafael Goncalves. Powered by the OWL API version " + owlapiVersion.substring(0, owlapiVersion.indexOf("-")) + "\n";
 	
 	
 	/**
@@ -100,7 +100,6 @@ public class EccoRunner {
 	 * @param normalizeURIs	true if namespaces of shared entities should be forced to be similar, false otherwise
 	 * @param verbose	true if detailed messages should be output, false otherwise
 	 */
-	@SuppressWarnings("deprecation")
 	public EccoRunner(boolean processImports, boolean ignoreAbox, boolean transform, boolean normalizeURIs, int nrJusts, boolean verbose) {
 		this.processImports = processImports;
 		this.ignoreAbox = ignoreAbox;
@@ -112,7 +111,6 @@ public class EccoRunner {
 		config = new OWLOntologyLoaderConfiguration();
 		config.setLoadAnnotationAxioms(false);
 		if(!processImports) {
-			config.setSilentMissingImportsHandling(true); // though deprecated, this works, while the code below does not.. 
 			config.setFollowRedirects(false);
 			config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 		}
@@ -375,7 +373,7 @@ public class EccoRunner {
 	 * @param ont	Ontology to remove axioms from
 	 */
 	private void removeAbox(OWLOntology ont) {
-		Set<OWLAxiom> aboxAxs = ont.getABoxAxioms(true);
+		Set<OWLAxiom> aboxAxs = ont.getABoxAxioms(Imports.INCLUDED);
 		ont.getOWLOntologyManager().removeAxioms(ont, aboxAxs);
 	}
 	

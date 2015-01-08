@@ -505,7 +505,7 @@ public class SubconceptDiff implements ConceptDiff {
 
 		@Override
 		public void run() {
-			reasoner = new ReasonerLoader(ont, false).createFactReasoner(false);
+			reasoner = new ReasonerLoader(ont, false).createReasoner(false);
 			long start = System.currentTimeMillis();
 			reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 			long end = System.currentTimeMillis();
