@@ -3,7 +3,7 @@
 
 #### a diff tool for OWL ontologies ####
 
-Built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://owl.cs.manchester.ac.uk/diff) (alternatively [here](http://rpc440.cs.man.ac.uk:8080/diff)).
+Built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://ecco-rsgtools.rhcloud.com/).
 
 
 intro
@@ -26,7 +26,7 @@ After detecting the set of affected concepts, *ecco* distinguishes between conce
 
 Finally, axiom changes are aligned with the concepts that they affect; these are shown on the right hand side columns. When hovering over affected concepts, the tool will show the entailment differences for each concept change.
 
-<!-- For full details, there is no better pointer than [my thesis](http://owl.cs.manchester.ac.uk/research/topics/diff/), particularly Chapter 7 where a tool walkthrough is carried out. -->
+For full details, check [my thesis](https://www.escholar.manchester.ac.uk/uk-ac-man-scw:220347), particularly Chapter 7 where a tool walkthrough is carried out.
 
 
 usage
@@ -53,12 +53,9 @@ usage
 The standard output of *ecco* is an XML file representing the change set. With the **-t** flag, *ecco* will transform this XML file into HTML using the supplied XSLT file (if the location of this file changes, specify the new location via the **-x** flag). By default, the output goes to the **_/out_** (or **_\out_** in Windows) folder, which contains the required files for appropriate rendering on a Web browser. This can be altered via the **-o** flag, though make sure the contents of the default output folder are shifted over to the new output location. For a more informative progress monitoring, use the **-v** flag.
 
 
-before running
+deployment
 --------------------
-Make sure that **Java 1.6 (or above)** is installed and the default Java Runtime Environment. In order to execute properly, *ecco* needs the appropriate native library of FaCT++ for your operating system. 
-This library, denoted *FaCT++ version 1.6.2; precompiled [OS] binaries* should be obtained from [here](https://code.google.com/p/factplusplus/downloads/list).
-Afterwards, the *single* appropriate file (in Windows a **.dll**, in Linux a **.so**, or in Mac OS X a **.jnlib** file) should
-be moved into the **_lib_** folder.
+*ecco* is compatible with **Java 1.7 (or above)**.
 
 
 future plans
@@ -72,9 +69,9 @@ dependencies
 
 *ecco* relies on the following projects:
 
- * [OWL API](http://owlapi.sourceforge.net/) (v3.4.10)
+ * [OWL API](http://owlapi.sourceforge.net/) (v4.0.1)
  * [HermiT](http://www.hermit-reasoner.com/) reasoner (v1.3.8)
- * [FaCT++](https://code.google.com/p/factplusplus/) reasoner (v1.6.2)
+ * [JFact](http://jfact.sourceforge.net/) reasoner (v4.0.0)
  
  
 license
