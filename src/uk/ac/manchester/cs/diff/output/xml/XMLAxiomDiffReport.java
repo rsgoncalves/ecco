@@ -730,7 +730,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 				for(OWLAnnotationAssertionAxiom ax : ann_axs) {
 					if(ax.getProperty().isLabel()) {
 						OWLAnnotation a = ax.getAnnotation();
-						String entry = a.getValue().toString();
+						String entry = a.getValue().asLiteral().get().getLiteral();
 						if(entry.startsWith("\"")) {
 							entry = entry.substring(1);
 							entry = entry.substring(0, entry.indexOf("\""));

@@ -134,8 +134,8 @@ public class CategoricalDiff implements AxiomDiff {
 		if(categorisedChangeSet != null) return categorisedChangeSet;
 		System.out.println("\nComputing axiom diff...");
 		long start = System.currentTimeMillis();
-		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner(true);
-		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner(true);
+		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner(false);
+		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner(false);
 		
 		if(logicalChangeSet == null) {
 			LogicalDiffConcurrent lDiff = new LogicalDiffConcurrent(ont1, ont2, verbose);

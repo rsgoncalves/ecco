@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.RecursiveTask;
 
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -36,7 +37,7 @@ import uk.ac.manchester.cs.diff.justifications.JustificationFinder;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class ChangeAlignerExperimental extends jsr166e.RecursiveTask<Map<OWLAxiom,Set<? extends ConceptChange>>> {
+public class ChangeAlignerExperimental extends RecursiveTask<Map<OWLAxiom,Set<? extends ConceptChange>>> {
 	private static final long serialVersionUID = 6310419390814641451L;
 	private Set<? extends ConceptChange> changes;
 	private Set<OWLAxiom> effChanges;

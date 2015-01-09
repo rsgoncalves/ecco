@@ -103,8 +103,8 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 		if(logicalChangeSet != null) return logicalChangeSet;
 		if(structChangeSet == null) structChangeSet = new StructuralDiff(ont1, ont2, verbose).getDiff();
 		
-		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1, verbose).createReasoner(true);
-		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2, verbose).createReasoner(true);
+		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1, verbose).createReasoner(false);
+		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2, verbose).createReasoner(false);
 		
 		if(!ont1reasoner.isConsistent()) {
 			System.err.println("\n! Ontology 1 is inconsistent. Cannot perform logical diff on inconsistent input.");

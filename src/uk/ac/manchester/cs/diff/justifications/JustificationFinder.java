@@ -35,7 +35,9 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
+import java.util.concurrent.RecursiveTask;
 
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owl.explanation.api.ExplanationGenerator;
@@ -94,7 +96,7 @@ public class JustificationFinder {
 	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
 	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
-		jsr166e.ForkJoinPool fjPool = new jsr166e.ForkJoinPool();
+		ForkJoinPool fjPool = new ForkJoinPool();
 		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
 	}
 	
@@ -132,8 +134,8 @@ public class JustificationFinder {
 	/**
 	 * Justification finder
 	 */
-	public class RegularJustificationFinder extends jsr166e.RecursiveTask<Map<OWLAxiom,Set<Explanation<OWLAxiom>>>> {
-		private static final long serialVersionUID = -953162808746083965L;
+	public class RegularJustificationFinder extends RecursiveTask<Map<OWLAxiom,Set<Explanation<OWLAxiom>>>> {
+		private static final long serialVersionUID = 1L;
 		private Set<OWLAxiom> axioms;
     	private int limit;
     	private int MAX_AXIOM_SET_SIZE = 10;
@@ -156,6 +158,8 @@ public class JustificationFinder {
 			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> regExps = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 			for(OWLAxiom ax : axioms) {
 				ExplanationGenerator<OWLAxiom> exGen = regFac.createExplanationGenerator(ont);
+
+				// TODO all good up till here:
 				Set<Explanation<OWLAxiom>> justs = exGen.getExplanations(ax, limit);
 				regExps.put(ax, justs);
 				if(justs.isEmpty())
@@ -164,7 +168,6 @@ public class JustificationFinder {
 			return regExps;
 		}
 	
-		@Override
 		protected Map<OWLAxiom,Set<Explanation<OWLAxiom>>> compute() {
 			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> result = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 			if(axioms.size() > MAX_AXIOM_SET_SIZE) {
