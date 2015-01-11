@@ -1,14 +1,13 @@
 *ecco*
 ====
 
-#### a diff tool for OWL ontologies ####
+#### a Java-based diff tool for OWL ontologies ####
 
 Built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://ecco-rsgtools.rhcloud.com/).
 
 
-intro
+summary
 --------------------
-
 *ecco* identifies changes according to OWL's notion of [structural equivalence](http://www.w3.org/TR/owl2-syntax/#Structural_Specification),
 and then verifies whether these changes produce any *effect on entailments*, i.e. whether they are logically effectual or ineffectual. 
 Subsequently these differences are aligned according to their impact (or lack thereof).
@@ -55,24 +54,17 @@ The standard output of *ecco* is an XML file representing the change set. With t
 
 deployment
 --------------------
-*ecco* is compatible with **Java 1.7 (or above)**.
-
-
-future plans
---------------------
-
-* An alternative, term-centric view of the differences
-
-
-dependencies
---------------------
-
-*ecco* relies on the following projects:
+*ecco* is compatible with **Java 1.7 (or above)**. It was tested with Java 1.8, and relies mainly on the following projects:
 
  * [OWL API](http://owlapi.sourceforge.net/) (v4.0.1)
  * [HermiT](http://www.hermit-reasoner.com/) reasoner (v1.3.8)
  * [JFact](http://jfact.sourceforge.net/) reasoner (v4.0.0)
  
+ 
+ future plans
+--------------------
+* An alternative, term-centric view of the differences
+
  
 license
 --------------------
