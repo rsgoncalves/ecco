@@ -59,13 +59,8 @@ deployment
  * [OWL API](http://owlapi.sourceforge.net/) (v4.0.1)
  * [HermiT](http://www.hermit-reasoner.com/) reasoner (v1.3.8)
  * [JFact](http://jfact.sourceforge.net/) reasoner (v4.0.0)
- 
- 
- future plans
+
+
+future plans
 --------------------
 * An alternative, term-centric view of the differences
-
- 
-license
---------------------
-*ecco* is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0. For licenses of projects *ecco* relies on, check the relevant websites.
