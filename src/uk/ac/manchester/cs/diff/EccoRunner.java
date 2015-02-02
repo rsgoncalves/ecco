@@ -110,11 +110,9 @@ public class EccoRunner {
 		this.verbose = verbose;
 		man = OWLManager.createOWLOntologyManager();
 		config = new OWLOntologyLoaderConfiguration();
-		config.setLoadAnnotationAxioms(false);
-		if(!processImports) {
-			config.setFollowRedirects(false);
-			config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
-		}
+		config = config.setLoadAnnotationAxioms(false);
+		if(!processImports) 
+			config = config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 	}
 	
 	
