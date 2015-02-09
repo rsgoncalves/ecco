@@ -251,11 +251,13 @@ public class EccoRunner {
 		if(!localFile) sep = "/";
 		String filename = filepath.substring(filepath.lastIndexOf(sep)+1, filepath.length());
 		System.out.println("Input " + ontNr + ": " + filename + " (" + filepath + ")");
-
+		if(filepath.contains("\\"))
+			filepath = filepath.replace("\\", "/");
+		
 		// Load ontology
 		OWLOntology ont = null;
 		try {
-			if(localFile) ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create("file:" + filepath)), config);
+			if(localFile) ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create("file:///" + filepath)), config);
 			else ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create(filepath)), config);
 		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
