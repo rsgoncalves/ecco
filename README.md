@@ -64,3 +64,7 @@ deployment
 future plans
 --------------------
 * An alternative, term-centric view of the differences
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/rsgoncalves/ecco/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
