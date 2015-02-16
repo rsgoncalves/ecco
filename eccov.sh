@@ -1,23 +1,29 @@
 #!/bin/bash
 # 
-# ecco: a diff tool for OWL ontologies
+# ecco: a diff tool for OWL 2 ontologies
 # Copyright 2011-2014, The University of Manchester
 #
-# This script builds (if necessary) and runs ecco on a set of versions. The set of
-# versions must be organised either as appropriately-sorted files within a folder, or
-# a set of folders: each containing an ontology whose filename must be specified here.
+# This script builds (if necessary) and runs ecco on a set of versions. The requirements
+# to build and run ecco are Java 1.7 (or above) and Apache Maven. The set of versions
+# must be organised either as appropriately-sorted files within a folder, or a set of
+# folders: each containing an ontology whose filename must be specified here.
 # 
 # For ecco's optional arguments (that can be passed onto it from here), do: sh ecco.sh -h
 # 
-# Last updated: 13-Feb-14
+# Last updated: 17-Feb-15
 # 
-# Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
-[ -f ecco.jar ] || (echo "Building ecco from sources..." && ant)
+# Build project if ecco.jar does not exist
+if [ -f target/ecco.jar ] 
+	then
+		echo "Building ecco (this requires an internet connection to fetch dependencies)"$'\n'
+		mvn install
+		echo "done"$'\n'
+fi
 #
 # Default argument values (which can be altered via options below)
 # 
-maxmem="8G"	# Maximum heap space allocated to the JVM. Default: 8GB
-factlib=`pwd`"/lib"	# Library folder to load FaCT++'s native library
+maxmem="8G"		# Maximum heap space allocated to the JVM. Default: 8GB
+lib=`pwd`"/lib"	# Java library folder
 # 
 # Iterate arguments
 #
@@ -30,7 +36,7 @@ usage(){
 	echo "   -b --base	Base folder where the the ontology files or folders are contained"
 	echo "   -o --ont	If the 'base' folder contains folders, then -o must specify a single, universal ontology name"
 	echo "   -m --mem	Maximum heap space (memory) allocated to the JVM. Default: 8G (8 GB)"
-	echo "   -f --fact	Directory where the FaCT++ native library resides. Default: ./lib/ "
+	echo "   -l --lib	Java library path. Default: ./lib/"
 	echo ""
 }
 while :
@@ -55,9 +61,9 @@ do
 			echo "JVM heap space: $2"
             shift 2
             ;;
-        -f | --fact)
-            factlib=$2
-			echo "FaCT++ lib: $2"
+        -l | --lib)
+            lib=$2
+			echo "Java lib path: $2"
             shift 2
             ;;
         --)
@@ -65,7 +71,7 @@ do
             break
             ;;
         -*)
-            #echo "Warning: Unknown option (ignored): $1" >&2
+            echo "Warning: Unknown option (ignored): $1" >&2
             break
             ;;
         *)
@@ -96,5 +102,5 @@ do
 		ont2=${versions[$i+1]}/"$ontname"
 	fi
 	# Run ecco with the specified arguments
-	java -Xmx"$maxmem" -Djava.library.path="$factlib" -DentityExpansionLimit=100000000 -jar ecco.jar -ont1 "$ont1" -ont2 "$ont2" "$@"
+	java -Xmx"$maxmem" -Djava.library.path="$lib" -DentityExpansionLimit=100000000 -jar target/ecco.jar -ont1 "$ont1" -ont2 "$ont2" "$@"
 done

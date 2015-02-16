@@ -1,22 +1,32 @@
 #!/bin/bash
 # 
-# ecco: a diff tool for OWL ontologies
+# ecco: a diff tool for OWL 2 ontologies
 # Copyright 2011-2014, The University of Manchester
 #
-# This script builds (if necessary) and runs ecco. This requires 
-# Java 1.6 installed, and the default JRE. Additionally, if building 
-# from sources, ant must be installed.
+# This script builds (if necessary) and runs ecco. The requirements
+# to build and run ecco are Java 1.7 (or above) and Apache Maven.
 # 
-# Last updated: 13-Feb-14
+# Last updated: 17-Feb-15
 # 
-# Compile sources and produce the jar and javadocs (if ecco.jar does not exist)
-[ -f ecco.jar ] || (echo "Building ecco from sources..." && ant)
+# Build project if ecco.jar does not exist
+if [ ! -f target/ecco.jar ];
+then
+	if [ -d target ]
+	then
+		echo "cleaning up..."$'\n'
+		mvn clean
+	fi
+	echo $'\n'"building ecco..."$'\n'
+	mvn install
+	echo "done"$'\n'
+fi
 # 
 # Set the maximum memory to be used, by default, 8GB
 maxmem="8G"
 #
-# Library folder to load FaCT++'s native library
-lib=`pwd`"/lib" 
+# deprecated: Pointer to lib folder
+# lib=`pwd`"/target/lib"  -Djava.library.path="$lib" 
 #
 # Run ecco with the specified arguments
-java -Xmx"$maxmem" -Djava.library.path="$lib" -DentityExpansionLimit=100000000 -jar ecco.jar $*
+echo "starting ecco..."
+java -Xmx"$maxmem" -DentityExpansionLimit=100000000 -jar target/ecco.jar $*
