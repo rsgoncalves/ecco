@@ -43,23 +43,31 @@ usage
     * `-c`    Compute one of: [ at | sub | gr | cvs ] concept diff
     * `-r`    Analyse root ontologies only, i.e. ignore imports
     * `-n`    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace
-    * `-x`		File path of XSLT file
     * `-i`		Ignore Abox axioms
     * `-j`		Maximum number of justifications computed per ineffectual change
     * `-v`		Verbose mode
     * `-h` `-help`	Print this help message
 
-The standard output of *ecco* is an XML file representing the change set. With the **-t** flag, *ecco* will transform this XML file into HTML using the supplied XSLT file (if the location of this file changes, specify the new location via the **-x** flag). By default, the output goes to the **_/out_** (or **_\out_** in Windows) folder, which contains the required files for appropriate rendering on a Web browser. This can be altered via the **-o** flag, though make sure the contents of the default output folder are shifted over to the new output location. For a more informative progress monitoring, use the **-v** flag.
+The standard output of *ecco* is an XML file representing the change set. With the **-t** flag, *ecco* will transform this XML file into HTML. 
+
+By default, the output goes to a folder named **_ecco-output_**, which contains the required files for appropriate rendering on a Web browser. The output folder can be altered via the **-o** flag. For a more informative progress monitoring, use the **-v** flag.
+
+In order to deploy *ecco* on a set of versions, the script `eccov.sh` can be used. Instructions for doing so are in the script itself.
 
 
 deployment
 --------------------
-*ecco* is compatible with **Java 1.7 (or above)**. It was tested with Java 1.8, and relies mainly on the following projects:
+*ecco* is compatible with **Java 1.7 (or above)**, and requires [Apache Maven](http://maven.apache.org/) to be built from sources.
 
- * [OWL API](http://owlapi.sourceforge.net/) (v4.0.1)
+The tool relies directly on the following projects:
+
+ * [OWL API](http://owlapi.sourceforge.net/) (v3.5.1)
  * [HermiT](http://www.hermit-reasoner.com/) reasoner (v1.3.8)
- * [JFact](http://jfact.sourceforge.net/) reasoner (v4.0.0)
-
+ * [JFact](http://jfact.sourceforge.net/) reasoner (v1.2.2)
+ * [Guava](https://github.com/google/guava) (v14.0.1)
+ * [Saxon-HE](http://saxon.sourceforge.net/) XSLT and XQuery processor (v9.6.0)
+ * [apache-commons-io](http://commons.apache.org/proper/commons-io/) (v2.4)
+ 
 
 future plans
 --------------------
