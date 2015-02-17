@@ -13,9 +13,11 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLImportsDeclaration;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.RemoveAxiom;
+import org.semanticweb.owlapi.model.RemoveImport;
 import org.semanticweb.owlapi.util.OWLEntityURIConverter;
 import org.semanticweb.owlapi.util.OWLEntityURIConverterStrategy;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
@@ -202,20 +204,16 @@ public class Ecco {
 		long t2 = System.currentTimeMillis();
 		System.out.println("Aligning concept and axiom changes... ");
 		System.out.print("   Computing justifications for (lost entailment) witness axioms... ");
-		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = 
-				new WitnessJustifier(ont1, conceptChanges, settings.getNumberOfJustifications(), "lhs").getJustifications();
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = new WitnessJustifier(ont1, conceptChanges, settings.getNumberOfJustifications(), "lhs").getJustifications();
 		long t3 = System.currentTimeMillis();
 		System.out.println("done (" + (t3-t2)/1000.0 + " secs)");
 		
 		System.out.print("   Computing justifications for (new entailment) witness axioms... ");
-		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = 
-				new WitnessJustifier(ont2, conceptChanges, settings.getNumberOfJustifications(), "rhs").getJustifications();
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = new WitnessJustifier(ont2, conceptChanges, settings.getNumberOfJustifications(), "rhs").getJustifications();
 		System.out.println("done (" + (System.currentTimeMillis()-t3)/1000.0 + " secs)");
 		
-		AlignedDirectChangeSet dirChanges = 
-				new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
-		AlignedIndirectChangeSet indirChanges = 
-				new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
+		AlignedDirectChangeSet dirChanges = new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
+		AlignedIndirectChangeSet indirChanges = new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
 		return new AlignedChangeSet(dirChanges, indirChanges);
 	}
 	
@@ -360,13 +358,16 @@ public class Ecco {
 	private void verifyInput() {
 		removeUnaryDisjointnessAxioms(ont1);
 		removeUnaryDisjointnessAxioms(ont2);
-		
 		if(settings.isIgnoringAbox()) {
 			removeAbox(ont1);
 			removeAbox(ont2);
 		}
+		if(!settings.isProcessingImports()) {
+			removeImports(ont1);
+			removeImports(ont2);
+		}
 		if(settings.isNormalizingURIs())
-			normalizeEntityURIs(ont1, ont2);	
+			normalizeEntityURIs(ont1, ont2);
 	}
 	
 	
@@ -420,5 +421,15 @@ public class Ecco {
 		for(OWLAxiom ax : aboxAxs)
 			toRemove.add(new RemoveAxiom(ont, ax));
 		ont.getOWLOntologyManager().applyChanges(toRemove);
+	}
+	
+	
+	/**
+	 * Remove all imports from the given ontology
+	 * @param ont	OWL ontology
+	 */
+	private void removeImports(OWLOntology ont) {
+		for(OWLImportsDeclaration importDecl : ont.getImportsDeclarations())
+			ont.getOWLOntologyManager().applyChange(new RemoveImport(ont.getOWLOntologyManager().getImportedOntology(importDecl), importDecl));
 	}
 }

@@ -122,8 +122,11 @@ public class EccoRunner {
 	 */
 	public OWLOntology loadOntology(int ontNr, InputStream stream) {
 		OWLOntology ont = null;
-		try { ont = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(new StreamDocumentSource(stream), config); }
-		catch (OWLOntologyCreationException e) { e.printStackTrace(); }
+		try {
+			ont = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(new StreamDocumentSource(stream), config); 
+		} catch (OWLOntologyCreationException e) {
+			e.printStackTrace();
+		}
 		return ont;
 	}
 	
