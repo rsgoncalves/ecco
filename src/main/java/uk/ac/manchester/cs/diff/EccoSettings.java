@@ -23,7 +23,7 @@ public class EccoSettings {
 		axiomDiffType = AxiomDiffType.CATEGORICAL;
 		conceptDiffType = ConceptDiffType.ATOMIC;
 		transformer = Transformer.UNITY;
-		outputDir = "ecco-output";
+		outputDir = "ecco-output" + File.separator;
 		nrJusts = 10;
 		saveDocuments = true;
 		ignoreAbox = false;
