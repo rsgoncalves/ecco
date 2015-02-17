@@ -21,6 +21,7 @@ package uk.ac.manchester.cs.diff.axiom.changeset;
 import java.util.Set;
 
 import uk.ac.manchester.cs.diff.axiom.change.StructuralChange;
+import uk.ac.manchester.cs.diff.unity.changeset.ChangeSet;
 
 
 /**
@@ -29,7 +30,8 @@ import uk.ac.manchester.cs.diff.axiom.change.StructuralChange;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public interface AxiomChangeSet {
+public interface AxiomChangeSet extends ChangeSet {
+	
 	/**
 	 * Get the set of additions
 	 * @return Set of additions
@@ -43,19 +45,4 @@ public interface AxiomChangeSet {
 	 */
 	public Set<? extends StructuralChange> getRemovals();
 	
-	
-	
-	
-	/**
-	 * Check if change set is empty
-	 * @return true if change set is empty, false otherwise
-	 */
-	public boolean isEmpty();
-	
-	
-	/**
-	 * Get the diff time 
-	 * @return Diff time
-	 */
-	public double getDiffTime();	
 }

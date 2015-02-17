@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.alignment;
+package uk.ac.manchester.cs.diff.unity;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +25,6 @@ import java.util.Set;
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
@@ -61,9 +60,8 @@ public class WitnessJustifier {
 	/**
 	 * Get justifications for each witness axiom
 	 * @return Map of witness axioms to their corresponding justifications in the given ontology
-	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
-	public Map<OWLAxiom, Set<Explanation<OWLAxiom>>> getJustifications() throws OWLOntologyCreationException {
+	public Map<OWLAxiom, Set<Explanation<OWLAxiom>>> getJustifications() {
 		Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();
 		Set<? extends ConceptChange> changes = null;
 		if(side.equals("lhs"))

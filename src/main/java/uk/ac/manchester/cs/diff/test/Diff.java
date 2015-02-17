@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.concept;
+package uk.ac.manchester.cs.diff.test;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,9 +43,8 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
-import uk.ac.manchester.cs.diff.concept.changeset.DiffResult;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessConcepts;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessGroup;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
 
 /**
@@ -256,8 +255,8 @@ public class Diff implements Callable<DiffResult>{
 		if(verbose) System.out.print("[diff" + diff + "] Splitting directly and indirectly affected concepts... ");
 		long start3 = System.currentTimeMillis();
 
-		WitnessPack lhs = getWitnesses(ont1diff, ont1reasoner);
-		WitnessPack rhs = getWitnesses(ont2diff, ont2reasoner);
+		WitnessGroup lhs = getWitnesses(ont1diff, ont1reasoner);
+		WitnessGroup rhs = getWitnesses(ont2diff, ont2reasoner);
 
 		long end = System.currentTimeMillis();
 		if(verbose) System.out.println("[diff" + diff + "] done (" + (end-start3)/1000.0 + " secs)");
@@ -349,7 +348,7 @@ public class Diff implements Callable<DiffResult>{
 	 * @param reasoner	Reasoner instance
 	 * @return Pack of direct and indirect witnesses
 	 */
-	private WitnessPack getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner) {
+	private WitnessGroup getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner) {
 		Map<OWLClassExpression,Set<OWLClass>> witMap = getWitnessMap(affectedConceptMap);
 		Map<OWLClass, Set<OWLAxiom>> directWits = new HashMap<OWLClass,Set<OWLAxiom>>();
 		Map<OWLClass, Set<OWLAxiom>> indirectWits = new HashMap<OWLClass,Set<OWLAxiom>>();
@@ -396,7 +395,7 @@ public class Diff implements Callable<DiffResult>{
 				}
 			}
 		}
-		return new WitnessPack(directWits, indirectWits);
+		return new WitnessGroup(directWits, indirectWits);
 	}
 
 

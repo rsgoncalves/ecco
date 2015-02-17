@@ -39,14 +39,14 @@ public class CSVConceptDiffReport {
 	
 	/**
 	 * Get a CSV-formatted change report
-	 * @param changeSet	Change set
+	 * @param changeSet	Concept change set
 	 * @return Change report as a CSV-formatted string
 	 */
 	public String getReport(ConceptChangeSet changeSet) {
-		header += "Ontology 1,Ontology 2,Specialised,Generalised,Affected,Entailment diff time,Specialisations,,,,,Generalisations,,,,,Partitioning time\n";
+		header += "\nOntology 1,Ontology 2,Specialised,Generalised,Affected,Entailment diff time,Specialisations,,,,,Generalisations,,,,,Partitioning time\n";
 		header += ",,,,,,Direct,Indirect,Mix,Purely Direct,Purely Indirect,Direct,Indirect,Mix,Purely Direct,Purely Indirect";
 	
-		row +=	"ont1,ont2" +
+		row += "ont1,ont2" +
 				"," + changeSet.getAllSpecialisedConcepts().size() + 
 				"," + changeSet.getAllGeneralisedConcepts().size() +
 				"," + changeSet.getAllAffectedConcepts().size() +

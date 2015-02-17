@@ -10,7 +10,7 @@
 # 
 # For ecco's optional arguments (that can be passed onto it from here), do: sh ecco.sh -h
 # 
-# Last updated: 17-Feb-15
+# Last updated: 16-Feb-15
 # 
 # Build project if ecco.jar does not exist
 if [ -f target/ecco.jar ] 

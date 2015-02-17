@@ -148,7 +148,7 @@ public class LogicalDiffConcurrent implements AxiomDiff {
 		long end = System.currentTimeMillis();
 		diffTime = (end-start)/1000.0;
 	
-		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals);
+		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals, structChangeSet);
 		logicalChangeSet.setDiffTime(diffTime);
 
 		System.out.println("done (" + diffTime + " secs)"); 

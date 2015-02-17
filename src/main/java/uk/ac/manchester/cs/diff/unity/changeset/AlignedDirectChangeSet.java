@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.alignment;
+package uk.ac.manchester.cs.diff.unity.changeset;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +28,8 @@ import org.semanticweb.owlapi.model.OWLAxiom;
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.exception.NotImplementedException;
+import uk.ac.manchester.cs.diff.unity.ChangeAligner;
 
 /**
  * @author Rafael S. Goncalves <br>
@@ -119,5 +121,15 @@ public class AlignedDirectChangeSet {
 	 */
 	public Map<OWLAxiom,Set<? extends ConceptChange>> getOnt2GeneralisationsMap() {
 		return ont2map_gen;
+	}
+	
+	
+	/**
+	 * Check whether this change set is empty
+	 * @return true if change set is empty, false otherwise
+	 */
+	public boolean isEmpty() {
+		// TODO: not implemented
+		throw new NotImplementedException("not implemented".toUpperCase());
 	}
 }

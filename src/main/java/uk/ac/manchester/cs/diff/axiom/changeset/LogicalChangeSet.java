@@ -34,6 +34,7 @@ import uk.ac.manchester.cs.diff.axiom.change.LogicalRemoval;
  */
 public class LogicalChangeSet implements AxiomChangeSet {
 	private Set<OWLAxiom> effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals;
+	private StructuralChangeSet structuralChangeSet;
 	private double diffTime;
 	
 	/**
@@ -42,13 +43,24 @@ public class LogicalChangeSet implements AxiomChangeSet {
 	 * @param ineffectualAdditions	Ineffectual additions
 	 * @param effectualRemovals	Effectual removals
 	 * @param ineffectualRemovals	Ineffectual removals
+	 * @param structuralChangeSet	Structural change set
 	 */
 	public LogicalChangeSet(Set<OWLAxiom> effectualAdditions, Set<OWLAxiom> ineffectualAdditions, 
-			Set<OWLAxiom> effectualRemovals, Set<OWLAxiom> ineffectualRemovals) {
+			Set<OWLAxiom> effectualRemovals, Set<OWLAxiom> ineffectualRemovals, StructuralChangeSet structuralChangeSet) {
 		this.effectualAdditions = effectualAdditions;
 		this.ineffectualAdditions = ineffectualAdditions;
 		this.effectualRemovals = effectualRemovals;
 		this.ineffectualRemovals = ineffectualRemovals;
+		this.structuralChangeSet = structuralChangeSet;
+	}
+	
+	
+	/**
+	 * Get the structural change set between ontologies
+	 * @return Structural change set
+	 */
+	public StructuralChangeSet getStructuralChangeSet() {
+		return structuralChangeSet;
 	}
 	
 	
@@ -66,7 +78,7 @@ public class LogicalChangeSet implements AxiomChangeSet {
 	 * Get the CPU time (in seconds) spent in structural diff
 	 * @return CPU time (in seconds) spent in structural diff
 	 */
-	public double getDiffTime() {
+	public double getOperationTime() {
 		return diffTime;
 	}
 	

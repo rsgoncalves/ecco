@@ -1,378 +1,372 @@
-/*******************************************************************************
-// * This file is part of ecco.
- * 
- * ecco is distributed under the terms of the GNU Lesser General Public License (LGPL), Version 3.0.
- *  
- * Copyright 2011-2014, The University of Manchester
- *  
- * ecco is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the 
- * License, or (at your option) any later version.
- *  
- * ecco is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
- * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser 
- * General Public License for more details.
- *  
- * You should have received a copy of the GNU Lesser General Public License along with ecco.
- * If not, see http://www.gnu.org/licenses/.
- ******************************************************************************/
 package uk.ac.manchester.cs.diff;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.apache.commons.io.FileUtils;
 import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.io.IRIDocumentSource;
-import org.semanticweb.owlapi.io.StreamDocumentSource;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLImportsDeclaration;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.RemoveAxiom;
 import org.semanticweb.owlapi.util.OWLEntityURIConverter;
 import org.semanticweb.owlapi.util.OWLEntityURIConverterStrategy;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
-import org.semanticweb.owlapi.util.VersionInfo;
-import org.w3c.dom.Document;
 
-import uk.ac.manchester.cs.diff.alignment.AlignedDirectChangeSet;
-import uk.ac.manchester.cs.diff.alignment.AlignedIndirectChangeSet;
-import uk.ac.manchester.cs.diff.alignment.WitnessJustifier;
+import uk.ac.manchester.cs.diff.EccoSettings.Transformer;
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
+import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
+import uk.ac.manchester.cs.diff.axiom.StructuralDiff;
+import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
-import uk.ac.manchester.cs.diff.concept.ConceptDiff;
+import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
+import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
 import uk.ac.manchester.cs.diff.concept.ContentCVSDiff;
 import uk.ac.manchester.cs.diff.concept.GrammarDiff;
 import uk.ac.manchester.cs.diff.concept.SubconceptDiff;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.output.OutputHandler;
+import uk.ac.manchester.cs.diff.output.csv.CSVDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
-import uk.ac.manchester.cs.diff.output.xml.XMLReport;
-import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLDiffReport;
+import uk.ac.manchester.cs.diff.output.xml.XMLUnifiedDiffReport;
+import uk.ac.manchester.cs.diff.unity.WitnessJustifier;
+import uk.ac.manchester.cs.diff.unity.changeset.AlignedChangeSet;
+import uk.ac.manchester.cs.diff.unity.changeset.AlignedDirectChangeSet;
+import uk.ac.manchester.cs.diff.unity.changeset.AlignedIndirectChangeSet;
 
 /**
  * @author Rafael S. Goncalves <br>
- * Information Management Group (IMG) <br>
- * School of Computer Science <br>
- * University of Manchester <br>
+ * Stanford Center for Biomedical Informatics Research (BMIR) <br>
+ * School of Medicine, Stanford University <br>
  */
 public class Ecco {
 	private OWLOntologyManager man;
-	private OWLOntologyLoaderConfiguration config;
-	private boolean processImports, ignoreAbox, transform, verbose, normalizeURIs;
-	private String outputDir, xsltPath;
-	private int nrJusts;
-	private static String sep = File.separator,
-			versionInfo = "2.7",
-			releaseDate = "17-Feb-2015",
-			owlapiVersion = VersionInfo.getVersionInfo().getVersion(),
-			programTitle = 
-			"-------------------------------------------------------------------\n" +
-			"	     ecco: a diff tool for OWL 2 ontologies\n" +
-			"	        v" + versionInfo + " released on " + releaseDate + "\n" +		
-			"-------------------------------------------------------------------\n" +
-			"by Rafael Goncalves. Powered by the OWL API version " + owlapiVersion + "\n";
+	private OWLOntology ont1, ont2;
+	private EccoSettings settings;
+	private AxiomChangeSet axiomChangeSet; 
+	private ConceptChangeSet conceptChangeSet;
+	private AlignedChangeSet alignedChangeSet;
+	
+	/**
+	 * Constructor
+	 * @param ont1	Ontology 1
+	 * @param ont2	Ontology 2
+	 */
+	public Ecco(OWLOntology ont1, OWLOntology ont2) {
+		this(ont1, ont2, new EccoSettings());
+	}
 	
 	
 	/**
 	 * Constructor
-	 * @param processImports	true if imports should be processed, false otherwise
-	 * @param ignoreAbox	true if abox axioms should be ignored, false otherwise
-	 * @param transform	true if XML files should be transformed to HTML
-	 * @param normalizeURIs	true if namespaces of shared entities should be forced to be similar, false otherwise
-	 * @param nrJusts	Number of justifications to be computed
-	 * @param verbose	true if detailed messages should be output, false otherwise
-	 */
-	public Ecco(boolean processImports, boolean ignoreAbox, boolean transform, boolean normalizeURIs, int nrJusts, boolean verbose) {
-		this.processImports = processImports;
-		this.ignoreAbox = ignoreAbox;
-		this.transform = transform;
-		this.normalizeURIs = normalizeURIs;
-		this.nrJusts = nrJusts;
-		this.verbose = verbose;
-		man = OWLManager.createOWLOntologyManager();
-		xsltPath = getXSLTFilePath();
-		config = new OWLOntologyLoaderConfiguration();
-		config = config.setLoadAnnotationAxioms(false);
-		if(!processImports) 
-			config = config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
-	}
-	
-	// fields necessary to resolve resources in the class path (css, xslt, js, images)  
-	private final String jarName = "ecco.jar!", classes = "classes", xsltFileName = "xslt_full_client.xsl", xsltFileFolder = "xslt";
-	
-	/**
-	 * Get the path to the XSLT file 
-	 * @return String representing the path to the XSLT file
-	 */
-	private String getXSLTFilePath() {
-		getClass().getClassLoader();
-		String path = ClassLoader.getSystemResource(xsltFileFolder + sep + xsltFileName).getPath();
-		if(path.contains(jarName))
-			path = path.replace(jarName, "classes");
-		return path;
-	}
-	
-	
-	/**
-	 * Compute diff and output resulting files
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @param cdiff	Concept diff notion to be used
-	 * @param saveDocs	true if XML documents should be saved on disk, false otherwise 
-	 * @return XML diff report
-	 * @throws TransformerException	Transformer exception
-	 * @throws UnsupportedEncodingException	Unsupported encoding exception
-	 * @throws OWLOntologyCreationException Ontology creation exception
+	 * @param settings	ecco settings
 	 */
-	public XMLReport computeDiff(OWLOntology ont1, OWLOntology ont2, String cdiff, boolean saveDocs) 
-			throws TransformerException, UnsupportedEncodingException, OWLOntologyCreationException {
-		if(normalizeURIs) normalizeEntityURIs(ont1, ont2);
-		XMLReport out = null;
+	public Ecco(OWLOntology ont1, OWLOntology ont2, EccoSettings settings) {
+		this.ont1 = ont1;
+		this.ont2 = ont2;
+		this.settings = settings;
+		man = OWLManager.createOWLOntologyManager();
+	}
+
+	
+	/**
+	 * Compute diff
+	 */
+	public void computeDiff() {
+		verifyInput();
+		OutputHandler outputHandler = new OutputHandler(settings);
+		XMLDiffReport diffReport = compute();
+		if(settings.isSavingDocuments()) {
+			outputHandler.saveXMLDocuments(diffReport, false);
+			outputHandler.copySupportingDocuments();
+			outputHandler.saveStringToFile(settings.getOutputDirectory(), "eccoLog.csv", getCSVLog(diffReport));
+		}
+	}
+	
+	
+	/**
+	 * Compute diff as specified in ecco settings between given ontologies
+	 * @return XML diff report
+	 */
+	private XMLDiffReport compute() {
 		long start = System.currentTimeMillis();
-		
-		CategoricalDiff axiom_diff = new CategoricalDiff(ont1, ont2, nrJusts, verbose);
-		CategorisedChangeSet axiomChanges = axiom_diff.getDiff();
-		
-		if(cdiff != null && axiomChanges != null) {
-			ConceptDiff concept_diff = null;
-			if(cdiff.equals("at")) {
-				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
-				((SubconceptDiff)concept_diff).setAtomicConceptDiff(true);
+		XMLDiffReport diffReport = null;
+		axiomChangeSet = getAxiomChanges();
+		conceptChangeSet = getConceptChanges();
+		if(axiomChangeSet != null && conceptChangeSet != null) {
+			if(axiomChangeSet instanceof CategorisedChangeSet) {
+				alignedChangeSet = getAlignedChanges(conceptChangeSet, (CategorisedChangeSet)axiomChangeSet);
+				diffReport = getDiffXMLReport(axiomChangeSet, alignedChangeSet);
 			}
-			else if(cdiff.equals("sub"))
-				concept_diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
-			else if(cdiff.equals("gr"))
-				concept_diff = new GrammarDiff(ont1, ont2, outputDir, verbose);
-			else if(cdiff.equals("cvs"))
-				concept_diff = new ContentCVSDiff(ont1, ont2, outputDir, verbose);
-			
-			ConceptChangeSet conceptChanges = concept_diff.getDiff();
-			
-			long t2 = System.currentTimeMillis();
-			System.out.println("Aligning concept and axiom changes... ");
-			
-			System.out.print("   Computing justifications for (lost entailment) witness axioms... ");
-			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = 
-					new WitnessJustifier(ont1, conceptChanges, nrJusts, "lhs").getJustifications();
-			long t3 = System.currentTimeMillis();
-			System.out.println("done (" + (t3-t2)/1000.0 + " secs)");
-			
-			System.out.print("   Computing justifications for (new entailment) witness axioms... ");
-			Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = 
-					new WitnessJustifier(ont2, conceptChanges, nrJusts, "rhs").getJustifications();
-			System.out.println("done (" + (System.currentTimeMillis()-t3)/1000.0 + " secs)");
-			
-			AlignedDirectChangeSet dirChanges = 
-					new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
-			AlignedIndirectChangeSet indirChanges = 
-					new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
-			
-			long t4 = System.currentTimeMillis();
-			System.out.println("finished aligning (" + (t4-t2)/1000.0 + " secs)");
-			
-			out = new XMLUnifiedReport(ont1, ont2, axiomChanges, dirChanges, indirChanges);
-			
-			if(saveDocs) {
-				saveXMLDocuments(out, false);
-				copySupportingDocuments();
-				// TODO: CSV report which includes concept changes
-			}
-		} 
-		else {
-			if(axiomChanges == null) {
-				out = new XMLAxiomDiffReport(ont1, ont2, axiom_diff.getStructuralChangeSet());
-				transform = false;
-				// TODO: CSV output for structural diff alone
-			}
-			else {
-				out = axiom_diff.getXMLReport();
-				saveStringToFile(outputDir, "eccoLog.csv", axiom_diff.getCSVChangeReport());
-			}
-			if(saveDocs) saveXMLDocuments(out, false);
+		}
+		if(axiomChangeSet != null) {
+			settings.setTransformer(Transformer.AXIOM);
+			diffReport = getDiffXMLReport(axiomChangeSet);
+		}
+		else if(conceptChangeSet != null) {
+			settings.setTransformer(Transformer.CONCEPT);
+			diffReport = getDiffXMLReport(conceptChangeSet);
 		}
 		long end = System.currentTimeMillis();
 		System.out.println("-\nfinished diff (total time: " + (end-start)/1000.0 + " seconds)\n");
-		return out;
+		return diffReport;
 	}
 	
 	
 	/**
-	 * Process local output by saving XML change sets, CSV log, and, if applicable, the HTML transformation 
-	 * @param report	XML report instance
-	 * @param includeTimestamp	true if timestamp should be included in file name(s), false otherwise
-	 * @throws UnsupportedEncodingException	Unsupported encoding exception
-	 * @throws TransformerException	Transformer exception
+	 * Check whether the given ontologies are structurally equivalent w.r.t. OWL 2's notion of structural equivalence
+	 * @return true if ontologies are structurally equivalent, false otherwise
 	 */
-	public void saveXMLDocuments(XMLReport report, boolean includeTimestamp) 
-			throws UnsupportedEncodingException, TransformerException {
-		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
-		saveDocumentToFile(report, report.getXMLDocumentUsingTermNames(), outputDir, 
-				(includeTimestamp ? "_names_" + timeStamp : "_names"));	// term name based document
-		saveDocumentToFile(report, report.getXMLDocumentUsingLabels(), outputDir, 
-				(includeTimestamp ? "_labels_" + timeStamp : "_labels"));	// label based document
-		saveDocumentToFile(report, report.getXMLDocumentUsingGenSyms(), outputDir, 
-				(includeTimestamp ? "_gensyms_" + timeStamp : "_gensyms"));	// gensym based document
+	public boolean areStructurallyEquivalent() {
+		if(axiomChangeSet == null) axiomChangeSet = getStructuralAxiomChanges();
+		return axiomChangeSet.isEmpty();
 	}
 	
 	
 	/**
-	 * Serialize the given XML file and, if applicable, transform it to HTML and serialize the file
-	 * @param report	XMLReport instance
-	 * @param doc	XML document
-	 * @param outputDir	Output directory
-	 * @param suffix	Suffix for the different variants of the XML report
-	 * @throws TransformerException	Transformer exception
+	 * Check whether the given ontologies are logically equivalent 
+	 * @return true if ontologies are logically equivalent, false otherwise
 	 */
-	private void saveDocumentToFile(XMLReport report, Document doc, String outputDir, String suffix) 
-			throws TransformerException {
-		String docString = report.getReportAsString(doc);
-		saveStringToFile(outputDir, "eccoChangeSet" + suffix + ".xml", docString);
-		if(transform) {
-			String html = report.getReportAsHTML(doc, xsltPath);
-			saveStringToFile(outputDir, "index" + suffix + ".html", html);
-		}
+	public boolean areLogicallyEquivalent() {
+		if(axiomChangeSet == null) 
+			axiomChangeSet = getLogicalAxiomChanges();
+		else if(axiomChangeSet instanceof StructuralChangeSet) 
+			axiomChangeSet = getLogicalAxiomChanges();
+		else if(axiomChangeSet instanceof CategorisedChangeSet) 
+			return ((CategorisedChangeSet)axiomChangeSet).isFreeOfEffectualChanges();
+		return axiomChangeSet.isEmpty();
 	}
 	
 	
 	/**
-	 * Copy supporting resources: CSS, JavaScript, and image files
+	 * Check whether any changes to the meaning of concepts were found
+	 * @return true if the meaning of one or more concepts was changed, false otherwise
 	 */
-	private void copySupportingDocuments() {
-		try {
-			copySupportingDocuments("css");
-			copySupportingDocuments("js");
-			copySupportingDocuments("images");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public boolean foundChangesToConcepts() {
+		if(conceptChangeSet == null) conceptChangeSet = getConceptChanges();
+		return conceptChangeSet.isEmpty();
 	}
 	
 	
 	/**
-	 * Copy supporting documents in the specified folder that are necessary to browse the output
-	 * @param folderName	Type of file
-	 * @throws IOException	IO exception
+	 * Get XML diff report of an aligned change set
+	 * @param axiomChangeSet	Axiom change set
+	 * @param alignedChangeSet	Aligned change set
+	 * @return XML diff report
 	 */
-	private void copySupportingDocuments(String folderName) throws IOException {
-		Enumeration<URL> e = ClassLoader.getSystemResources(folderName);
-		while (e.hasMoreElements()) {
-			String path = e.nextElement().getPath();
-			if(path.contains(jarName)) {
-				path = path.replace(jarName, classes);
-				if(path.startsWith("file:"))
-					path = path.replace("file:", "");
-			}
-			File f = new File(path);
-			FileUtils.copyDirectory(f, new File(outputDir + f.getName()));
-		}
+	public XMLDiffReport getDiffXMLReport(AxiomChangeSet axiomChangeSet, AlignedChangeSet alignedChangeSet) {
+		return new XMLUnifiedDiffReport(ont1, ont2, axiomChangeSet, alignedChangeSet);
 	}
 	
 	
 	/**
-	 * Load ontology from a file path
-	 * @param ontNr	Ontology number
-	 * @param filepath	Ontology file path
-	 * @param localFile	true if local file, false otherwise
-	 * @return Loaded ontology
-	 * @throws OWLOntologyCreationException	Ontology creation exception
+	 * Get XML diff report of an axiom change set
+	 * @param axiomChangeSet	Axiom change set
+	 * @return XML diff report
 	 */
-	public OWLOntology loadOntology(int ontNr, String filepath, boolean localFile) throws OWLOntologyCreationException {
-		if(!localFile) sep = "/";
-		String filename = filepath.substring(filepath.lastIndexOf(sep)+1, filepath.length());
-		System.out.println("Input " + ontNr + ": " + filename + " (" + filepath + ")");
-		if(filepath.contains("\\"))
-			filepath = filepath.replace("\\", "/");
+	public XMLDiffReport getDiffXMLReport(AxiomChangeSet axiomChangeSet) {
+		return new XMLAxiomDiffReport(ont1, ont2, axiomChangeSet);
+	}
+	
+	
+	/**
+	 * Get XML diff report of a concept change set
+	 * @param conceptChangeSet	Concept change set
+	 * @return XML diff report
+	 */
+	public XMLDiffReport getDiffXMLReport(ConceptChangeSet conceptChangeSet) {
+		return new XMLConceptDiffReport(conceptChangeSet);
+	}
+	
+	
+	/**
+	 * Compute aligned change set
+	 * @param conceptChanges	Concept change set
+	 * @param axiomChanges	Axiom change set
+	 * @return Aligned change set
+	 */
+	public AlignedChangeSet getAlignedChanges(ConceptChangeSet conceptChanges, CategorisedChangeSet axiomChanges) {
+		if(alignedChangeSet != null) return alignedChangeSet;
 		
-		// Load ontology
-		OWLOntology ont = null;
-		try {
-			if(localFile) ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create("file:///" + filepath)), config);
-			else ont = man.loadOntologyFromOntologyDocument(new IRIDocumentSource(IRI.create(filepath)), config);
-		} catch (OWLOntologyCreationException e) {
-			e.printStackTrace();
-		}
+		long t2 = System.currentTimeMillis();
+		System.out.println("Aligning concept and axiom changes... ");
+		System.out.print("   Computing justifications for (lost entailment) witness axioms... ");
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont1witJusts = 
+				new WitnessJustifier(ont1, conceptChanges, settings.getNumberOfJustifications(), "lhs").getJustifications();
+		long t3 = System.currentTimeMillis();
+		System.out.println("done (" + (t3-t2)/1000.0 + " secs)");
 		
-		Set<OWLAxiom> result = null;
-		if(ont != null) {
-			System.out.println("\tLoaded ontology " + ontNr + " (" + ont.getLogicalAxiomCount() + " logical axioms)");
-			if(ignoreAbox) removeAbox(ont);
-			result = ont.getAxioms();
-			if(processImports) {
-				if(!ont.getImportsDeclarations().isEmpty()) {
-					for(OWLImportsDeclaration d : ont.getImportsDeclarations()) {
-						try {
-							OWLOntology imported = man.loadOntology(d.getIRI());
-							if(verbose) 
-								System.out.println("\tLoaded imported ontology (" + imported.getLogicalAxiomCount() + " logical axioms)");
-							result.addAll(imported.getLogicalAxioms());
-							man.removeOntology(imported);
-						} catch (OWLOntologyCreationException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			normalize(result);
-			man.removeOntology(ont);
-		}
-		if(result != null) return man.createOntology(result);
-		else return null;
+		System.out.print("   Computing justifications for (new entailment) witness axioms... ");
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> ont2witJusts = 
+				new WitnessJustifier(ont2, conceptChanges, settings.getNumberOfJustifications(), "rhs").getJustifications();
+		System.out.println("done (" + (System.currentTimeMillis()-t3)/1000.0 + " secs)");
+		
+		AlignedDirectChangeSet dirChanges = 
+				new AlignedDirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
+		AlignedIndirectChangeSet indirChanges = 
+				new AlignedIndirectChangeSet(axiomChanges, conceptChanges, ont1witJusts, ont2witJusts);
+		return new AlignedChangeSet(dirChanges, indirChanges);
 	}
 	
 	
 	/**
-	 * Load ontology from an input stream
-	 * @param ontNr	Ontology nunmber
-	 * @param stream	Input stream
-	 * @param localFile	true if local file, false otherwise
-	 * @return Loaded ontology
-	 * @throws OWLOntologyCreationException	Ontology creation exception
+	 * Compute concept-based diff
+	 * @return Concept change set
 	 */
-	public OWLOntology loadOntology(int ontNr, InputStream stream, boolean localFile) throws OWLOntologyCreationException {
-		if(!localFile) sep = "/";
-		OWLOntology ont = man.loadOntologyFromOntologyDocument(new StreamDocumentSource(stream), config);
-		Set<OWLAxiom> result = null;
-		if(ont != null) {
-			if(ignoreAbox) removeAbox(ont);
-			result = ont.getAxioms();
-			if(processImports) {
-				if(!ont.getImportsDeclarations().isEmpty()) {
-					for(OWLImportsDeclaration d : ont.getImportsDeclarations()) {
-						try {
-							OWLOntology imported = man.loadOntology(d.getIRI());
-							result.addAll(imported.getLogicalAxioms());
-							man.removeOntology(imported);
-						} catch (OWLOntologyCreationException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			normalize(result);
-			man.removeOntology(ont);
+	public ConceptChangeSet getConceptChanges() {
+		switch(settings.getConceptDiffType()) {
+		case ATOMIC:
+			return getAtomicChanges();
+		case SUBCONCEPT:
+			return getSubconceptChanges();
+		case GRAMMAR:
+			return getGrammarBasedChanges();
+		case CONTENTCVS:
+			return getContentCvsBasedChanges();
+		default:
+			return null;
 		}
-		return man.createOntology(result);
+	}
+
+	
+	/**
+	 * Compute concept-based diff that checks which concepts have different atomic sub- or super-concepts
+	 * @return Concept change set
+	 */
+	private ConceptChangeSet getAtomicChanges() {
+		SubconceptDiff atomic_diff = new SubconceptDiff(ont1, ont2, settings.isVerbose());
+		atomic_diff.setAtomicConceptDiff(true);
+		return atomic_diff.getDiff();
+	}
+
+	
+	/**
+	 * Compute concept-based diff that checks which concepts have different (possibly complex) sub- or super-concepts.
+	 * The set of concepts taken into account is composed of asserted complex concepts mentioned in axioms of either ontology
+	 * @return Concept change set
+	 */
+	private ConceptChangeSet getSubconceptChanges() {
+		SubconceptDiff subconcept_diff = new SubconceptDiff(ont1, ont2, settings.isVerbose());
+		return subconcept_diff.getDiff();
+	}
+
+
+	/**
+	 * Compute concept-based diff that checks which concepts have different complex sub- or super-concepts according to the most
+	 * expressive entailment grammar. The set of complex concepts taken into account is composed of complex concepts of the form:
+	 * C and D, not C, C or D, r some C, r only C. Where C, D are (possibly complex) concepts mentioned in axioms of either ontology,
+	 * and r is an atomic role. This task can be very computationally demanding for large input
+	 * @return Concept change set
+	 */
+	private ConceptChangeSet getGrammarBasedChanges() {
+		GrammarDiff grammar_diff = new GrammarDiff(ont1, ont2, settings.isVerbose());
+		return grammar_diff.getDiff();
+	}
+
+
+	/**
+	 * Compute concept-based diff according to ContentCVS's entailment grammar, which is similar to <computeGrammarDiff> but replaces
+	 * concepts with atomic concepts only, i.e., it does not take into account asserted complex concepts
+	 * @return Concept change set
+	 */
+	private ConceptChangeSet getContentCvsBasedChanges() {
+		ContentCVSDiff contentcvs_diff = new ContentCVSDiff(ont1, ont2, settings.isVerbose());
+		return contentcvs_diff.getDiff();
+	}
+
+
+	/**
+	 * Compute axiom based diff specified in the settings
+	 * @return Axiom change set
+	 */
+	public AxiomChangeSet getAxiomChanges() {
+		switch(settings.getAxiomDiffType()) {
+		case STRUCTURAL: 
+			return getStructuralAxiomChanges();
+		case LOGICAL:
+			return getLogicalAxiomChanges();
+		case CATEGORICAL:
+			return getCategorisedAxiomChanges();
+		default:
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Compute axiom-based structural diff between ontologies, i.e., whether these are structurally
+	 * equivalent according to OWL 2's notion of structural equivalence
+	 * @return Structural change set
+	 */
+	public StructuralChangeSet getStructuralAxiomChanges() {
+		if(axiomChangeSet != null && axiomChangeSet instanceof StructuralChangeSet) 
+			return (StructuralChangeSet)axiomChangeSet;
+		StructuralDiff structural_diff = new StructuralDiff(ont1, ont2, settings.isVerbose());
+		return structural_diff.getDiff();
+	}
+	
+	
+	/**
+	 * Compute axiom-based logical diff between ontologies, i.e. verifies whether the given ontologies
+	 * are logically equivalent
+	 * @return Logical change set
+	 */
+	public LogicalChangeSet getLogicalAxiomChanges() {
+		if(axiomChangeSet != null && axiomChangeSet instanceof LogicalChangeSet) 
+			return (LogicalChangeSet)axiomChangeSet;
+		LogicalDiff logical_diff = new LogicalDiff(ont1, ont2, settings.isVerbose());
+		return logical_diff.getDiff();
+	}
+	
+	
+	/**
+	 * Compute axiom-based diff that categorises axiom changes between ontologies according to their impact
+	 * @return Categorised change set
+	 */
+	public CategorisedChangeSet getCategorisedAxiomChanges() {
+		if(axiomChangeSet != null && axiomChangeSet instanceof CategorisedChangeSet) 
+			return (CategorisedChangeSet)axiomChangeSet;
+		CategoricalDiff categorical_diff = new CategoricalDiff(ont1, ont2, settings.getNumberOfJustifications(), settings.isVerbose());
+		return categorical_diff.getDiff();
+	}
+	
+	
+	/**
+	 * Get CSV log of changes found
+	 * @param diffReport	XML diff report
+	 * @return CSV log of change types and number
+	 */
+	public String getCSVLog(XMLDiffReport diffReport) {
+		CSVDiffReport csvReport = new CSVDiffReport(diffReport);
+		return csvReport.getCSV();
+	}
+	
+	
+	/**
+	 * Check whether input to ecco needs alterations. By default, ecco removes
+	 * unary disjointness axioms, since dependent tools do not like these
+	 */
+	private void verifyInput() {
+		removeUnaryDisjointnessAxioms(ont1);
+		removeUnaryDisjointnessAxioms(ont2);
+		
+		if(settings.isIgnoringAbox()) {
+			removeAbox(ont1);
+			removeAbox(ont2);
+		}
+		if(settings.isNormalizingURIs())
+			normalizeEntityURIs(ont1, ont2);	
 	}
 	
 	
@@ -383,7 +377,7 @@ public class Ecco {
 	 * @param ont2	Ontology 2
 	 */
 	private void normalizeEntityURIs(OWLOntology ont1, OWLOntology ont2) {
-		 System.out.print("  Normalizing entity URIs... ");
+		System.out.print("  Normalizing entity URIs... ");
 		final SimpleShortFormProvider sf = new SimpleShortFormProvider();
 		Set<OWLOntology> ontSet = new HashSet<OWLOntology>();
 		ontSet.add(ont1); ontSet.add(ont2);
@@ -391,219 +385,40 @@ public class Ecco {
 		OWLEntityURIConverter converter = new OWLEntityURIConverter(man, ontSet, new OWLEntityURIConverterStrategy() {
 			@Override
 			public IRI getConvertedIRI(OWLEntity arg0) {
-			String entityName = sf.getShortForm(arg0);
+				String entityName = sf.getShortForm(arg0);
 				IRI iri = IRI.create("http://owl.cs.manchester.ac.uk/ecco#" + entityName);
 				return iri;
 			}
 		});
 		man.applyChanges(converter.getChanges());
-		 System.out.println("done");
+		System.out.println("done");
 	}
-	
-	
+
+
 	/**
-	 * Given a set of axioms, remove unary disjointness axioms
-	 * @param set	Set of axioms to analyse
-	 * @return Set of axioms without unary disjointness axioms
+	 * Remove unary disjointness axioms from the given ontology
+	 * @param ont	OWL ontology
 	 */
-	private Set<OWLAxiom> normalize(Set<OWLAxiom> set) {
-		Set<OWLAxiom> toRemove = new HashSet<OWLAxiom>();
-		for(OWLAxiom ax : set) {
-			if(ax.isOfType(AxiomType.DISJOINT_CLASSES)) {
-				OWLDisjointClassesAxiom dis = (OWLDisjointClassesAxiom)ax;
-				if(dis.getClassesInSignature().size() < 2)
-					toRemove.add(ax);
-			}
+	private void removeUnaryDisjointnessAxioms(OWLOntology ont) {
+		List<RemoveAxiom> toRemove = new ArrayList<RemoveAxiom>();
+		for(OWLAxiom ax : ont.getAxioms(AxiomType.DISJOINT_CLASSES)) {
+			OWLDisjointClassesAxiom dis = (OWLDisjointClassesAxiom)ax;
+			if(dis.getClassesInSignature().size() < 2)
+				toRemove.add(new RemoveAxiom(ont, ax));
 		}
-		set.removeAll(toRemove);
-		return set;
+		ont.getOWLOntologyManager().applyChanges(toRemove);
 	}
 	
 	
 	/**
 	 * Remove Abox axioms from given ontology
-	 * @param ont	Ontology to remove axioms from
+	 * @param ont	Ontology to remove Abox axioms from
 	 */
 	private void removeAbox(OWLOntology ont) {
 		Set<OWLAxiom> aboxAxs = ont.getABoxAxioms(true);
-		ont.getOWLOntologyManager().removeAxioms(ont, aboxAxs);
-	}
-	
-	
-	/**
-	 * Set the output directory
-	 * @param outputDirectory	Output directory
-	 * @param verbose	Verbose mode
-	 */
-	public void setOutputDirectory(String outputDirectory, boolean verbose) {
-		outputDir = outputDirectory;
-		System.out.println("Output directory: " + outputDir + "\n");
-	}
-	
-	
-	/**
-	 * Set the output directory
-	 * @param outputDirectory	Output directory
-	 * @param ontFile	Ontology filepath
-	 * @param localOnt	true if ontology is hosted locally, false otherwise
-	 */
-	public void setOutputDirectory(String outputDirectory, String ontFile, boolean localOnt) {
-		ontFile = ontFile.substring(0, ontFile.lastIndexOf(sep)+1);
-		outputDir = "out" + sep + ontFile;
-		System.out.println("Output directory: " + outputDir + "\n");
-	}
-	
-	
-	/**
-	 * Set import handling
-	 * @param processImports	true if imports should be processed, false otherwise
-	 */
-	public void setProcessImports(boolean processImports) {
-		this.processImports = processImports;
-		if(!processImports) {
-			config.setFollowRedirects(false);
-			config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
-		}
-	}
-	
-	
-	/**
-	 * Serialize a given string to the specified path
-	 * @param outputDir	Output directory
-	 * @param filename	File name
-	 * @param content	String to output
-	 */
-	private void saveStringToFile(String outputDir, String filename, String content) {
-        try {
-            new File(outputDir).mkdirs();
-            FileWriter fw = new FileWriter(outputDir + sep + filename, false);
-            fw.write(content);
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-	}
-
-	
-	/**
-	 * Print usage message 
-	 */
-	private static void printUsage() {
-		System.out.println(" Usage:\n\t-ont1 [ONTOLOGY] -ont2 [ONTOLOGY] [OPTIONS]");
-		System.out.println();
-		System.out.println("	[ONTOLOGY]	An input ontology file path or URL");
-		System.out.println();
-		System.out.println("	[OPTIONS]");
-		System.out.println("	-o		absolute output directory [default: ECCO-FOLDER/out ]");
-		System.out.println("	-t		transform resulting XML report into HTML");
-		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
-		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");
-		System.out.println("	-n		normalize entity URIs, i.e. if two ontologies have the same entity names");
-		System.out.println("			in a different namespace, this trigger establishes a common namespace");
-		System.out.println("	-x		filepath to XSL Transformation file");
-		System.out.println("	-i		ignore Abox axioms");
-		System.out.println("	-j		maximum number of justifications computed per ineffectual change. Reducing");
-		System.out.println("			this can significantly speed up computation [default: 10]");
-		System.out.println("	-v		verbose mode");
-		System.out.println("	-h -help	print help message\n");
-	}
-	
-	
-	/**
-	 * Main
-	 * @param args	Arguments
-	 * @throws OWLOntologyCreationException	Ontology creation exception
-	 * @throws ParserConfigurationException Parser configuration exception
-	 * @throws IOException IO exception
-	 * @throws TransformerException Transformer exception
-	 */
-	public static void main(String[] args) throws OWLOntologyCreationException, ParserConfigurationException, IOException, TransformerException {
-		boolean hasOnt1 = false, hasOnt2 = false, processImports = true, normalizeURIs = false, ignoreAbox = false, 
-				verbose = false, transform = false, localOnt1 = true, localOnt2 = true;
-		
-		System.out.println("\n" + programTitle);
-		String outputDir = "", cdiff = "at", f1 = null, f2 = null;
-		int nrJusts = 10;
-		
-		for(int i = 0; i < args.length; i++) {
-			String arg = args[i].trim();
-			// Ontology 1
-			if (arg.equalsIgnoreCase("-ont1")) {
-				if(hasOnt1) throw new RuntimeException("\nToo many -ont1 options provided.\n");
-				if(++i == args.length) throw new RuntimeException("\n-ont1 must be followed by an ontology URI.\n");
-				f1 = args[i].trim(); hasOnt1 = true;
-				if(f1.contains("http") || f1.contains("ftp")) localOnt1 = false;
-			} 
-			// Ontology 2
-			else if(arg.equalsIgnoreCase("-ont2")) {
-				if(hasOnt2) throw new RuntimeException("\nToo many -ont2 options provided.\n");
-				if(++i == args.length) throw new RuntimeException("\n-ont2 must be followed by an ontology URI.\n");
-				f2 = args[i].trim(); hasOnt2 = true; 
-				if(f2.contains("http") || f2.contains("ftp")) localOnt2 = false;
-			}
-			// Output directory for change report
-			else if(arg.equalsIgnoreCase("-o")) {
-				if(++i == args.length) throw new RuntimeException("\n-o must be followed by an output directory.\n");
-				arg = args[i].trim(); outputDir = arg;
-				if(!outputDir.endsWith(sep)) outputDir += sep;
-			}
-			else if(arg.equalsIgnoreCase("-c"))	{	// Compute concept diff
-				if(++i == args.length) throw new RuntimeException("\n-c must be followed by one of [ at | sub | gr | cvs ].\n");
-				arg = args[i].trim(); cdiff = arg;
-			}
-			else if(arg.equalsIgnoreCase("-n"))		// Normalize entity namespaces
-				normalizeURIs = true;
-			else if(arg.equalsIgnoreCase("-t"))		// Transform XML into HTML
-				transform = true;
-			else if(arg.equalsIgnoreCase("-r"))		// Process root ontologies only
-				processImports = false; 
-			else if(arg.equalsIgnoreCase("-i"))		// Ignore Abox axioms
-				ignoreAbox = true;
-			else if(arg.equalsIgnoreCase("-j"))	{	// Number of justifications per ineffectual change
-				if(++i == args.length) throw new RuntimeException("\n-j must be followed by a positive integer");
-				nrJusts = Integer.parseInt(args[i].trim());
-			}
-			else if(arg.equalsIgnoreCase("-v"))		// Verbose mode
-				verbose = true;
-			else if(arg.equalsIgnoreCase("-h") || arg.equalsIgnoreCase("-help")) {		// Print help message
-				printUsage(); System.exit(0);
-			}
-			else if(arg.startsWith("-")) {		// Unknown argument
-				System.out.println("\n! Unrecognized option: " + arg + "\n");
-				printUsage(); System.exit(0);
-			} 
-			else {
-				System.out.println("\n! Missing arguments\n");
-				printUsage(); System.exit(0);
-			}
-		}
-		System.out.println("");
-		if(f1 != null && f2 != null) {
-			Ecco runner = new Ecco(processImports, ignoreAbox, transform, normalizeURIs, nrJusts, verbose);
-			
-			if(outputDir.equals("ont1"))
-				runner.setOutputDirectory(outputDir, f1, localOnt1);
-			else if(outputDir.equals("ont2"))
-				runner.setOutputDirectory(outputDir, f2, localOnt2);
-			else if(!outputDir.equals(""))
-				runner.setOutputDirectory(outputDir, verbose);
-			else {
-				runner.setOutputDirectory("out" + sep, verbose);
-				System.out.println("Using default output directory: [ecco_folder]" + sep + "out" + sep + "\n");
-			}
-			
-			OWLOntology ont1 = runner.loadOntology(1, f1, localOnt1);
-			OWLOntology ont2 = runner.loadOntology(2, f2, localOnt2);
-			
-			if(ont1 != null && ont2 != null) runner.computeDiff(ont1, ont2, cdiff, true);
-		}
-		else if(f1 == null) {
-			System.out.println("\n! Invalid or missing -ont1 input\n");
-			printUsage();
-		}
-		else if(f2 == null) {
-			System.out.println("\n! Invalid or missing -ont2 input\n");
-			printUsage();
-		}
+		List<RemoveAxiom> toRemove = new ArrayList<RemoveAxiom>();
+		for(OWLAxiom ax : aboxAxs)
+			toRemove.add(new RemoveAxiom(ont, ax));
+		ont.getOWLOntologyManager().applyChanges(toRemove);
 	}
 }

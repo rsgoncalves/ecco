@@ -27,6 +27,7 @@ import org.semanticweb.owlapi.model.OWLClass;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.LHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.RHSConceptChange;
+import uk.ac.manchester.cs.diff.unity.changeset.ChangeSet;
 
 /**
  * @author Rafael S. Goncalves <br>
@@ -34,7 +35,7 @@ import uk.ac.manchester.cs.diff.concept.change.RHSConceptChange;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class ConceptChangeSet {
+public class ConceptChangeSet implements ChangeSet {
 	private Set<ConceptChange> allChanges;
 	private Set<RHSConceptChange> rhsChanges;
 	private Set<LHSConceptChange> lhsChanges;
@@ -871,7 +872,21 @@ public class ConceptChangeSet {
 	 * Get the total diff time
 	 * @return Diff time in seconds
 	 */
-	public double getTotalDiffTime() {
+	@Override
+	public double getOperationTime() {
 		return totalTime;
+	}
+
+
+	/**
+	 * Check whether there are any concept changes
+	 * @return true if no concepts are changed, false otherwise
+	 */
+	@Override
+	public boolean isEmpty() {
+		if(allChanges.isEmpty())
+			return true;
+		else
+			return false;
 	}
 }

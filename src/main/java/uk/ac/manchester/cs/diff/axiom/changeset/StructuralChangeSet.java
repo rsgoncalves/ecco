@@ -76,7 +76,7 @@ public class StructuralChangeSet implements AxiomChangeSet {
 	 * Get the CPU time (in seconds) spent in structural diff
 	 * @return CPU time (in seconds) spent in structural diff
 	 */
-	public double getDiffTime() {
+	public double getOperationTime() {
 		return diffTime;
 	}
 	

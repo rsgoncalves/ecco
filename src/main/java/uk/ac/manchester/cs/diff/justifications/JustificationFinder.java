@@ -93,9 +93,8 @@ public class JustificationFinder {
 	 * Get all justifications for a given set of entailments (concurrently)
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
-	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
-	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) throws OWLOntologyCreationException {
+	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustifications(Set<OWLAxiom> entailments) {
 		ForkJoinPool fjPool = new ForkJoinPool();
 		return fjPool.invoke(new RegularJustificationFinder(entailments, justLimit));
 	}
@@ -105,10 +104,8 @@ public class JustificationFinder {
 	 * Get justifications for a given set of entailments (sequentially)
 	 * @param entailments	Set of entailments
 	 * @return Set of (sets of) justifications for the given entailments
-	 * @throws OWLOntologyCreationException	Ontology creation exception
 	 */
-	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustificationsSequentially(Set<OWLAxiom> entailments) 
-			throws OWLOntologyCreationException {
+	public Map<OWLAxiom,Set<Explanation<OWLAxiom>>> getJustificationsSequentially(Set<OWLAxiom> entailments) {
 		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> regExps = new HashMap<OWLAxiom,Set<Explanation<OWLAxiom>>>();
 		for(OWLAxiom ax : entailments)
 			regExps.put(ax,getJustifications(ax));

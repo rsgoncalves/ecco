@@ -27,7 +27,7 @@ import java.util.Set;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessAxioms;
 
 /**
  * @author Rafael S. Goncalves <br>

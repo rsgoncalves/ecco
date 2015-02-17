@@ -1,14 +1,16 @@
-package uk.ac.manchester.cs.diff.concept.changeset;
+package uk.ac.manchester.cs.diff.test;
+
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessGroup;
 
 public class DiffResult {
-	private WitnessPack lhs, rhs;
+	private WitnessGroup lhs, rhs;
 	
 	/**
 	 * Constructor
 	 * @param lhs	Ontology 1 witness pack
 	 * @param rhs	Ontology 2 witness pack
 	 */
-	public DiffResult(WitnessPack lhs, WitnessPack rhs) {
+	public DiffResult(WitnessGroup lhs, WitnessGroup rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -18,7 +20,7 @@ public class DiffResult {
 	 * Get the witness pack for ontology 1
 	 * @return Witness pack for ontology 1
 	 */
-	public WitnessPack getLHSWitnessPack() {
+	public WitnessGroup getLHSWitnessPack() {
 		return lhs;
 	}
 	
@@ -27,7 +29,7 @@ public class DiffResult {
 	 * Get the witness pack for ontology 2
 	 * @return Witness pack for ontology 2
 	 */
-	public WitnessPack getRHSWitnessPack() {
+	public WitnessGroup getRHSWitnessPack() {
 		return rhs;
 	}
 }

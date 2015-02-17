@@ -34,6 +34,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.concept.sigma.Signature;
 import uk.ac.manchester.cs.diff.utils.SilentChangeBroadcastStrategy;
 
 /**
@@ -49,11 +50,10 @@ public class GrammarDiff extends SubconceptDiff {
 	 * Constructor for grammar diff w.r.t. sigma := sig(O1) U sig(O2)
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
-		super(ont1, ont2, outputDir, verbose);
+	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, boolean verbose) {
+		super(ont1, ont2, verbose);
 		man = OWLManager.createOWLOntologyManager();
 		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
 	}
@@ -64,11 +64,10 @@ public class GrammarDiff extends SubconceptDiff {
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param sig	Signature (set of concept names)
-	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
-		super(ont1, ont2, sig, outputDir, verbose);
+	public GrammarDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, boolean verbose) {
+		super(ont1, ont2, sig, verbose);
 		man = OWLManager.createOWLOntologyManager();
 		man.setDefaultChangeBroadcastStrategy(new SilentChangeBroadcastStrategy());
 	}

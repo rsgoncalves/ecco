@@ -124,15 +124,15 @@ public class ConceptDiffRunner {
 		// get diff
 		ConceptDiff diff = null;
 		if(cdiff.equals("at")) {
-			diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+			diff = new SubconceptDiff(ont1, ont2, verbose);
 			((SubconceptDiff)diff).setAtomicConceptDiff(true);
 		}
 		else if(cdiff.equals("sub"))
-			diff = new SubconceptDiff(ont1, ont2, outputDir, verbose);
+			diff = new SubconceptDiff(ont1, ont2, verbose);
 		else if(cdiff.equals("gr"))
-			diff = new GrammarDiff(ont1, ont2, outputDir, verbose);
+			diff = new GrammarDiff(ont1, ont2, verbose);
 		else if(cdiff.equals("cvs"))
-			diff = new ContentCVSDiff(ont1, ont2, outputDir, verbose);
+			diff = new ContentCVSDiff(ont1, ont2, verbose);
 		
 		ConceptChangeSet cs = diff.getDiff();
 		XMLConceptDiffReport rep = diff.getXMLReport();

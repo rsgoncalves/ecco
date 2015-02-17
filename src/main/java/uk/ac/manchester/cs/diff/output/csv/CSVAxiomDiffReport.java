@@ -49,10 +49,17 @@ public class CSVAxiomDiffReport {
 		String report = null;	
 		if(changeSet instanceof StructuralChangeSet)
 			report = getStructuralChangeSetReport((StructuralChangeSet)changeSet);
-		else if(changeSet instanceof LogicalChangeSet)
-			report = getLogicalChangeSetReport((LogicalChangeSet)changeSet);
-		else if(changeSet instanceof CategorisedChangeSet)
-			report = getCategorisedChangeSetReport((CategorisedChangeSet)changeSet);
+		else if(changeSet instanceof LogicalChangeSet) {
+			LogicalChangeSet logicalChangeSet = (LogicalChangeSet)changeSet;
+			getStructuralChangeSetReport(logicalChangeSet.getStructuralChangeSet());
+			report = getLogicalChangeSetReport(logicalChangeSet);
+		}
+		else if(changeSet instanceof CategorisedChangeSet) {
+			CategorisedChangeSet categorisedChangeSet = (CategorisedChangeSet)changeSet;
+			getStructuralChangeSetReport(categorisedChangeSet.getStructuralChangeSet());
+			getLogicalChangeSetReport(categorisedChangeSet.getLogicalChangeSet());
+			report = getCategorisedChangeSetReport(categorisedChangeSet);
+		}
 		return report;
 	}
 	
@@ -70,7 +77,7 @@ public class CSVAxiomDiffReport {
 		row += stChangeSet.getAddedAxioms().size() + ",";
 		row += stChangeSet.getRemovedAxioms().size() + ",";
 		row += stChangeSet.getShared().size() + ",";
-		row += stChangeSet.getDiffTime();	
+		row += stChangeSet.getOperationTime();	
 		return header + "\n" + row;
 	}
 	
@@ -86,7 +93,7 @@ public class CSVAxiomDiffReport {
 		row += "," + logChangeSet.getIneffectualAdditionAxioms().size();
 		row += "," + logChangeSet.getEffectualRemovalAxioms().size();
 		row += "," + logChangeSet.getIneffectualRemovalAxioms().size();
-		row += "," + logChangeSet.getDiffTime();
+		row += "," + logChangeSet.getOperationTime();
 		return header + "\n" + row;
 	}
 	
@@ -143,7 +150,7 @@ public class CSVAxiomDiffReport {
 		row += "," + catChangeSet.getIneffectualRemovalJustificationFindingTime();
 		row += "," + catChangeSet.getIneffectualRemovalLaconicJustificationFindingTime();
 		
-		row += "," + catChangeSet.getDiffTime();
+		row += "," + catChangeSet.getOperationTime();
 		return header + "\n" + row;
 	}
 }

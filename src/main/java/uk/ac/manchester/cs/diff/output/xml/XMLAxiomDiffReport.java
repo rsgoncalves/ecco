@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -74,7 +75,7 @@ import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjec
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class XMLAxiomDiffReport implements XMLReport {
+public class XMLAxiomDiffReport implements XMLDiffReport {
 	protected final String uuid = UUID.randomUUID().toString();
 	protected SimpleShortFormProvider sf;
 	protected GenSymShortFormProvider gp;
@@ -125,10 +126,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	}
 	
 	
-	/**
-	 * Get the entity name based XML change report
-	 * @return XML change report document
-	 */
+	@Override
 	public Document getXMLDocumentUsingTermNames() {
 		doc = docBuilder.newDocument();
 		prepDocument(doc, "");
@@ -144,10 +142,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	}
 	
 	
-	/**
-	 * Get the rdfs:label based XML change report
-	 * @return XML change report document
-	 */
+	@Override
 	public Document getXMLDocumentUsingLabels() {	
 		labelDoc = docBuilder.newDocument();
 		prepDocument(labelDoc, "-lbl");
@@ -162,10 +157,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	}
 	
 	
-	/**
-	 * Get the auto generated symbols based XML change report
-	 * @return XML change report document
-	 */
+	@Override
 	public Document getXMLDocumentUsingGenSyms() {
 		genSymDoc = docBuilder.newDocument();
 		prepDocument(genSymDoc, "-gs");
@@ -669,29 +661,22 @@ public class XMLAxiomDiffReport implements XMLReport {
 	}
 	
 	
-	/**
-	 * Get XML document as a string
-	 * @param doc	XML document
-	 * @return String version of the XML document
-	 * @throws TransformerException Transformer exception
-	 */
-	public String getReportAsString(Document doc) throws TransformerException {
+	@Override
+	public String getReportAsString(Document doc) {
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		Transformer trans = transfac.newTransformer();
+		Transformer trans = null;
+		try { trans = transfac.newTransformer(); }
+		catch (TransformerConfigurationException e) { e.printStackTrace(); }
 		return getXMLAsString(trans, doc);
 	}
 	
 	
-	/**
-	 * Get XML document transformed into HTML as a string
-	 * @param doc	XML document
-	 * @param xsltPath	Path to the XSL Transformation file
-	 * @return String containing the HTML transformation
-	 * @throws TransformerException Transformer exception
-	 */
-	public String getReportAsHTML(Document doc, String xsltPath) throws TransformerException {
+	@Override
+	public String getReportAsHTML(Document doc, String xsltPath) {
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		Transformer trans = transfac.newTransformer(new StreamSource(xsltPath));
+		Transformer trans = null;
+		try { trans = transfac.newTransformer(new StreamSource(xsltPath)); }
+		catch (TransformerConfigurationException e) { e.printStackTrace(); }
 		return getXMLAsString(trans, doc);
 	}
 	
@@ -701,9 +686,8 @@ public class XMLAxiomDiffReport implements XMLReport {
 	 * @param trans	Transformer
 	 * @param doc	XML document
 	 * @return String result of transforming the XML document
-	 * @throws TransformerException	Transformer exception
 	 */
-	private String getXMLAsString(Transformer trans, Document doc) throws TransformerException {
+	private String getXMLAsString(Transformer trans, Document doc) {
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
 		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		trans.setParameter("encoding", "UTF-8");
@@ -713,7 +697,8 @@ public class XMLAxiomDiffReport implements XMLReport {
 		StreamResult result = new StreamResult(sw);
 		DOMSource source = new DOMSource(doc);
 
-		trans.transform(source, result);
+		try { trans.transform(source, result); }
+		catch (TransformerException e) { e.printStackTrace(); }
 		return sw.toString();
 	}
 	
@@ -795,10 +780,7 @@ public class XMLAxiomDiffReport implements XMLReport {
 	}
 	
 	
-	/**
-	 * Get the change set
-	 * @return Change set
-	 */
+	@Override
 	public AxiomChangeSet getChangeSet() {
 		return changeSet;
 	}

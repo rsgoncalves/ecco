@@ -48,9 +48,10 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.LHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.RHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessConcepts;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
+import uk.ac.manchester.cs.diff.concept.sigma.Signature;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessAxioms;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessConcepts;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessGroup;
 import uk.ac.manchester.cs.diff.output.csv.CSVConceptDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
@@ -68,7 +69,6 @@ public class SubconceptDiff implements ConceptDiff {
 	protected Map<OWLClass,Set<OWLClassExpression>> ont1_diffL, ont1_diffR, ont2_diffL, ont2_diffR;
 	protected Set<OWLAxiom> extraAxioms;
 	protected Set<OWLEntity> sigma;
-	protected String outputDir;
 	protected boolean verbose, atomicOnly = false;
 	protected ConceptChangeSet changeSet;
 	
@@ -76,13 +76,11 @@ public class SubconceptDiff implements ConceptDiff {
 	 * Constructor for subconcept diff w.r.t. Sigma = sig(O1) U sig(O2)
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
-	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, String outputDir, boolean verbose) {
+	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, boolean verbose) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
-		this.outputDir = outputDir;
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
 		sigma = new HashSet<OWLEntity>(new Signature().getUnionConceptNames(ont1, ont2));
@@ -97,14 +95,12 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param sig	Signature (set of concept names)
-	 * @param outputDir	Output directory
 	 * @param verbose	Verbose mode
 	 */
-	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, String outputDir, boolean verbose) {
+	public SubconceptDiff(OWLOntology ont1, OWLOntology ont2, Set<OWLEntity> sig, boolean verbose) {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.sigma = sig;
-		this.outputDir = outputDir;
 		this.verbose = verbose;
 		df = OWLManager.getOWLDataFactory();
 		initDataStructures();
@@ -237,11 +233,11 @@ public class SubconceptDiff implements ConceptDiff {
 		Set<OWLClass> botSub1 = ont1reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 		Set<OWLClass> botSub2 = ont2reasoner.getUnsatisfiableClasses().getEntitiesMinusBottom();
 		
-		WitnessPack lhs_spec = getWitnesses(ont1_diffL, ont1reasoner, true, topSuper1, botSub1);
-		WitnessPack lhs_gen = getWitnesses(ont1_diffR, ont1reasoner, false, topSuper1, botSub1);
+		WitnessGroup lhs_spec = getWitnesses(ont1_diffL, ont1reasoner, true, topSuper1, botSub1);
+		WitnessGroup lhs_gen = getWitnesses(ont1_diffR, ont1reasoner, false, topSuper1, botSub1);
 
-		WitnessPack rhs_spec = getWitnesses(ont2_diffL, ont2reasoner, true, topSuper2, botSub2);
-		WitnessPack rhs_gen = getWitnesses(ont2_diffR, ont2reasoner, false, topSuper2, botSub2);
+		WitnessGroup rhs_spec = getWitnesses(ont2_diffL, ont2reasoner, true, topSuper2, botSub2);
+		WitnessGroup rhs_gen = getWitnesses(ont2_diffR, ont2reasoner, false, topSuper2, botSub2);
 
 		long end = System.currentTimeMillis();
 		System.out.println("done (" + (end-start)/1000.0 + " secs)");
@@ -259,7 +255,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param rhs_gen	Pack of direct and indirect generalisation witnesses in ontology 2
 	 * @return Concept change set
 	 */
-	private ConceptChangeSet sortOutChangeSet(Set<OWLClass> affected, WitnessPack lhs_spec, WitnessPack lhs_gen, WitnessPack rhs_spec, WitnessPack rhs_gen) {
+	private ConceptChangeSet sortOutChangeSet(Set<OWLClass> affected, WitnessGroup lhs_spec, WitnessGroup lhs_gen, WitnessGroup rhs_spec, WitnessGroup rhs_gen) {
 		Set<RHSConceptChange> rhsConceptChanges = new HashSet<RHSConceptChange>();
 		Set<LHSConceptChange> lhsConceptChanges = new HashSet<LHSConceptChange>();
 		Set<ConceptChange> conceptChanges = new HashSet<ConceptChange>();
@@ -407,7 +403,7 @@ public class SubconceptDiff implements ConceptDiff {
 	 * @param unsat	Unsatisfiable classes
 	 * @return Pack of direct and indirect witnesses
 	 */
-	private WitnessPack getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner, boolean diffL,
+	private WitnessGroup getWitnesses(Map<OWLClass,Set<OWLClassExpression>> affectedConceptMap, OWLReasoner reasoner, boolean diffL,
 			Set<OWLClass> topSuper, Set<OWLClass> unsat) {
 		Map<OWLClassExpression,Set<OWLClass>> witMap = getWitnessMap(affectedConceptMap);
 		Map<OWLClass,Set<OWLAxiom>> directWits = new HashMap<OWLClass,Set<OWLAxiom>>();
@@ -464,7 +460,7 @@ public class SubconceptDiff implements ConceptDiff {
 				}
 			}
 		}
-		return new WitnessPack(directWits, indirectWits);
+		return new WitnessGroup(directWits, indirectWits);
 	}
 
 

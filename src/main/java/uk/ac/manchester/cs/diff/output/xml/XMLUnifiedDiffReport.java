@@ -27,12 +27,13 @@ import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.ac.manchester.cs.diff.alignment.AlignedDirectChangeSet;
-import uk.ac.manchester.cs.diff.alignment.AlignedIndirectChangeSet;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedChange;
 import uk.ac.manchester.cs.diff.axiom.change.CategorisedEffectualChange;
 import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
+import uk.ac.manchester.cs.diff.unity.changeset.AlignedChangeSet;
+import uk.ac.manchester.cs.diff.unity.changeset.AlignedDirectChangeSet;
+import uk.ac.manchester.cs.diff.unity.changeset.AlignedIndirectChangeSet;
 
 /**
  * @author Rafael S. Goncalves <br>
@@ -40,7 +41,7 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class XMLUnifiedReport extends XMLAxiomDiffReport {
+public class XMLUnifiedDiffReport extends XMLAxiomDiffReport {
 	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1DirSpec, ont1DirGen, ont2DirSpec, ont2DirGen;
 	private Map<OWLAxiom,Set<? extends ConceptChange>> ont1IndirSpec, ont1IndirGen, ont2IndirSpec, ont2IndirGen;
 	
@@ -49,13 +50,11 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param ont1	Ontology 1
 	 * @param ont2	Ontology 2
 	 * @param changeSet	Change set
-	 * @param directChanges	Aligned direct change set
-	 * @param indirectChanges	Aligned indirect change set
+	 * @param alignedChangeSet	Aligned change set
 	 */
-	public XMLUnifiedReport(OWLOntology ont1, OWLOntology ont2, AxiomChangeSet changeSet, 
-			AlignedDirectChangeSet directChanges, AlignedIndirectChangeSet indirectChanges) {
+	public XMLUnifiedDiffReport(OWLOntology ont1, OWLOntology ont2, AxiomChangeSet changeSet, AlignedChangeSet alignedChangeSet) {
 		super(ont1, ont2, changeSet);
-		assignMaps(directChanges, indirectChanges);
+		assignMaps(alignedChangeSet);
 	}
 	
 	
@@ -64,12 +63,14 @@ public class XMLUnifiedReport extends XMLAxiomDiffReport {
 	 * @param directChanges	Aligned direct change set
 	 * @param indirectChanges	Aligned indirect change set
 	 */
-	private void assignMaps(AlignedDirectChangeSet directChanges, AlignedIndirectChangeSet indirectChanges) {
+	private void assignMaps(AlignedChangeSet alignedChangeSet) {
+		AlignedDirectChangeSet directChanges = alignedChangeSet.getDirectChangeSet();
 		ont1DirSpec = directChanges.getOnt1SpecialisationsMap();
 		ont1DirGen = directChanges.getOnt1GeneralisationsMap();
 		ont2DirSpec = directChanges.getOnt2SpecialisationsMap();
 		ont2DirGen = directChanges.getOnt2GeneralisationsMap();
 		
+		AlignedIndirectChangeSet indirectChanges = alignedChangeSet.getIndirectChangeSet();
 		ont1IndirSpec = indirectChanges.getOnt1SpecialisationsMap();
 		ont1IndirGen = indirectChanges.getOnt1GeneralisationsMap();
 		ont2IndirSpec = indirectChanges.getOnt2SpecialisationsMap();

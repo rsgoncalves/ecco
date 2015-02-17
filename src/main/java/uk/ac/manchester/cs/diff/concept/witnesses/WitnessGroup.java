@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.concept.changeset;
+package uk.ac.manchester.cs.diff.concept.witnesses;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.OWLClass;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class WitnessPack {
+public class WitnessGroup {
 	private Map<OWLClass, Set<OWLAxiom>> direct, indirect;
 
 	/**
@@ -39,7 +39,7 @@ public class WitnessPack {
 	 * @param direct	Map of concepts to their direct change witnesses
 	 * @param indirect	Map of concepts to their indirect change witnesses
 	 */
-	public WitnessPack(Map<OWLClass, Set<OWLAxiom>> direct, Map<OWLClass, Set<OWLAxiom>> indirect) {
+	public WitnessGroup(Map<OWLClass, Set<OWLAxiom>> direct, Map<OWLClass, Set<OWLAxiom>> indirect) {
 		this.direct = direct;
 		this.indirect = indirect;
 	}

@@ -162,7 +162,7 @@ public class CategoricalDiff implements AxiomDiff {
 		if(!verbose) System.out.print("done (" + (end-start2)/1000.0 + " secs)");
 		diffTime = (end-start)/1000.0;
 		
-		categorisedChangeSet = new CategorisedChangeSet(effAdds, ineffAdds, effRems, ineffRems, sharedAxioms);
+		categorisedChangeSet = new CategorisedChangeSet(effAdds, ineffAdds, effRems, ineffRems, sharedAxioms, logicalChangeSet);
 		categorisedChangeSet.setDiffTime(diffTime);
 		categorisedChangeSet.setEffectualAdditionCategorisationTime(eaTime);
 		categorisedChangeSet.setEffectualRemovalCategorisationTime(erTime);
@@ -523,10 +523,7 @@ public class CategoricalDiff implements AxiomDiff {
 		
 		if(verbose) System.out.print("\tComputing justifications... ");
 		JustificationFinder just = new JustificationFinder(ont, nrJusts);
-		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> exps = null;
-		try { 
-			exps = just.getJustifications(axioms); 
-		} catch (OWLOntologyCreationException e) { e.printStackTrace(); }
+		Map<OWLAxiom,Set<Explanation<OWLAxiom>>> exps = just.getJustifications(axioms); 
 		
 		double justTime = (System.currentTimeMillis()-start)/1000.0;
 		if(verbose) System.out.println("done (" + justTime + " secs)");
@@ -879,10 +876,7 @@ public class CategoricalDiff implements AxiomDiff {
 	 */
 	public String getCSVChangeReport() {
 		if(categorisedChangeSet == null)  categorisedChangeSet = getDiff();
-		CSVAxiomDiffReport report = new CSVAxiomDiffReport();
-		report.getReport(structuralChangeSet);
-		report.getReport(logicalChangeSet);
-		return report.getReport(categorisedChangeSet);
+		return new CSVAxiomDiffReport().getReport(categorisedChangeSet);
 	}
 	
 	

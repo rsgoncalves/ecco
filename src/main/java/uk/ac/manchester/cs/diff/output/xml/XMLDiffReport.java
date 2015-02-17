@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.concept.changeset;
+package uk.ac.manchester.cs.diff.output.xml;
 
-import java.util.Set;
+import org.w3c.dom.Document;
 
-import org.semanticweb.owlapi.model.OWLClassExpression;
+import uk.ac.manchester.cs.diff.unity.changeset.ChangeSet;
 
 /**
  * @author Rafael S. Goncalves <br>
@@ -28,46 +28,50 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class WitnessConcepts {
-	private Set<OWLClassExpression> lhsWit, rhsWit;
-	
+public interface XMLDiffReport {
+
 	/**
-	 * Constructor
-	 * @param lhsWit	Ontology 1 (LHS) witnesses
-	 * @param rhsWit	Ontology 2 (RHS) witnesses
+	 * Get XML document using term names
+	 * @return Term name based XML document
 	 */
-	public WitnessConcepts(Set<OWLClassExpression> lhsWit, Set<OWLClassExpression> rhsWit) {
-		this.lhsWit = lhsWit;
-		this.rhsWit = rhsWit;
-	}
+	public Document getXMLDocumentUsingTermNames();
 	
 	
 	/**
-	 * Get ontology 1 (LHS) witnesses
-	 * @return Ontology 1 witnesses
+	 * Get XML document using term labels
+	 * @return Label based XML document
 	 */
-	public Set<OWLClassExpression> getLHSWitnesses() {
-		return lhsWit;
-	}
+	public Document getXMLDocumentUsingLabels();
 	
 	
 	/**
-	 * Get ontology 2 (RHS) witnesses
-	 * @return Ontology 2 witnesses
+	 * Get XML document using automatically generated symbols
+	 * @return Gensym based XML document
 	 */
-	public Set<OWLClassExpression> getRHSWitnesses() {
-		return rhsWit;
-	}
+	public Document getXMLDocumentUsingGenSyms();
 	
 	
 	/**
-	 * Check if there are any concept witnesses, either LHS or RHS
-	 * @return true if there any witnesses, false otherwise
+	 * Get a specified XML document as a string
+	 * @param doc	XML document
+	 * @return String containing the given XML document
 	 */
-	public boolean isEmpty() {
-		if(lhsWit.isEmpty() && rhsWit.isEmpty())
-			return true;
-		else
-			return false;
-	}
+	public String getReportAsString(Document doc);
+	
+	
+	/**
+	 * Get a transformation of the given document, according to the specified XSLT file, into HTML
+	 * @param doc	XML document
+	 * @param xsltPath	File path to XSLT file
+	 * @return String containing the HTML code resulting from the transformation
+	 */
+	public String getReportAsHTML(Document doc, String xsltPath);
+
+	
+	/**
+	 * Get the change set associated with this report
+	 * @return Change set
+	 */
+	public ChangeSet getChangeSet();
+	
 }

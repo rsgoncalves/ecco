@@ -20,7 +20,7 @@ package uk.ac.manchester.cs.diff.concept.change;
 
 import org.semanticweb.owlapi.model.OWLClass;
 
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessAxioms;
 
 /**
  * @author Rafael S. Goncalves <br>

@@ -27,6 +27,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -41,6 +42,8 @@ import org.w3c.dom.Element;
 
 import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
+import uk.ac.manchester.cs.diff.exception.NotImplementedException;
+import uk.ac.manchester.cs.diff.unity.changeset.ChangeSet;
 import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjectRenderer;
 
 /**
@@ -49,7 +52,7 @@ import uk.ac.manchester.cs.owl.owlapi.mansyntaxrenderer.ManchesterOWLSyntaxObjec
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class XMLConceptDiffReport {
+public class XMLConceptDiffReport implements XMLDiffReport {
 	private final String uuid = UUID.randomUUID().toString();
 	private ConceptChangeSet changeSet;
 	private DocumentBuilderFactory dbfac;
@@ -83,15 +86,12 @@ public class XMLConceptDiffReport {
 	}
 	
 	
-	/**
-	 * Get XML document as a string
-	 * @param doc	XML document
-	 * @return String version of the XML document
-	 * @throws TransformerException Transformer exception
-	 */
-	public String getReportAsString(Document doc) throws TransformerException {
+	@Override
+	public String getReportAsString(Document doc) {
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		Transformer trans = transfac.newTransformer();
+		Transformer trans = null;
+		try { trans = transfac.newTransformer(); }
+		catch (TransformerConfigurationException e) { e.printStackTrace(); }
 		return getXMLAsString(trans, doc);
 	}
 	
@@ -101,9 +101,8 @@ public class XMLConceptDiffReport {
 	 * @param trans	Transformer
 	 * @param doc	XML document
 	 * @return String result of transforming the XML document
-	 * @throws TransformerException	Transformer exception
 	 */
-	private String getXMLAsString(Transformer trans, Document doc) throws TransformerException {
+	private String getXMLAsString(Transformer trans, Document doc) {
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
 		// Create string from XML tree
@@ -111,7 +110,8 @@ public class XMLConceptDiffReport {
 		StreamResult result = new StreamResult(sw);
 		DOMSource source = new DOMSource(doc);
 		
-		trans.transform(source, result);
+		try { trans.transform(source, result); }
+		catch (TransformerException e) { e.printStackTrace(); }
 		return sw.toString();
 	}
 	
@@ -320,5 +320,39 @@ public class XMLConceptDiffReport {
 		str = str.replace("<", "");
 		str = str.replace(">", "");
 		return str;
+	}
+	
+	
+	@Override
+	public ChangeSet getChangeSet() {
+		return changeSet;
+	}
+
+
+	@Override
+	public Document getXMLDocumentUsingTermNames() {
+		// TODO not implemented
+		throw new NotImplementedException("not implemented".toUpperCase());
+	}
+
+
+	@Override
+	public Document getXMLDocumentUsingLabels() {
+		// TODO not implemented
+		throw new NotImplementedException("not implemented".toUpperCase());
+	}
+
+
+	@Override
+	public Document getXMLDocumentUsingGenSyms() {
+		// TODO not implemented
+		throw new NotImplementedException("not implemented".toUpperCase());
+	}
+
+
+	@Override
+	public String getReportAsHTML(Document doc, String xsltPath) {
+		// TODO not implemented
+		throw new NotImplementedException("not implemented".toUpperCase());
 	}
 }

@@ -50,6 +50,7 @@ public class CategorisedChangeSet implements AxiomChangeSet {
 	private Set<CategorisedIneffectualAddition> arewrite, aprewrite, aredundancy, areshuffle, aprosp, anew; 
 	private Set<CategorisedIneffectualRemoval> rrewrite, rprewrite, rredundancy, rreshuffle, rprosp, rnew;
 	private Set<OWLAxiom> sharedAxioms, effRems, ineffRems, effAdds, ineffAdds;
+	private LogicalChangeSet logicalChangeSet;
 	
 	/**
 	 * Constructor
@@ -58,14 +59,34 @@ public class CategorisedChangeSet implements AxiomChangeSet {
 	 * @param effectualRemovals	Set of categorised effectual removals
 	 * @param ineffectualRemovals	Set of categorised ineffectual removals
 	 * @param sharedAxioms	Set of shared (unchanged) axioms
+	 * @param logicalChangeSet	Logical change set
 	 */
 	public CategorisedChangeSet(Set<CategorisedEffectualAddition> effectualAdditions, Set<CategorisedIneffectualAddition> ineffectualAdditions, 
-			Set<CategorisedEffectualRemoval> effectualRemovals, Set<CategorisedIneffectualRemoval> ineffectualRemovals, Set<OWLAxiom> sharedAxioms) {
+			Set<CategorisedEffectualRemoval> effectualRemovals, Set<CategorisedIneffectualRemoval> ineffectualRemovals, Set<OWLAxiom> sharedAxioms, LogicalChangeSet logicalChangeSet) {
 		this.effectualAdditions = effectualAdditions;
 		this.ineffectualAdditions = ineffectualAdditions;
 		this.effectualRemovals = effectualRemovals;
 		this.ineffectualRemovals = ineffectualRemovals;
 		this.sharedAxioms = sharedAxioms;
+		this.logicalChangeSet = logicalChangeSet;
+	}
+	
+	
+	/**
+	 * Get the logical change set between ontologies 
+	 * @return Logical change set
+	 */
+	public LogicalChangeSet getLogicalChangeSet() {
+		return logicalChangeSet;
+	}
+	
+	
+	/**
+	 * Get the structural change set between ontologies 
+	 * @return Structural change set
+	 */
+	public StructuralChangeSet getStructuralChangeSet() {
+		return logicalChangeSet.getStructuralChangeSet();
 	}
 	
 	
@@ -640,7 +661,7 @@ public class CategorisedChangeSet implements AxiomChangeSet {
 	 * Get the CPU time (in seconds) spent in structural diff
 	 * @return CPU time (in seconds) spent in structural diff
 	 */
-	public double getDiffTime() {
+	public double getOperationTime() {
 		return diffTime;
 	}
 	
@@ -772,6 +793,18 @@ public class CategorisedChangeSet implements AxiomChangeSet {
 	public boolean isEmpty() {
 		if(effectualAdditions.isEmpty() && effectualRemovals.isEmpty() 
 				&& ineffectualAdditions.isEmpty() && ineffectualAdditions.isEmpty())
+			return true;
+		else
+			return false;
+	}
+	
+	
+	/**
+	 * Check if change set contains no meaningful changes, i.e., changes which are effectual
+	 * @return true if change set contains no effectual changes, false otherwise
+	 */
+	public boolean isFreeOfEffectualChanges() {
+		if(effectualAdditions.isEmpty() && effectualRemovals.isEmpty())
 			return true;
 		else
 			return false;

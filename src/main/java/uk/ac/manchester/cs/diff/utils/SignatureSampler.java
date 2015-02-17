@@ -33,7 +33,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import uk.ac.manchester.cs.diff.concept.Signature;
+import uk.ac.manchester.cs.diff.concept.sigma.Signature;
 
 /**
  * @author Rafael S. Goncalves <br>

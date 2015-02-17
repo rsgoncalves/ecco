@@ -6,7 +6,7 @@
 :: This script builds (if necessary) and runs ecco. The requirements
 :: to build and run ecco are Java 1.7 (or above) and Apache Maven.
 :: 
-:: Last updated: 17-Feb-15
+:: Last updated: 16-Feb-15
 :: 
 :: Build project if ecco.jar does not exist
 @echo off

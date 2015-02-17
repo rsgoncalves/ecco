@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.concept;
+package uk.ac.manchester.cs.diff.test;
 
 import java.io.File;
 import java.util.HashSet;
@@ -45,9 +45,8 @@ import uk.ac.manchester.cs.diff.concept.change.ConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.LHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.change.RHSConceptChange;
 import uk.ac.manchester.cs.diff.concept.changeset.ConceptChangeSet;
-import uk.ac.manchester.cs.diff.concept.changeset.DiffResult;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessAxioms;
-import uk.ac.manchester.cs.diff.concept.changeset.WitnessPack;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessAxioms;
+import uk.ac.manchester.cs.diff.concept.witnesses.WitnessGroup;
 import uk.ac.manchester.cs.diff.output.xml.XMLConceptDiffReport;
 
 /**
@@ -103,10 +102,10 @@ public class SubconceptDiffAlternative {
 		Set<RHSConceptChange> rhsConceptChanges = new HashSet<RHSConceptChange>();
 		Set<LHSConceptChange> lhsConceptChanges = new HashSet<LHSConceptChange>();
 		Set<ConceptChange> conceptChanges = new HashSet<ConceptChange>();
-		WitnessPack lhs_spec = diffLresults.getLHSWitnessPack();
-		WitnessPack lhs_gen = diffRresults.getLHSWitnessPack();
-		WitnessPack rhs_spec = diffLresults.getRHSWitnessPack();
-		WitnessPack rhs_gen = diffRresults.getRHSWitnessPack();
+		WitnessGroup lhs_spec = diffLresults.getLHSWitnessPack();
+		WitnessGroup lhs_gen = diffRresults.getLHSWitnessPack();
+		WitnessGroup rhs_spec = diffLresults.getRHSWitnessPack();
+		WitnessGroup rhs_gen = diffRresults.getRHSWitnessPack();
 
 		affected.addAll(diffL.getAffectedConcepts());
 		affected.addAll(diffR.getAffectedConcepts());

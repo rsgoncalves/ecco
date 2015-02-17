@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public License along with ecco.
  * If not, see http://www.gnu.org/licenses/.
  ******************************************************************************/
-package uk.ac.manchester.cs.diff.concept.change;
+package uk.ac.manchester.cs.diff.concept.witnesses;
 
-import org.semanticweb.owlapi.model.OWLClass;
+import java.util.Set;
 
-import uk.ac.manchester.cs.diff.concept.witnesses.WitnessAxioms;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 
 /**
  * @author Rafael S. Goncalves <br>
@@ -28,15 +28,46 @@ import uk.ac.manchester.cs.diff.concept.witnesses.WitnessAxioms;
  * School of Computer Science <br>
  * University of Manchester <br>
  */
-public class RHSConceptChange extends ConceptChange {
-
+public class WitnessConcepts {
+	private Set<OWLClassExpression> lhsWit, rhsWit;
+	
 	/**
 	 * Constructor
-	 * @param c	Concept name
-	 * @param specWits	Witnesses for a specialisation
-	 * @param genWits	Witnesses for a generalisation
+	 * @param lhsWit	Ontology 1 (LHS) witnesses
+	 * @param rhsWit	Ontology 2 (RHS) witnesses
 	 */
-	public RHSConceptChange(OWLClass c, WitnessAxioms specWits, WitnessAxioms genWits) {
-		super(c, specWits, genWits);
+	public WitnessConcepts(Set<OWLClassExpression> lhsWit, Set<OWLClassExpression> rhsWit) {
+		this.lhsWit = lhsWit;
+		this.rhsWit = rhsWit;
+	}
+	
+	
+	/**
+	 * Get ontology 1 (LHS) witnesses
+	 * @return Ontology 1 witnesses
+	 */
+	public Set<OWLClassExpression> getLHSWitnesses() {
+		return lhsWit;
+	}
+	
+	
+	/**
+	 * Get ontology 2 (RHS) witnesses
+	 * @return Ontology 2 witnesses
+	 */
+	public Set<OWLClassExpression> getRHSWitnesses() {
+		return rhsWit;
+	}
+	
+	
+	/**
+	 * Check if there are any concept witnesses, either LHS or RHS
+	 * @return true if there any witnesses, false otherwise
+	 */
+	public boolean isEmpty() {
+		if(lhsWit.isEmpty() && rhsWit.isEmpty())
+			return true;
+		else
+			return false;
 	}
 }
