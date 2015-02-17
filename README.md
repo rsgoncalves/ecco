@@ -57,7 +57,7 @@ In order to deploy *ecco* on a set of versions, the script `eccov.sh` can be use
 
 deployment
 --------------------
-*ecco* is compatible with **Java 1.7 (or above)**, and requires [Apache Maven](http://maven.apache.org/) to be built from sources.
+*ecco* is compatible with **Java 1.7 (or above)**, and requires [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads) and [Apache Maven](http://maven.apache.org/) installed in order to be built from sources.
 
 The tool relies directly on the following projects:
 
@@ -66,9 +66,9 @@ The tool relies directly on the following projects:
  * [JFact](http://jfact.sourceforge.net/) reasoner (v1.2.2)
  * [Guava](https://github.com/google/guava) (v14.0.1)
  * [Saxon-HE](http://saxon.sourceforge.net/) XSLT and XQuery processor (v9.6.0)
- * [apache-commons-io](http://commons.apache.org/proper/commons-io/) (v2.4)
+ * [Apache commons-io](http://commons.apache.org/proper/commons-io/) (v2.4)
  
 
 future plans
 --------------------
-* An alternative, term-centric view of the differences
+* An alternative, term-centric view of changes between ontologies
