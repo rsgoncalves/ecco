@@ -50,6 +50,7 @@ import uk.ac.manchester.cs.diff.unity.changeset.AlignedIndirectChangeSet;
  */
 public class Ecco {
 	public static final String outputDir = "ecco-output" + File.separator;
+	private boolean inputChecked;
 	private OWLOntology ont1, ont2;
 	private EccoSettings settings;
 	private AxiomChangeSet axiomChangeSet; 
@@ -128,6 +129,7 @@ public class Ecco {
 	 * @return true if ontologies are structurally equivalent, false otherwise
 	 */
 	public boolean areStructurallyEquivalent() {
+		if(!inputChecked) verifyInput();
 		if(axiomChangeSet == null) axiomChangeSet = getStructuralAxiomChanges();
 		return axiomChangeSet.isEmpty();
 	}
@@ -138,6 +140,7 @@ public class Ecco {
 	 * @return true if ontologies are logically equivalent, false otherwise
 	 */
 	public boolean areLogicallyEquivalent() {
+		if(!inputChecked) verifyInput();
 		if(axiomChangeSet == null) 
 			axiomChangeSet = getLogicalAxiomChanges();
 		else if(axiomChangeSet instanceof StructuralChangeSet) 
@@ -153,6 +156,7 @@ public class Ecco {
 	 * @return true if the meaning of one or more concepts was changed, false otherwise
 	 */
 	public boolean foundChangesToConcepts() {
+		if(!inputChecked) verifyInput();
 		if(conceptChangeSet == null) conceptChangeSet = getConceptChanges();
 		return conceptChangeSet.isEmpty();
 	}
@@ -197,6 +201,7 @@ public class Ecco {
 	 */
 	public AlignedChangeSet getAlignedChanges(ConceptChangeSet conceptChanges, CategorisedChangeSet axiomChanges) {
 		if(alignedChangeSet != null) return alignedChangeSet;
+		if(!inputChecked) verifyInput();
 		
 		long t2 = System.currentTimeMillis();
 		System.out.println("Aligning concept and axiom changes... ");
@@ -220,6 +225,7 @@ public class Ecco {
 	 * @return Concept change set
 	 */
 	public ConceptChangeSet getConceptChanges() {
+		if(!inputChecked) verifyInput();
 		switch(settings.getConceptDiffType()) {
 		case ATOMIC:
 			return getAtomicChanges();
@@ -240,6 +246,7 @@ public class Ecco {
 	 * @return Concept change set
 	 */
 	private ConceptChangeSet getAtomicChanges() {
+		if(!inputChecked) verifyInput();
 		SubconceptDiff atomic_diff = new SubconceptDiff(ont1, ont2, settings.isVerbose());
 		atomic_diff.setAtomicConceptDiff(true);
 		return atomic_diff.getDiff();
@@ -252,6 +259,7 @@ public class Ecco {
 	 * @return Concept change set
 	 */
 	private ConceptChangeSet getSubconceptChanges() {
+		if(!inputChecked) verifyInput();
 		SubconceptDiff subconcept_diff = new SubconceptDiff(ont1, ont2, settings.isVerbose());
 		return subconcept_diff.getDiff();
 	}
@@ -265,6 +273,7 @@ public class Ecco {
 	 * @return Concept change set
 	 */
 	private ConceptChangeSet getGrammarBasedChanges() {
+		if(!inputChecked) verifyInput();
 		GrammarDiff grammar_diff = new GrammarDiff(ont1, ont2, settings.isVerbose());
 		return grammar_diff.getDiff();
 	}
@@ -276,6 +285,7 @@ public class Ecco {
 	 * @return Concept change set
 	 */
 	private ConceptChangeSet getContentCvsBasedChanges() {
+		if(!inputChecked) verifyInput();
 		ContentCVSDiff contentcvs_diff = new ContentCVSDiff(ont1, ont2, settings.isVerbose());
 		return contentcvs_diff.getDiff();
 	}
@@ -286,6 +296,7 @@ public class Ecco {
 	 * @return Axiom change set
 	 */
 	public AxiomChangeSet getAxiomChanges() {
+		if(!inputChecked) verifyInput();
 		switch(settings.getAxiomDiffType()) {
 		case STRUCTURAL: 
 			return getStructuralAxiomChanges();
@@ -307,6 +318,7 @@ public class Ecco {
 	public StructuralChangeSet getStructuralAxiomChanges() {
 		if(axiomChangeSet != null && axiomChangeSet instanceof StructuralChangeSet) 
 			return (StructuralChangeSet)axiomChangeSet;
+		if(!inputChecked) verifyInput();
 		StructuralDiff structural_diff = new StructuralDiff(ont1, ont2, settings.isVerbose());
 		return structural_diff.getDiff();
 	}
@@ -320,6 +332,7 @@ public class Ecco {
 	public LogicalChangeSet getLogicalAxiomChanges() {
 		if(axiomChangeSet != null && axiomChangeSet instanceof LogicalChangeSet) 
 			return (LogicalChangeSet)axiomChangeSet;
+		if(!inputChecked) verifyInput();
 		LogicalDiffConcurrent logical_diff = new LogicalDiffConcurrent(ont1, ont2, settings.isVerbose());
 		return logical_diff.getDiff();
 	}
@@ -332,6 +345,7 @@ public class Ecco {
 	public CategorisedChangeSet getCategorisedAxiomChanges() {
 		if(axiomChangeSet != null && axiomChangeSet instanceof CategorisedChangeSet) 
 			return (CategorisedChangeSet)axiomChangeSet;
+		if(!inputChecked) verifyInput();
 		CategoricalDiff categorical_diff = new CategoricalDiff(ont1, ont2, settings.getNumberOfJustifications(), settings.isVerbose());
 		return categorical_diff.getDiff();
 	}
@@ -353,20 +367,20 @@ public class Ecco {
 	 * unary disjointness axioms, since dependent tools do not like these
 	 */
 	private void verifyInput() {
-		removeUnaryDisjointnessAxioms(ont1);
-		removeUnaryDisjointnessAxioms(ont2);
+		removeUnaryDisjointnessAxioms(ont1); removeUnaryDisjointnessAxioms(ont2);
 		if(settings.isIgnoringAbox()) {
-			removeAbox(ont1);
-			removeAbox(ont2);
+			removeAbox(ont1); removeAbox(ont2);
 		}
 		if(!settings.isProcessingImports()) {
-			removeImports(ont1);
-			removeImports(ont2);
+			removeImports(ont1); removeImports(ont2);
+		}
+		else {
+			inflateOntologyWithImports(ont1); inflateOntologyWithImports(ont2);
 		}
 		if(settings.isNormalizingURIs()) {
-			normalizeEntityURIs(ont1);
-			normalizeEntityURIs(ont2);
+			normalizeEntityURIs(ont1); normalizeEntityURIs(ont2);
 		}
+		inputChecked = true;
 	}
 	
 	
@@ -377,19 +391,19 @@ public class Ecco {
 	 * @param ont	OWL ontology
 	 */
 	private void normalizeEntityURIs(OWLOntology ont) {
-		System.out.print("  Normalizing entity URIs... ");
+		if(settings.isVerbose()) System.out.print("  Normalizing entity URIs... ");
 		Set<OWLOntology> ontSet = new HashSet<OWLOntology>(); ontSet.add(ont);
 
 		OWLEntityURIConverter converter = new OWLEntityURIConverter(ont.getOWLOntologyManager(), ontSet, new OWLEntityURIConverterStrategy() {
 			@Override
-			public IRI getConvertedIRI(OWLEntity arg0) {
-				String entityName = getShortForm(arg0.getIRI());
+			public IRI getConvertedIRI(OWLEntity e) {
+				String entityName = getShortForm(e.getIRI());
 				IRI iri = IRI.create("http://owl.cs.manchester.ac.uk/ecco#" + entityName);
 				return iri;
 			}
 		});
 		ont.getOWLOntologyManager().applyChanges(converter.getChanges());
-		System.out.println("done");
+		if(settings.isVerbose()) System.out.println("done");
 	}
 	
 	
@@ -438,5 +452,16 @@ public class Ecco {
 	private void removeImports(OWLOntology ont) {
 		for(OWLImportsDeclaration importDecl : ont.getImportsDeclarations())
 			ont.getOWLOntologyManager().applyChange(new RemoveImport(ont.getOWLOntologyManager().getImportedOntology(importDecl), importDecl));
+	}
+	
+	
+	/**
+	 * Add all axioms of imported ontologies to the parent ontology, and remove the imports pointers
+	 * @param ont	OWL ontology
+	 */
+	private void inflateOntologyWithImports(OWLOntology ont) {
+		for(OWLOntology imported : ont.getImports())
+			ont.getOWLOntologyManager().applyChanges(ont.getOWLOntologyManager().addAxioms(ont, imported.getAxioms()));
+		removeImports(ont);
 	}
 }
