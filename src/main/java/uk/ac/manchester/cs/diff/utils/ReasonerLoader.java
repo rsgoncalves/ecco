@@ -65,7 +65,7 @@ public class ReasonerLoader {
 	 * @param useProgressMonitor	true if a progress monitor should be used, false otherwise
 	 * @return Reasoner instance
 	 */
-	public OWLReasoner createHermitReasoner(boolean useProgressMonitor) {
+	public OWLReasoner createReasoner(boolean useProgressMonitor) {
 		Configuration config = new Configuration();
 		config.freshEntityPolicy = FreshEntityPolicy.ALLOW;
 		
@@ -110,7 +110,7 @@ public class ReasonerLoader {
 	 * @param useProgressMonitor	true if a progress monitor should be used, false otherwise
 	 * @return Reasoner instance
 	 */
-	public OWLReasoner createReasoner(boolean useProgressMonitor) {
+	public OWLReasoner createHermitReasoner(boolean useProgressMonitor) {
 		SimpleConfiguration config;
 		if(useProgressMonitor)
 			config = new SimpleConfiguration(new ConsoleProgressMonitor(), FreshEntityPolicy.ALLOW, Long.MAX_VALUE, IndividualNodeSetPolicy.BY_NAME);

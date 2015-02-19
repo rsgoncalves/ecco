@@ -132,7 +132,7 @@ public class CategoricalDiff implements AxiomDiff {
 	@SuppressWarnings("deprecation")
 	public CategorisedChangeSet getDiff() {
 		if(categorisedChangeSet != null) return categorisedChangeSet;
-		System.out.println("\nComputing axiom diff...");
+		if(verbose) System.out.println("\nComputing axiom diff...");
 		long start = System.currentTimeMillis();
 		ont1reasoner = new ReasonerLoader(ont1, false).createReasoner(false);
 		ont2reasoner = new ReasonerLoader(ont2, false).createReasoner(false);
@@ -151,7 +151,7 @@ public class CategoricalDiff implements AxiomDiff {
 		Set<OWLAxiom> ia = logicalChangeSet.getIneffectualAdditionAxioms();
 		Set<OWLAxiom> ir = logicalChangeSet.getIneffectualRemovalAxioms();
 		
-		System.out.print("   Computing change categorisation... ");
+		if(verbose) System.out.print("   Computing change categorisation... ");
 		long start2 = System.currentTimeMillis();
 		Set<CategorisedEffectualAddition> effAdds = categoriseEffectualAdditions(ea, er, ir);
 		Set<CategorisedEffectualRemoval> effRems = categoriseEffectualRemovals(er, ea, ia);
@@ -159,7 +159,7 @@ public class CategoricalDiff implements AxiomDiff {
 		Set<CategorisedIneffectualRemoval> ineffRems = categoriseIneffectualRemovals(ir, ea, ia);
 		
 		long end = System.currentTimeMillis();
-		if(!verbose) System.out.print("done (" + (end-start2)/1000.0 + " secs)");
+		if(verbose) System.out.print("done (" + (end-start2)/1000.0 + " secs)");
 		diffTime = (end-start)/1000.0;
 		
 		categorisedChangeSet = new CategorisedChangeSet(effAdds, ineffAdds, effRems, ineffRems, sharedAxioms, logicalChangeSet);
@@ -171,7 +171,7 @@ public class CategoricalDiff implements AxiomDiff {
 		categorisedChangeSet.setIneffectualAdditionJustificationFindingTime(iaJustTime);
 		categorisedChangeSet.setIneffectualRemovalJustificationFindingTime(irJustTime);
 		
-		System.out.println("\nfinished axiom diff (" + diffTime + " seconds)");
+		if(verbose) System.out.println("\nfinished axiom diff (" + diffTime + " seconds)");
 		if(verbose) printDiff();
 		return categorisedChangeSet;
 	}

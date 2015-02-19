@@ -140,7 +140,7 @@ public class EccoRunner {
 		System.out.println("	[ONTOLOGY]	An input ontology file path or URL");
 		System.out.println();
 		System.out.println("	[OPTIONS]");
-		System.out.println("	-o		absolute output directory [default: ECCO-FOLDER/out ]");
+		System.out.println("	-o		absolute output directory [default: ECCO-JAR-FOLDER" + File.separator + Ecco.outputDir + "]");
 		System.out.println("	-t		transform resulting XML report into HTML");
 		System.out.println("	-c		compute one of: [ at | sub | gr | cvs ] concept diff");
 		System.out.println("	-r		analyze root ontologies only, i.e., ignore imports");

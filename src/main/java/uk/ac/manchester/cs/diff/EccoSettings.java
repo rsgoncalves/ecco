@@ -23,7 +23,7 @@ public class EccoSettings {
 		axiomDiffType = AxiomDiffType.CATEGORICAL;
 		conceptDiffType = ConceptDiffType.ATOMIC;
 		transformer = Transformer.UNITY;
-		outputDir = "ecco-output" + File.separator;
+		outputDir = Ecco.outputDir;
 		nrJusts = 10;
 		saveDocuments = true;
 		ignoreAbox = false;
@@ -60,11 +60,11 @@ public class EccoSettings {
 	 * @param type	String representing concept diff type
 	 */
 	public void setConceptDiffType(String type) {
-		ConceptDiffType[] diffTypes = ConceptDiffType.values();
-		for(int i = 0; i < diffTypes.length; i++) {
-			ConceptDiffType diffType = diffTypes[i];
-			if(diffType.name().equalsIgnoreCase(type))
-				conceptDiffType = diffType;
+		switch(type) {
+		case "at":	conceptDiffType = ConceptDiffType.ATOMIC;
+		case "sub":	conceptDiffType = ConceptDiffType.SUBCONCEPT;
+		case "gr":	conceptDiffType = ConceptDiffType.GRAMMAR;
+		case "cvs":	conceptDiffType = ConceptDiffType.CONTENTCVS;
 		}
 	}
 	

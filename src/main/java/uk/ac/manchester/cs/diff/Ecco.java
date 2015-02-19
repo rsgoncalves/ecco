@@ -1,5 +1,6 @@
 package uk.ac.manchester.cs.diff;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.owl.explanation.api.Explanation;
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -15,16 +15,14 @@ import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLImportsDeclaration;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.RemoveAxiom;
 import org.semanticweb.owlapi.model.RemoveImport;
 import org.semanticweb.owlapi.util.OWLEntityURIConverter;
 import org.semanticweb.owlapi.util.OWLEntityURIConverterStrategy;
-import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 
 import uk.ac.manchester.cs.diff.EccoSettings.Transformer;
 import uk.ac.manchester.cs.diff.axiom.CategoricalDiff;
-import uk.ac.manchester.cs.diff.axiom.LogicalDiff;
+import uk.ac.manchester.cs.diff.axiom.LogicalDiffConcurrent;
 import uk.ac.manchester.cs.diff.axiom.StructuralDiff;
 import uk.ac.manchester.cs.diff.axiom.changeset.AxiomChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.CategorisedChangeSet;
@@ -51,7 +49,7 @@ import uk.ac.manchester.cs.diff.unity.changeset.AlignedIndirectChangeSet;
  * School of Medicine, Stanford University <br>
  */
 public class Ecco {
-	private OWLOntologyManager man;
+	public static final String outputDir = "ecco-output" + File.separator;
 	private OWLOntology ont1, ont2;
 	private EccoSettings settings;
 	private AxiomChangeSet axiomChangeSet; 
@@ -78,7 +76,6 @@ public class Ecco {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		this.settings = settings;
-		man = OWLManager.createOWLOntologyManager();
 	}
 
 	
@@ -323,7 +320,7 @@ public class Ecco {
 	public LogicalChangeSet getLogicalAxiomChanges() {
 		if(axiomChangeSet != null && axiomChangeSet instanceof LogicalChangeSet) 
 			return (LogicalChangeSet)axiomChangeSet;
-		LogicalDiff logical_diff = new LogicalDiff(ont1, ont2, settings.isVerbose());
+		LogicalDiffConcurrent logical_diff = new LogicalDiffConcurrent(ont1, ont2, settings.isVerbose());
 		return logical_diff.getDiff();
 	}
 	
@@ -366,33 +363,43 @@ public class Ecco {
 			removeImports(ont1);
 			removeImports(ont2);
 		}
-		if(settings.isNormalizingURIs())
-			normalizeEntityURIs(ont1, ont2);
+		if(settings.isNormalizingURIs()) {
+			normalizeEntityURIs(ont1);
+			normalizeEntityURIs(ont2);
+		}
 	}
 	
 	
 	/**
-	 * Normalize entity URIs, e.g.: if there exists an entity "A" in sig(O1) and sig(O2) with different URIs
-	 * the diff will report changes involving "A" -- not desirable
-	 * @param ont1	Ontology 1
-	 * @param ont2	Ontology 2
+	 * Normalize entity URIs, e.g.: if there exists an entity named "A" in sig(O1) and sig(O2) but in different namespaces,
+	 * the diff would normally report changes involving "A", which is not always desirable. This method will rename all entities
+	 * in the given ontology to a common namespace
+	 * @param ont	OWL ontology
 	 */
-	private void normalizeEntityURIs(OWLOntology ont1, OWLOntology ont2) {
+	private void normalizeEntityURIs(OWLOntology ont) {
 		System.out.print("  Normalizing entity URIs... ");
-		final SimpleShortFormProvider sf = new SimpleShortFormProvider();
-		Set<OWLOntology> ontSet = new HashSet<OWLOntology>();
-		ontSet.add(ont1); ontSet.add(ont2);
+		Set<OWLOntology> ontSet = new HashSet<OWLOntology>(); ontSet.add(ont);
 
-		OWLEntityURIConverter converter = new OWLEntityURIConverter(man, ontSet, new OWLEntityURIConverterStrategy() {
+		OWLEntityURIConverter converter = new OWLEntityURIConverter(ont.getOWLOntologyManager(), ontSet, new OWLEntityURIConverterStrategy() {
 			@Override
 			public IRI getConvertedIRI(OWLEntity arg0) {
-				String entityName = sf.getShortForm(arg0);
+				String entityName = getShortForm(arg0.getIRI());
 				IRI iri = IRI.create("http://owl.cs.manchester.ac.uk/ecco#" + entityName);
 				return iri;
 			}
 		});
-		man.applyChanges(converter.getChanges());
+		ont.getOWLOntologyManager().applyChanges(converter.getChanges());
 		System.out.println("done");
+	}
+	
+	
+	/**
+	 * Get the short form an IRI
+	 * @param iri	IRI
+	 * @return Short form of the IRI, i.e., only entity name
+	 */
+	private String getShortForm(IRI iri) {
+		return iri.toString().substring(iri.toString().lastIndexOf("#")+1);
 	}
 
 

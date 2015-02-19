@@ -1,7 +1,7 @@
 *ecco*
 ====
 
-#### a Java-based diff tool for OWL ontologies ####
+#### a diff tool for OWL 2 ontologies ####
 
 Built using the [OWL API](http://owlapi.sourceforge.net/). For demo purposes there is a Web-based front-end [here](http://ecco-rsgtools.rhcloud.com/).
 
@@ -38,11 +38,11 @@ usage
 * `[ONTOLOGY]` an input ontology file path or URL
 
 * `[OPTIONS]`
-    * `-o`    Output directory for generated files
+    * `-o`    Output directory for generated files  [ default: {ecco.jar.dir}/ecco-output ]
     * `-t`    Transform XML diff report into HTML
-    * `-c`    Compute one of: [ at | sub | gr | cvs ] concept diff
+    * `-c`    Compute one of: [ at | sub | gr | cvs ] concept diff  [ default: atomic ]
     * `-r`    Analyse root ontologies only, i.e. ignore imports
-    * `-n`    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace
+    * `-n`    Normalize entity URIs, i.e. if two ontologies have the same entity names in a different namespace, this trigger establishes a common namespace (comparison of entity names is by syntactic string equality) 
     * `-i`		Ignore Abox axioms
     * `-j`		Maximum number of justifications computed per ineffectual change
     * `-v`		Verbose mode

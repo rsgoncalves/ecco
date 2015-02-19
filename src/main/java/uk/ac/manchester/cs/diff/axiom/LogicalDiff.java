@@ -28,6 +28,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import uk.ac.manchester.cs.diff.axiom.changeset.LogicalChangeSet;
 import uk.ac.manchester.cs.diff.axiom.changeset.StructuralChangeSet;
+import uk.ac.manchester.cs.diff.exception.InconsistentOntologyException;
 import uk.ac.manchester.cs.diff.output.csv.CSVAxiomDiffReport;
 import uk.ac.manchester.cs.diff.output.xml.XMLAxiomDiffReport;
 import uk.ac.manchester.cs.diff.utils.ReasonerLoader;
@@ -96,19 +97,15 @@ public class LogicalDiff implements AxiomDiff {
 		if(logicalChangeSet != null) return logicalChangeSet;
 		if(structChangeSet == null) structChangeSet = new StructuralDiff(ont1, ont2, verbose).getDiff();
 		
-		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1).createReasoner(true);
-		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2).createReasoner(true);
+		if(ont1reasoner == null) ont1reasoner = new ReasonerLoader(ont1).createReasoner(false);
+		if(ont2reasoner == null) ont2reasoner = new ReasonerLoader(ont2).createReasoner(false);
 		
-		if(!ont1reasoner.isConsistent()) {
-			System.err.println("\n! Ontology 1 is inconsistent. Cannot perform logical diff on inconsistent input.");
-			return null;
-		}
-		else if(!ont2reasoner.isConsistent()) {
-			System.err.println("\n! Ontology 2 is inconsistent. Cannot perform logical diff on inconsistent input.");
-			return null;
-		}
+		if(!ont1reasoner.isConsistent())
+			throw new InconsistentOntologyException("Ontology 1 is inconsistent. Cannot perform logical diff on inconsistent input.");
+		if(!ont2reasoner.isConsistent())
+			throw new InconsistentOntologyException("Ontology 2 is inconsistent. Cannot perform logical diff on inconsistent input.");
 		
-		System.out.print("   Verifying axiom impact... ");
+		if(verbose) System.out.print("   Verifying axiom impact... ");
 		long start = System.currentTimeMillis();
 		
 		Set<OWLAxiom> ineffectualAdditions = getIneffectualChanges(structChangeSet.getAddedAxioms(), ont1reasoner);
@@ -125,7 +122,7 @@ public class LogicalDiff implements AxiomDiff {
 		logicalChangeSet = new LogicalChangeSet(effectualAdditions, ineffectualAdditions, effectualRemovals, ineffectualRemovals, structChangeSet);
 		logicalChangeSet.setDiffTime(diffTime);
 
-		System.out.println("done (" + diffTime + " secs)");
+		if(verbose) System.out.println("done (" + diffTime + " secs)");
 		if(verbose) printDiff();
 		return logicalChangeSet;
 	}
