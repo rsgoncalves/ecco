@@ -9,7 +9,7 @@
 # Last updated: 16-Feb-15
 # 
 # Build project if ecco.jar does not exist
-if [ ! -f target/ecco.jar ];
+if [ ! -f target/ecco-2.7.0.jar ];
 then
 	if [ -d target ]
 	then
@@ -29,4 +29,4 @@ maxmem="8G"
 #
 # Run ecco with the specified arguments
 echo "starting ecco..."
-java -Xmx"$maxmem" -DentityExpansionLimit=100000000 -jar target/ecco.jar $*
+java -Xmx"$maxmem" -DentityExpansionLimit=100000000 -jar target/ecco-2.7.0.jar $*
